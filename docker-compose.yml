@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: adventurer_route_db
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: adventurer
+      POSTGRES_PASSWORD: adventurer
+      POSTGRES_DB: adventurer_route
+    volumes:
+      - adventurer_route_data:/var/lib/postgresql/data
+
+volumes:
+  adventurer_route_data:

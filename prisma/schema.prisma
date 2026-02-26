@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model User {
+  id    String  @id @default(cuid())
+  name  String?
+  email String? @unique
+
+  level   Int @default(1)
+  xp      Int @default(0)
+  life    Int @default(10)
+  maxLife Int @default(10)
+  gold    Int @default(0)
+
+  streakCount        Int       @default(0)
+  lastCompletionDate DateTime?
+
+  avatarUrl String?
+
+  tasks Task[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id         String     @id @default(cuid())
+  title      String
+  difficulty Difficulty @default(EASY)
+
+  dueDate     DateTime?
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
