@@ -3,12 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { getDevUser } from "@/lib/devUser";
 import { Difficulty } from "@prisma/client";
 
-type Params = { params: { id: string } };
+type Ctx = { params: Promise<{ id: string }> };
 
-export async function PATCH(req: Request, { params }: Params) {
+export async function PATCH(req: Request, { params }: Ctx) {
     try {
         const user = await getDevUser();
-        const id = params.id;
+
+        const { id } = await params;
 
         const body = (await req.json()) as Partial<{
             title: string;
@@ -34,9 +35,14 @@ export async function PATCH(req: Request, { params }: Params) {
         }
 
         const updated = await prisma.task.update({
-            where: { id, userId: user.id },
+            where: { id },
             data,
         });
+
+
+        if (updated.userId !== user.id) {
+            return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
+        }
 
         return NextResponse.json(updated);
     } catch (err) {
@@ -45,14 +51,16 @@ export async function PATCH(req: Request, { params }: Params) {
     }
 }
 
-export async function DELETE(_: Request, { params }: Params) {
+export async function DELETE(_: Request, { params }: Ctx) {
     try {
         const user = await getDevUser();
-        const id = params.id;
+        const { id } = await params;
 
-        await prisma.task.delete({
-            where: { id, userId: user.id },
-        });
+        // ✅ primeiro garante que é do usuário
+        const task = await prisma.task.findFirst({ where: { id, userId: user.id } });
+        if (!task) return NextResponse.json({ error: "Task não encontrada" }, { status: 404 });
+
+        await prisma.task.delete({ where: { id } });
 
         return NextResponse.json({ ok: true });
     } catch (err) {
