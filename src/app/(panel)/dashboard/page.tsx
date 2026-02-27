@@ -10,8 +10,12 @@ type User = {
     gold: number;
     streakCount: number;
     avatarUrl?: string | null;
-};
 
+    penalties?: {
+        overdue?: { appliedTasks: number; totalDamage: number };
+        inactivity?: { applied: boolean; missedDays: number; damage: number };
+    };
+};
 type Task = {
     id: string;
     title: string;
@@ -88,6 +92,25 @@ export default function DashboardPage() {
                     <p>Streak: {user.streakCount}</p>
                 </div>
             </section>
+            {(user.penalties?.overdue?.totalDamage ?? 0) > 0 && (
+                <section className="rounded-2xl border p-4 bg-red-50">
+                    <h3 className="font-semibold text-red-700">Penalidade: Tasks vencidas</h3>
+                    <p className="mt-1 text-sm text-red-700">
+                        Você perdeu <b>{user.penalties?.overdue?.totalDamage}</b> de vida por{" "}
+                        <b>{user.penalties?.overdue?.appliedTasks}</b> task(s) vencida(s).
+                    </p>
+                </section>
+            )}
+
+            {user.penalties?.inactivity?.applied && (
+                <section className="rounded-2xl border p-4 bg-orange-50">
+                    <h3 className="font-semibold text-orange-700">Penalidade: Inatividade</h3>
+                    <p className="mt-1 text-sm text-orange-700">
+                        Você ficou <b>{user.penalties?.inactivity?.missedDays}</b> dia(s) sem concluir tasks e perdeu{" "}
+                        <b>{user.penalties?.inactivity?.damage}</b> de vida.
+                    </p>
+                </section>
+            )}
 
             <section className="rounded-2xl border p-4 space-y-3">
                 <h3 className="font-semibold">Criar Task</h3>
