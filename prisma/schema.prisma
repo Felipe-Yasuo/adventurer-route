@@ -28,6 +28,8 @@ model User {
 
   avatarUrl String?
 
+  lastInactivityPenaltyAt DateTime?
+
   tasks Task[]
 
   createdAt DateTime @default(now())
@@ -42,6 +44,8 @@ model Task {
   dueDate     DateTime?
   completed   Boolean   @default(false)
   completedAt DateTime?
+
+  overdueProcessedAt DateTime?
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
