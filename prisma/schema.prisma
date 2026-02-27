@@ -27,6 +27,7 @@ model User {
   lastCompletionDate DateTime?
 
   avatarUrl String?
+  inventory InventoryItem[]
 
   lastInactivityPenaltyAt DateTime?
 
@@ -52,4 +53,40 @@ model Task {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum ItemType {
+  POTION_SMALL
+  POTION_MEDIUM
+  POTION_LARGE
+}
+
+model Item {
+  id        String   @id @default(cuid())
+  type      ItemType @unique
+  name      String
+  price     Int // em gold
+  healValue Int // quanto cura
+
+  inventory InventoryItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InventoryItem {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  quantity Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, itemId]) // ✅ 1 linha por item por usuário
 }
