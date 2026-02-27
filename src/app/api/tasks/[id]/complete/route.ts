@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { getDevUser } from "@/lib/devUser";
 import { rewardsByDifficulty } from "@/lib/game/rules";
 import { applyXpAndLevelUp } from "@/lib/game/progression";
+import { dateKeyInTz, diffDaysByDateKey } from "@/lib/game/time";
+
+const TZ = "America/Sao_Paulo";
 
 export async function PATCH(
     _: Request,
@@ -25,16 +28,27 @@ export async function PATCH(
                 return { status: 400 as const, body: { error: "Task já concluída" } };
             }
 
+            const now = new Date();
+
             const rewards = rewardsByDifficulty(task.difficulty);
 
             const updatedTask = await tx.task.update({
                 where: { id: taskId },
-                data: { completed: true, completedAt: new Date() },
+                data: { completed: true, completedAt: now },
             });
 
             const currentUser = await tx.user.findUnique({
                 where: { id: user.id },
-                select: { id: true, level: true, xp: true, gold: true, life: true, maxLife: true },
+                select: {
+                    id: true,
+                    level: true,
+                    xp: true,
+                    gold: true,
+                    life: true,
+                    maxLife: true,
+                    streakCount: true,
+                    lastCompletionDate: true,
+                },
             });
 
             if (!currentUser) {
@@ -46,6 +60,24 @@ export async function PATCH(
                 rewards.xp
             );
 
+            const todayKey = dateKeyInTz(now, TZ);
+
+            let newStreak = currentUser.streakCount;
+
+            if (!currentUser.lastCompletionDate) {
+                newStreak = 1;
+            } else {
+                const lastKey = dateKeyInTz(currentUser.lastCompletionDate, TZ);
+                const diffDays = diffDaysByDateKey(lastKey, todayKey);
+
+                if (diffDays === 0) {
+                    newStreak = currentUser.streakCount;
+                } else if (diffDays === 1) {
+                    newStreak = currentUser.streakCount + 1;
+                } else {
+                    newStreak = 1;
+                }
+            }
 
             const updatedUser = await tx.user.update({
                 where: { id: user.id },
@@ -53,6 +85,9 @@ export async function PATCH(
                     xp: progressed.xp,
                     level: progressed.level,
                     gold: { increment: rewards.gold },
+
+                    streakCount: newStreak,
+                    lastCompletionDate: now,
                 },
                 select: {
                     id: true,
@@ -61,6 +96,8 @@ export async function PATCH(
                     life: true,
                     maxLife: true,
                     gold: true,
+                    streakCount: true,
+                    lastCompletionDate: true,
                 },
             });
 
@@ -81,4 +118,3 @@ export async function PATCH(
         return NextResponse.json({ error: "Erro ao concluir task" }, { status: 500 });
     }
 }
-
