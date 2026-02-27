@@ -14,9 +14,30 @@ async function main() {
             gold: 0,
             avatarUrl: "https://api.dicebear.com/9.x/adventurer/png?seed=Yasuo",
         },
+
+    });
+    await seedItems();
+    console.log("Seeded:", user.email);
+}
+
+async function seedItems() {
+    await prisma.item.upsert({
+        where: { type: "POTION_SMALL" },
+        update: {},
+        create: { type: "POTION_SMALL", name: "Poção Pequena", price: 10, healValue: 5 },
     });
 
-    console.log("Seeded:", user.email);
+    await prisma.item.upsert({
+        where: { type: "POTION_MEDIUM" },
+        update: {},
+        create: { type: "POTION_MEDIUM", name: "Poção Média", price: 25, healValue: 12 },
+    });
+
+    await prisma.item.upsert({
+        where: { type: "POTION_LARGE" },
+        update: {},
+        create: { type: "POTION_LARGE", name: "Poção Grande", price: 45, healValue: 25 },
+    });
 }
 
 main()
