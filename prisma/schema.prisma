@@ -33,8 +33,9 @@ model User {
 
   tasks Task[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  achievements UserAchievement[]
 }
 
 model Task {
@@ -89,4 +90,43 @@ model InventoryItem {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, itemId]) // ✅ 1 linha por item por usuário
+}
+
+enum AchievementType {
+  TASKS_COMPLETED_TOTAL
+  STREAK_REACHED
+  GOLD_REACHED
+  LEVEL_REACHED
+}
+
+model Achievement {
+  id          String          @id @default(cuid())
+  code        String          @unique // ex: "FIRST_TASK"
+  title       String
+  description String
+  type        AchievementType
+
+  // condição (um número alvo)
+  target Int
+
+  // recompensa
+  rewardGold Int @default(0)
+  rewardXp   Int @default(0)
+
+  users UserAchievement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
 }
