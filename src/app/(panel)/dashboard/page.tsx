@@ -1,172 +1,36 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
-type User = {
-    level: number;
-    xp: number;
-    life: number;
-    maxLife: number;
-    gold: number;
-    streakCount: number;
-    avatarUrl?: string | null;
-
-    penalties?: {
-        overdue?: { appliedTasks: number; totalDamage: number };
-        inactivity?: { applied: boolean; missedDays: number; damage: number };
-    };
-};
-type Task = {
-    id: string;
-    title: string;
-    difficulty: "EASY" | "MEDIUM" | "HARD";
-    completed: boolean;
-};
+import Sidebar from "./components/Sidebar";
+import TopHud from "./components/TopHud";
+import KanbanBoard from "./components/KanbanBoard";
+import NewTaskCard from "./components/NewTaskCard";
+import FiltersCard from "./components/FiltersCard";
+import DailyGoalCard from "./components/DailyGoalCard";
 
 export default function DashboardPage() {
-    const [user, setUser] = useState<User | null>(null);
-    const [tasks, setTasks] = useState<Task[]>([]);
-    const [title, setTitle] = useState("");
-    const [difficulty, setDifficulty] = useState<"EASY" | "MEDIUM" | "HARD">("EASY");
-    const [loading, setLoading] = useState(false);
-
-    async function loadData() {
-        const [userRes, tasksRes] = await Promise.all([
-            fetch("/api/me"),
-            fetch("/api/tasks"),
-        ]);
-
-        const userData = await userRes.json();
-        const tasksData = await tasksRes.json();
-
-        setUser(userData);
-        setTasks(tasksData);
-    }
-
-    useEffect(() => {
-        loadData();
-    }, []);
-
-    async function createTask() {
-        if (!title.trim()) return;
-
-        setLoading(true);
-
-        await fetch("/api/tasks", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, difficulty }),
-        });
-
-        setTitle("");
-        await loadData();
-        setLoading(false);
-    }
-
-    async function completeTask(id: string) {
-        await fetch(`/api/tasks/${id}/complete`, {
-            method: "PATCH",
-        });
-
-        await loadData();
-    }
-
-    if (!user) return <div className="p-6">Carregando...</div>;
-
     return (
-        <main className="min-h-screen p-6 space-y-6">
-            <section className="rounded-2xl border p-4 flex items-center gap-4">
-                {user.avatarUrl && (
-                    <img
-                        src={user.avatarUrl}
-                        alt="avatar"
-                        className="w-16 h-16 rounded-full border"
-                    />
-                )}
+        <div className="min-h-screen bg-twilight">
+            <div className="flex">
+                <Sidebar />
 
-                <div>
-                    <h2 className="text-xl font-bold">Level {user.level}</h2>
-                    <p>XP: {user.xp}</p>
-                    <p>Vida: {user.life}/{user.maxLife}</p>
-                    <p>Gold: {user.gold}</p>
-                    <p>Streak: {user.streakCount}</p>
-                </div>
-            </section>
-            {(user.penalties?.overdue?.totalDamage ?? 0) > 0 && (
-                <section className="rounded-2xl border p-4 bg-red-50">
-                    <h3 className="font-semibold text-red-700">Penalidade: Tasks vencidas</h3>
-                    <p className="mt-1 text-sm text-red-700">
-                        Você perdeu <b>{user.penalties?.overdue?.totalDamage}</b> de vida por{" "}
-                        <b>{user.penalties?.overdue?.appliedTasks}</b> task(s) vencida(s).
-                    </p>
-                </section>
-            )}
-
-            {user.penalties?.inactivity?.applied && (
-                <section className="rounded-2xl border p-4 bg-orange-50">
-                    <h3 className="font-semibold text-orange-700">Penalidade: Inatividade</h3>
-                    <p className="mt-1 text-sm text-orange-700">
-                        Você ficou <b>{user.penalties?.inactivity?.missedDays}</b> dia(s) sem concluir tasks e perdeu{" "}
-                        <b>{user.penalties?.inactivity?.damage}</b> de vida.
-                    </p>
-                </section>
-            )}
-
-            <section className="rounded-2xl border p-4 space-y-3">
-                <h3 className="font-semibold">Criar Task</h3>
-
-                <input
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Título da task"
-                    className="border p-2 rounded w-full"
-                />
-
-                <select
-                    value={difficulty}
-                    onChange={(e) => setDifficulty(e.target.value as any)}
-                    className="border p-2 rounded w-full"
-                >
-                    <option value="EASY">Fácil</option>
-                    <option value="MEDIUM">Médio</option>
-                    <option value="HARD">Difícil</option>
-                </select>
-
-                <button
-                    onClick={createTask}
-                    disabled={loading}
-                    className="bg-black text-white px-4 py-2 rounded"
-                >
-                    Criar
-                </button>
-            </section>
-
-            <section className="rounded-2xl border p-4 space-y-3">
-                <h3 className="font-semibold">Tasks</h3>
-
-                {tasks.map((task) => (
-                    <div
-                        key={task.id}
-                        className="flex justify-between items-center border p-2 rounded"
-                    >
-                        <div>
-                            <p className={task.completed ? "line-through" : ""}>
-                                {task.title}
-                            </p>
-                            <small>{task.difficulty}</small>
-                        </div>
-
-                        {!task.completed && (
-                            <button
-                                onClick={() => completeTask(task.id)}
-                                className="bg-green-600 text-white px-3 py-1 rounded"
-                            >
-                                Concluir
-                            </button>
-                        )}
+                <main className="flex-1">
+                    <div className="px-6 pt-4">
+                        <TopHud />
                     </div>
-                ))}
-            </section>
-        </main>
+
+                    <div className="px-6 pb-10 pt-6">
+                        <div className="grid grid-cols-12 gap-6">
+                            <aside className="col-span-12 lg:col-span-3 space-y-6">
+                                <NewTaskCard />
+                                <FiltersCard />
+                                <DailyGoalCard />
+                            </aside>
+
+                            <section className="col-span-12 lg:col-span-9">
+                                <KanbanBoard />
+                            </section>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
     );
 }
