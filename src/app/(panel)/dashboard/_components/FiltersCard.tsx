@@ -1,28 +1,53 @@
+"use client";
+
 import GlassCard from "./GlassCard";
 
-export default function FiltersCard() {
+type Difficulty = "ALL" | "EASY" | "MEDIUM" | "HARD";
+
+export default function FiltersCard({
+  query,
+  onChangeQuery,
+  difficulty,
+  onChangeDifficulty,
+  onClear,
+}: {
+  query: string;
+  onChangeQuery: (v: string) => void;
+  difficulty: Difficulty;
+  onChangeDifficulty: (v: Difficulty) => void;
+  onClear: () => void;
+}) {
   return (
     <GlassCard>
-      <h3 className="text-sm font-semibold mb-3">Filtros</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold">Filtros</h3>
 
-      <div className="space-y-3">
+        <button
+          onClick={onClear}
+          className="text-xs text-blueSoft hover:underline"
+        >
+          Limpar
+        </button>
+      </div>
+
+      <div className="mt-3 space-y-3">
         <input
-          placeholder="Buscar por título ou descrição"
+          value={query}
+          onChange={(e) => onChangeQuery(e.target.value)}
+          placeholder="Buscar por título"
           className="w-full rounded-xl bg-black/20 border border-white/10 px-3 py-2 text-sm outline-none focus:border-blueSoft/60"
         />
 
-        <div className="grid grid-cols-2 gap-3">
-          <select className="w-full rounded-xl bg-black/20 border border-white/10 px-3 py-2 text-sm outline-none">
-            <option>Todas</option>
-            <option>EASY</option>
-            <option>MEDIUM</option>
-            <option>HARD</option>
-          </select>
-
-          <select className="w-full rounded-xl bg-black/20 border border-white/10 px-3 py-2 text-sm outline-none">
-            <option>Todas tags</option>
-          </select>
-        </div>
+        <select
+          value={difficulty}
+          onChange={(e) => onChangeDifficulty(e.target.value as Difficulty)}
+          className="w-full rounded-xl bg-black/20 border border-white/10 px-3 py-2 text-sm outline-none"
+        >
+          <option value="ALL">Todas dificuldades</option>
+          <option value="EASY">EASY</option>
+          <option value="MEDIUM">MEDIUM</option>
+          <option value="HARD">HARD</option>
+        </select>
       </div>
     </GlassCard>
   );
