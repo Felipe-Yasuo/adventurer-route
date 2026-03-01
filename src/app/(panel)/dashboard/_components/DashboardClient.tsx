@@ -8,6 +8,7 @@ import FiltersCard from "./FiltersCard";
 import DailyGoalCard from "./DailyGoalCard";
 import type { TaskUI } from "./types";
 
+
 type DifficultyFilter = "ALL" | "EASY" | "MEDIUM" | "HARD";
 
 type UserApi = {
@@ -41,6 +42,8 @@ function mapTaskApiToUI(t: TaskApi): TaskUI {
     tags: [],
   };
 }
+
+
 
 export default function DashboardClient() {
   const [loading, setLoading] = useState(true);
