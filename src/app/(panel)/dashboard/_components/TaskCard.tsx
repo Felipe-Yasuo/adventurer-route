@@ -26,7 +26,7 @@ export default function TaskCard({
     <div className="w-full rounded-2xl border border-white/10 bg-black/20 p-4 shadow-lg backdrop-blur hover:bg-black/30 transition">
       <div className="flex items-start justify-between gap-3">
         <button onClick={onOpen} className="min-w-0 flex-1 text-left">
-          <p className="text-sm font-semibold text-cloudWhite truncate">
+          <p className={["text-sm font-semibold truncate", task.completed ? "text-white/50 line-through" : "text-cloudWhite"].join(" ")}>
             {task.title}
           </p>
 
@@ -52,7 +52,10 @@ export default function TaskCard({
 
           {!task.completed ? (
             <button
-              onClick={onComplete}
+              onClick={(e) => {
+                e.stopPropagation();
+                onComplete();
+              }}
               disabled={!!completing}
               className="rounded-lg bg-forest/40 border border-white/10 px-3 py-1 text-xs font-semibold text-cloudWhite hover:bg-forest/55 disabled:opacity-60"
             >
