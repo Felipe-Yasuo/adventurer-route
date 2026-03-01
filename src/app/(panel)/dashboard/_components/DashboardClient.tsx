@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import TopHud from "./TopHud";
 import KanbanBoard from "./KanbanBoard";
 import NewTaskCard from "./NewTaskCard";
 import FiltersCard from "./FiltersCard";
 import DailyGoalCard from "./DailyGoalCard";
 import type { TaskUI } from "./types";
+
+type DifficultyFilter = "ALL" | "EASY" | "MEDIUM" | "HARD";
 
 type UserApi = {
   level: number;
@@ -43,8 +45,13 @@ function mapTaskApiToUI(t: TaskApi): TaskUI {
 export default function DashboardClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const [user, setUser] = useState<UserApi | null>(null);
   const [tasks, setTasks] = useState<TaskUI[]>([]);
+
+  const [filterQuery, setFilterQuery] = useState("");
+  const [filterDifficulty, setFilterDifficulty] =
+    useState<DifficultyFilter>("ALL");
 
   async function loadAll() {
     setLoading(true);
@@ -75,6 +82,23 @@ export default function DashboardClient() {
     loadAll();
   }, []);
 
+  const filteredTasks = useMemo(() => {
+    const q = filterQuery.trim().toLowerCase();
+
+    return tasks.filter((t) => {
+      const matchQuery = q.length === 0 || t.title.toLowerCase().includes(q);
+      const matchDifficulty =
+        filterDifficulty === "ALL" || t.difficulty === filterDifficulty;
+
+      return matchQuery && matchDifficulty;
+    });
+  }, [tasks, filterQuery, filterDifficulty]);
+
+  function clearFilters() {
+    setFilterQuery("");
+    setFilterDifficulty("ALL");
+  }
+
   if (loading) return <div className="text-white/70">Carregando dashboard...</div>;
 
   if (error) {
@@ -93,16 +117,28 @@ export default function DashboardClient() {
 
   return (
     <div className="grid grid-cols-12 gap-6">
-
       <aside className="col-span-12 lg:col-span-3 space-y-6">
         <NewTaskCard onCreated={loadAll} />
-        <FiltersCard />
+
+        <FiltersCard
+          query={filterQuery}
+          onChangeQuery={setFilterQuery}
+          difficulty={filterDifficulty}
+          onChangeDifficulty={setFilterDifficulty}
+          onClear={clearFilters}
+        />
+
         <DailyGoalCard />
       </aside>
 
       <section className="col-span-12 lg:col-span-9 space-y-6">
         <TopHud user={user!} tasks={tasks} />
-        <KanbanBoard tasks={tasks} setTasks={setTasks} onNeedReload={loadAll} />
+
+        <KanbanBoard
+          tasks={filteredTasks}
+          setTasks={setTasks}
+          onNeedReload={loadAll}
+        />
       </section>
     </div>
   );
