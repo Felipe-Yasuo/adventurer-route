@@ -27,13 +27,15 @@ function ModalShell({
 export default function TaskModal({
   open,
   task,
+  saving,
   onClose,
   onSave,
 }: {
   open: boolean;
   task: TaskUI | null;
+  saving?: boolean;
   onClose: () => void;
-  onSave: (updated: TaskUI) => void;
+  onSave: (updated: TaskUI) => void | Promise<void>;
 }) {
   const initial = useMemo(() => task, [task]);
 
@@ -88,7 +90,8 @@ export default function TaskModal({
 
           <button
             onClick={onClose}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
+            disabled={!!saving}
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10 disabled:opacity-50"
           >
             ✕
           </button>
@@ -188,9 +191,10 @@ export default function TaskModal({
           </button>
           <button
             onClick={handleSave}
-            className="rounded-xl bg-cloudWhite px-4 py-2 text-sm font-semibold text-twilight hover:opacity-90"
+            disabled={!!saving}
+            className="rounded-xl bg-cloudWhite px-4 py-2 text-sm font-semibold text-twilight hover:opacity-90 disabled:opacity-70"
           >
-            Salvar
+            {saving ? "Salvando..." : "Salvar"}
           </button>
         </div>
       </div>
