@@ -79,15 +79,21 @@ function Column({
       </div>
 
       <div className="space-y-3">
-        {tasks.map((task) => (
-          <TaskCard
-            key={task.id}
-            task={task}
-            onOpen={() => onOpenTask(task)}
-            onComplete={() => onCompleteTask(task)}
-            completing={completingId === task.id}
-          />
-        ))}
+        {tasks.length === 0 ? (
+          <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/60">
+            Nenhuma tarefa encontrada com esses filtros.
+          </div>
+        ) : (
+          tasks.map((task) => (
+            <TaskCard
+              key={task.id}
+              task={task}
+              onOpen={() => onOpenTask(task)}
+              onComplete={() => onCompleteTask(task)}
+              completing={completingId === task.id}
+            />
+          ))
+        )}
       </div>
     </div>
   );
