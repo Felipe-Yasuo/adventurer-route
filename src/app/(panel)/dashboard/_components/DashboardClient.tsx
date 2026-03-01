@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import TopHud from "./TopHud";
 import KanbanBoard from "./KanbanBoard";
+import NewTaskCard from "./NewTaskCard";
+import FiltersCard from "./FiltersCard";
+import DailyGoalCard from "./DailyGoalCard";
 import type { TaskUI } from "./types";
 
 type UserApi = {
@@ -13,17 +16,14 @@ type UserApi = {
   gold: number;
   streakCount: number;
   avatarUrl?: string | null;
-  penalties?: {
-    overdue?: { appliedTasks: number; totalDamage: number };
-    inactivity?: { applied: boolean; missedDays: number; damage: number };
-  };
+  penalties?: any;
 };
 
 type TaskApi = {
   id: string;
   title: string;
   difficulty: "EASY" | "MEDIUM" | "HARD";
-  dueDate: string | null; // vem como ISO no JSON
+  dueDate: string | null;
   completed: boolean;
   completedAt: string | null;
 };
@@ -33,10 +33,8 @@ function mapTaskApiToUI(t: TaskApi): TaskUI {
     id: t.id,
     title: t.title,
     difficulty: t.difficulty,
-    // pega só YYYY-MM-DD para input type="date"
     dueDate: t.dueDate ? t.dueDate.slice(0, 10) : null,
     completed: t.completed,
-    // esses campos não existem no seu schema atual:
     description: null,
     tags: [],
   };
@@ -45,7 +43,6 @@ function mapTaskApiToUI(t: TaskApi): TaskUI {
 export default function DashboardClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [user, setUser] = useState<UserApi | null>(null);
   const [tasks, setTasks] = useState<TaskUI[]>([]);
 
@@ -78,9 +75,7 @@ export default function DashboardClient() {
     loadAll();
   }, []);
 
-  if (loading) {
-    return <div className="text-white/70">Carregando dashboard...</div>;
-  }
+  if (loading) return <div className="text-white/70">Carregando dashboard...</div>;
 
   if (error) {
     return (
@@ -97,13 +92,18 @@ export default function DashboardClient() {
   }
 
   return (
-    <div className="space-y-6">
-      <TopHud user={user!} tasks={tasks} />
-      <KanbanBoard
-        tasks={tasks}
-        setTasks={setTasks}
-        onNeedReload={loadAll}
-      />
+    <div className="grid grid-cols-12 gap-6">
+
+      <aside className="col-span-12 lg:col-span-3 space-y-6">
+        <NewTaskCard onCreated={loadAll} />
+        <FiltersCard />
+        <DailyGoalCard />
+      </aside>
+
+      <section className="col-span-12 lg:col-span-9 space-y-6">
+        <TopHud user={user!} tasks={tasks} />
+        <KanbanBoard tasks={tasks} setTasks={setTasks} onNeedReload={loadAll} />
+      </section>
     </div>
   );
 }
