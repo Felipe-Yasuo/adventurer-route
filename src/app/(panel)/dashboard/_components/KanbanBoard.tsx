@@ -58,6 +58,18 @@ async function patchTask(id: string, payload: Partial<TaskUI>) {
   return (await res.json()) as TaskApi;
 }
 
+async function deleteTask(id: string) {
+  const res = await fetch(`/api/tasks/${id}`, { method: "DELETE" });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error ?? "Falha ao deletar task");
+  }
+
+  return true;
+}
+
+
 async function completeTask(id: string): Promise<CompleteResponse> {
   const res = await fetch(`/api/tasks/${id}/complete`, { method: "PATCH" });
 
@@ -74,12 +86,14 @@ function Column({
   tasks,
   onOpenTask,
   onCompleteTask,
+  onDeleteTask,
   completingId,
 }: {
   title: string;
   tasks: TaskUI[];
   onOpenTask: (t: TaskUI) => void;
   onCompleteTask: (t: TaskUI) => void;
+  onDeleteTask: (t: TaskUI) => void;
   completingId: string | null;
 }) {
   const enableScroll = tasks.length > 6;
@@ -109,6 +123,7 @@ function Column({
               task={task}
               onOpen={() => onOpenTask(task)}
               onComplete={() => onCompleteTask(task)}
+              onDelete={() => onDeleteTask(task)}
               completing={completingId === task.id}
             />
           ))
@@ -178,6 +193,31 @@ export default function KanbanBoard({
     }
   }
 
+  async function handleDelete(task: TaskUI) {
+
+    const prev = tasks;
+    setTasks((p) => p.filter((t) => t.id !== task.id));
+
+    try {
+      await deleteTask(task.id);
+
+      toast.push({
+        type: "success",
+        title: "Tarefa excluída",
+        message: task.completed ? "Concluída removida do histórico visual." : "Tarefa removida.",
+      });
+
+      await onNeedReload();
+    } catch (e: any) {
+      setTasks(prev);
+      toast.push({
+        type: "error",
+        title: "Erro ao excluir",
+        message: e?.message ?? "Tente novamente",
+      });
+    }
+  }
+
   async function handleComplete(task: TaskUI) {
     if (task.completed) return;
     setCompletingId(task.id);
@@ -232,10 +272,6 @@ export default function KanbanBoard({
     }
   }
 
-
-
-
-
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -244,13 +280,16 @@ export default function KanbanBoard({
           tasks={active}
           onOpenTask={setSelected}
           onCompleteTask={handleComplete}
+          onDeleteTask={handleDelete}
           completingId={completingId}
         />
+
         <Column
           title="Concluídas"
           tasks={done}
           onOpenTask={setSelected}
           onCompleteTask={handleComplete}
+          onDeleteTask={handleDelete}
           completingId={completingId}
         />
       </div>

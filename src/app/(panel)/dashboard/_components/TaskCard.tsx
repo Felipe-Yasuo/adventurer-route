@@ -16,11 +16,13 @@ export default function TaskCard({
   task,
   onOpen,
   onComplete,
+  onDelete,
   completing,
 }: {
   task: TaskUI;
   onOpen: () => void;
   onComplete: () => void;
+  onDelete: () => void;
   completing?: boolean;
 }) {
 
@@ -93,6 +95,17 @@ export default function TaskCard({
           ) : (
             <span className="text-xs text-white/60">✅ concluída</span>
           )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-white/80 hover:bg-white/10"
+            title="Excluir"
+            aria-label="Excluir tarefa"
+          >
+            🗑️
+          </button>
         </div>
       </div>
     </div>
