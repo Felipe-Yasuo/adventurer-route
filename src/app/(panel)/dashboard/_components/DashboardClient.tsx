@@ -51,6 +51,7 @@ export default function DashboardClient() {
 
   const [user, setUser] = useState<UserApi | null>(null);
   const [tasks, setTasks] = useState<TaskUI[]>([]);
+  const [levelUpPulse, setLevelUpPulse] = useState(0);
 
   const [filterQuery, setFilterQuery] = useState("");
   const [filterDifficulty, setFilterDifficulty] =
@@ -135,12 +136,15 @@ export default function DashboardClient() {
       </aside>
 
       <section className="col-span-12 lg:col-span-9 space-y-6">
-        <TopHud user={user!} tasks={tasks} />
+        <TopHud user={user!} tasks={tasks} levelUpPulse={levelUpPulse} />
 
         <KanbanBoard
           tasks={filteredTasks}
           setTasks={setTasks}
           onNeedReload={loadAll}
+          onLevelUp={() => {
+            setLevelUpPulse((v) => v + 1);
+          }}
         />
       </section>
     </div>

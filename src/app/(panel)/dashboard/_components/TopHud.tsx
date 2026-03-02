@@ -1,4 +1,6 @@
 import type { TaskUI } from "./types";
+import { useEffect, useState } from "react";
+
 
 function HudStat({
   icon,
@@ -23,6 +25,7 @@ function HudStat({
 export default function TopHud({
   user,
   tasks,
+  levelUpPulse,
 }: {
   user: {
     level: number;
@@ -33,11 +36,26 @@ export default function TopHud({
     streakCount: number;
   };
   tasks: TaskUI[];
+  levelUpPulse: number;
 }) {
   const completedTotal = tasks.filter((t) => t.completed).length;
+  const [glow, setGlow] = useState(false);
+
+  useEffect(() => {
+    if (!levelUpPulse) return;
+    setGlow(true);
+    const t = window.setTimeout(() => setGlow(false), 1200);
+    return () => window.clearTimeout(t);
+  }, [levelUpPulse]);
+
 
   return (
-    <header className="flex items-center justify-between">
+    <header
+      className={[
+        "flex items-center justify-between transition",
+        glow ? "ring-2 ring-blueSoft/40 shadow-[0_0_30px_rgba(166,200,245,0.25)] rounded-2xl p-2 -m-2" : "",
+      ].join(" ")}
+    >
       <div className="flex items-start gap-3">
         <div className="h-12 w-12 rounded-2xl bg-cloudWhite/90 border border-black/10" />
         <div className="text-sm text-cloudWhite">
