@@ -86,7 +86,7 @@ export async function PATCH(
           xp: progressed.xp,
           level: progressed.level,
           gold: { increment: rewards.gold },
-
+          tasksCompletedTotal: { increment: 1 },
           streakCount: newStreak,
           lastCompletionDate: now,
         },
@@ -99,6 +99,7 @@ export async function PATCH(
           gold: true,
           streakCount: true,
           lastCompletionDate: true,
+          tasksCompletedTotal: true,
         },
       });
 

@@ -33,6 +33,7 @@ export async function GET() {
                 streakCount: true,
                 lastCompletionDate: true,
                 avatarUrl: true,
+                tasksCompletedTotal: true,
             },
         });
 

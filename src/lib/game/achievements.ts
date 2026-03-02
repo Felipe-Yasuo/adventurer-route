@@ -18,14 +18,12 @@ export async function checkAndUnlockAchievements(
 ): Promise<UnlockResult> {
   const user = await tx.user.findUnique({
     where: { id: userId },
-    select: { level: true, gold: true, streakCount: true },
+    select: { level: true, gold: true, streakCount: true, tasksCompletedTotal: true },
   });
 
   if (!user) return { unlocked: [], totalRewardGold: 0, totalRewardXp: 0 };
 
-  const tasksCompletedTotal = await tx.task.count({
-    where: { userId, completed: true },
-  });
+  const tasksCompletedTotal = user.tasksCompletedTotal;
 
   const [allAchievements, unlockedRows] = await Promise.all([
     tx.achievement.findMany({
