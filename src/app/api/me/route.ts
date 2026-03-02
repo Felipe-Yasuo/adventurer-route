@@ -2,8 +2,14 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { applyOverduePenalty } from "@/lib/game/overdue";
 import { applyInactivityPenalty } from "@/lib/game/inactivity";
+import { startOfWeekKey } from "@/lib/game/time";
 
 const DEV_USER_EMAIL = "yasuo@adventurer.route";
+
+const TZ = "America/Sao_Paulo";
+
+
+
 
 export async function GET() {
     try {
@@ -12,9 +18,21 @@ export async function GET() {
             select: { id: true },
         });
 
+
         if (!base) {
             return NextResponse.json({ error: "Usuário de teste não encontrado. Rode o seed." }, { status: 404 });
         }
+
+
+
+        const weekStart = startOfWeekKey(TZ);
+
+        await prisma.task.deleteMany({
+            where: {
+                userId: base.id,
+                dayKey: { lt: weekStart },
+            },
+        });
 
         const overdue = await applyOverduePenalty(base.id);
         const inactivity = await applyInactivityPenalty(base.id);
@@ -33,7 +51,6 @@ export async function GET() {
                 streakCount: true,
                 lastCompletionDate: true,
                 avatarUrl: true,
-                tasksCompletedTotal: true,
             },
         });
 
