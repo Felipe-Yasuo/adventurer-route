@@ -14,16 +14,15 @@ export type UserApi = {
     tasksCompletedTotal: number;
 };
 
-
-
 export type TaskUI = {
     id: string;
     title: string;
     description?: string | null;
     difficulty: Difficulty;
-    dueDate?: string | null; // YYYY-MM-DD
+    dueDate?: string | null;
     completed: boolean;
     tags: string[];
+    dayKey: string;
 };
 
 export type TaskApi = {
@@ -33,6 +32,7 @@ export type TaskApi = {
     dueDate: string | null;
     completed: boolean;
     completedAt: string | null;
+    dayKey: string;
 };
 
 export type CompleteResponse = {

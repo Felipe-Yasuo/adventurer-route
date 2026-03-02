@@ -9,5 +9,6 @@ export function mapTaskApiToUI(t: TaskApi): TaskUI {
         completed: t.completed,
         description: null,
         tags: [],
+        dayKey: t.dayKey,
     };
 }
