@@ -26,6 +26,8 @@ model User {
   streakCount        Int       @default(0)
   lastCompletionDate DateTime?
 
+  tasksCompletedTotal Int @default(0)
+
   avatarUrl String?
   inventory InventoryItem[]
 
