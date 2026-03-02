@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getDevUser } from "@/lib/devUser";
 import { Difficulty } from "@prisma/client";
+import { todayKey } from "@/lib/game/time";
+
+const TZ = "America/Sao_Paulo"
 
 export async function GET() {
     try {
@@ -41,6 +44,7 @@ export async function POST(req: Request) {
                 difficulty,
                 dueDate: body.dueDate ? new Date(body.dueDate) : null,
                 userId: user.id,
+                dayKey: todayKey(TZ),
             },
         });
 

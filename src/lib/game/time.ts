@@ -33,9 +33,27 @@ export function todayKey(timeZone = TZ) {
 export function yesterdayKey(timeZone = TZ) {
     const now = new Date();
     const key = dateKeyInTz(now, timeZone);
-    // pega ontem por diff (calendário) sem depender de horário
+
     const [y, m, d] = key.split("-").map(Number);
     const utc = new Date(Date.UTC(y, m - 1, d));
     utc.setUTCDate(utc.getUTCDate() - 1);
-    return dateKeyInTz(utc, "UTC"); // utc já está “calendário pronto”
+    return dateKeyInTz(utc, "UTC");
+}
+
+
+export function startOfWeekKey(timeZone = TZ) {
+
+    const now = new Date();
+    const today = dateKeyInTz(now, timeZone);
+    const [y, m, d] = today.split("-").map(Number);
+
+    const utc = new Date(Date.UTC(y, m - 1, d));
+    const day = utc.getUTCDay();
+
+    const diffToMonday = (day + 6) % 7;
+
+    utc.setUTCDate(utc.getUTCDate() - diffToMonday);
+
+
+    return dateKeyInTz(utc, "UTC");
 }
