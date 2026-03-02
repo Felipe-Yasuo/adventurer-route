@@ -8,8 +8,15 @@ import FiltersCard from "./FiltersCard";
 import DailyGoalCard from "./DailyGoalCard";
 import WeekTabs from "./WeekTabs";
 import DayReadOnlyList from "./DayReadOnlyList";
+import QuestsCard from "./QuestsCard";
 
-import type { TaskUI, TaskApi, UserApi, DifficultyFilter } from "../_types";
+import type {
+  TaskUI,
+  TaskApi,
+  UserApi,
+  DifficultyFilter,
+  QuestApi,
+} from "../_types";
 import { mapTaskApiToUI } from "../_utils/map";
 
 function todayKeyLocal() {
@@ -53,10 +60,10 @@ function weekdayIndexMon0() {
 }
 
 export default function DashboardClient() {
-  // ✅ states
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [quests, setQuests] = useState<QuestApi[]>([]);
   const [user, setUser] = useState<UserApi | null>(null);
   const [tasks, setTasks] = useState<TaskUI[]>([]);
   const [levelUpPulse, setLevelUpPulse] = useState(0);
@@ -69,25 +76,28 @@ export default function DashboardClient() {
     weekdayIndexMon0()
   );
 
-  // ✅ effects
   async function loadAll() {
     setLoading(true);
     setError(null);
 
     try {
-      const [meRes, tasksRes] = await Promise.all([
+      const [meRes, tasksRes, questsRes] = await Promise.all([
         fetch("/api/me", { cache: "no-store" }),
         fetch("/api/tasks", { cache: "no-store" }),
+        fetch("/api/quests/today", { cache: "no-store" }),
       ]);
 
       if (!meRes.ok) throw new Error("Falha ao carregar /api/me");
       if (!tasksRes.ok) throw new Error("Falha ao carregar /api/tasks");
+      if (!questsRes.ok) throw new Error("Falha ao carregar /api/quests/today");
 
       const meJson = (await meRes.json()) as UserApi;
       const tasksJson = (await tasksRes.json()) as TaskApi[];
+      const questsJson = (await questsRes.json()) as { quests: QuestApi[] };
 
       setUser(meJson);
       setTasks(tasksJson.map(mapTaskApiToUI));
+      setQuests(questsJson.quests ?? []);
     } catch (e: any) {
       setError(e?.message ?? "Erro desconhecido");
     } finally {
@@ -97,7 +107,6 @@ export default function DashboardClient() {
 
   useEffect(() => {
     loadAll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function clearFilters() {
@@ -105,7 +114,6 @@ export default function DashboardClient() {
     setFilterDifficulty("ALL");
   }
 
-  // ✅ memos (TODOS antes dos returns)
   const todayKey = useMemo(() => todayKeyLocal(), []);
   const selectedDayKey = useMemo(() => {
     const weekStart = weekStartLocalKey();
@@ -133,8 +141,9 @@ export default function DashboardClient() {
     return tasks.filter((t) => t.dayKey === selectedDayKey);
   }, [tasks, selectedDayKey]);
 
-  // ✅ returns condicionais (agora ok)
-  if (loading) return <div className="text-white/70">Carregando dashboard...</div>;
+  if (loading) {
+    return <div className="text-white/70">Carregando dashboard...</div>;
+  }
 
   if (error) {
     return (
@@ -171,11 +180,21 @@ export default function DashboardClient() {
           onClear={clearFilters}
         />
 
+        <QuestsCard
+          quests={quests}
+          onNeedReload={loadAll}
+          onLevelUp={() => setLevelUpPulse((v) => v + 1)}
+        />
+
         <DailyGoalCard />
       </aside>
 
       <section className="col-span-12 lg:col-span-9 space-y-6">
-        <TopHud user={user} completedTotal={completedTotal} levelUpPulse={levelUpPulse} />
+        <TopHud
+          user={user}
+          completedTotal={completedTotal}
+          levelUpPulse={levelUpPulse}
+        />
 
         <WeekTabs value={selectedWeekday} onChange={setSelectedWeekday} />
 

@@ -5,6 +5,7 @@ import { rewardsByDifficulty } from "@/lib/game/rules";
 import { applyXpAndLevelUp } from "@/lib/game/progression";
 import { dateKeyInTz, diffDaysByDateKey } from "@/lib/game/time";
 import { checkAndUnlockAchievements } from "@/lib/game/achievements";
+import { onTaskCompletedUpdateQuests } from "@/lib/game/quests";
 
 const TZ = "America/Sao_Paulo";
 
@@ -30,13 +31,14 @@ export async function PATCH(
       }
 
       const now = new Date();
-
       const rewards = rewardsByDifficulty(task.difficulty);
 
       const updatedTask = await tx.task.update({
         where: { id: taskId },
         data: { completed: true, completedAt: now },
       });
+
+      await onTaskCompletedUpdateQuests(tx, user.id, { difficulty: task.difficulty });
 
       const currentUser = await tx.user.findUnique({
         where: { id: user.id },
@@ -103,8 +105,8 @@ export async function PATCH(
         },
       });
 
-
       const achievementsResult = await checkAndUnlockAchievements(tx, user.id);
+
       const finalUser = await tx.user.findUnique({
         where: { id: user.id },
         select: {

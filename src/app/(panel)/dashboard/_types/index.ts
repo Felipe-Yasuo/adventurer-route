@@ -44,3 +44,16 @@ export type CompleteResponse = {
         totalRewardXp?: number;
     };
 };
+
+export type QuestApi = {
+    id: string;
+    code: string;
+    title: string;
+    description: string;
+    target: number;
+    progress: number;
+    rewardXp: number;
+    rewardGold: number;
+    status: "ACTIVE" | "CLAIMED" | "EXPIRED";
+    dayKey: string;
+};
