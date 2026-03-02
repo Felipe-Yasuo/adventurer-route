@@ -12,6 +12,16 @@ enum Difficulty {
   HARD
 }
 
+enum QuestType {
+  DAILY
+}
+
+enum QuestStatus {
+  ACTIVE
+  CLAIMED
+  EXPIRED
+}
+
 model User {
   id    String  @id @default(cuid())
   name  String?
@@ -38,6 +48,7 @@ model User {
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
   achievements UserAchievement[]
+  quests       Quest[]
 }
 
 model Task {
@@ -64,6 +75,35 @@ enum ItemType {
   POTION_SMALL
   POTION_MEDIUM
   POTION_LARGE
+}
+
+model Quest {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type   QuestType
+  status QuestStatus @default(ACTIVE)
+
+  code String
+
+  title       String
+  description String
+
+  target   Int
+  progress Int @default(0)
+
+  rewardXp   Int @default(0)
+  rewardGold Int @default(0)
+
+  dayKey String
+
+  claimedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([userId, code, dayKey])
+  @@index([userId, dayKey])
 }
 
 model Item {
