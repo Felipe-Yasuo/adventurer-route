@@ -1,5 +1,6 @@
 
 import { prisma } from "@/lib/prisma";
+import { applyXpAndLevelUp } from "@/lib/game/progression";
 
 const TZ = "America/Sao_Paulo";
 
@@ -20,6 +21,16 @@ export type QuestTemplate = {
     rewardXp: number;
     rewardGold: number;
 };
+
+export type QuestClaimResult = {
+    quest: any;
+    rewards: { xp: number; gold: number };
+    leveledUp: number;
+    user: any;
+};
+
+
+
 
 export const DAILY_QUEST_TEMPLATES: QuestTemplate[] = [
     {
@@ -84,5 +95,87 @@ export async function listTodayQuests(userId: string) {
     return prisma.quest.findMany({
         where: { userId, dayKey },
         orderBy: [{ status: "asc" }, { createdAt: "asc" }],
+    });
+}
+
+export async function claimQuest(userId: string, questId: string): Promise<QuestClaimResult> {
+    return prisma.$transaction(async (tx) => {
+        const quest = await tx.quest.findFirst({
+            where: { id: questId, userId },
+        });
+
+        if (!quest) {
+            throw new Error("Quest não encontrada");
+        }
+
+        if (quest.status !== "ACTIVE") {
+            throw new Error("Quest já foi resgatada ou não está ativa");
+        }
+
+        if (quest.progress < quest.target) {
+            throw new Error("Quest ainda não foi completada");
+        }
+
+        const user = await tx.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                level: true,
+                xp: true,
+                gold: true,
+                life: true,
+                maxLife: true,
+                streakCount: true,
+                lastCompletionDate: true,
+                tasksCompletedTotal: true,
+                avatarUrl: true,
+                name: true,
+                email: true,
+            },
+        });
+
+        if (!user) throw new Error("Usuário não encontrado");
+
+        const rewards = { xp: quest.rewardXp, gold: quest.rewardGold };
+
+        const progressed = applyXpAndLevelUp(user, rewards.xp);
+
+        const updatedUser = await tx.user.update({
+            where: { id: userId },
+            data: {
+                xp: progressed.xp,
+                level: progressed.level,
+                gold: { increment: rewards.gold },
+            },
+            select: {
+                id: true,
+                level: true,
+                xp: true,
+                gold: true,
+                life: true,
+                maxLife: true,
+                streakCount: true,
+                lastCompletionDate: true,
+                tasksCompletedTotal: true,
+                avatarUrl: true,
+                name: true,
+                email: true,
+            },
+        });
+
+        const updatedQuest = await tx.quest.update({
+            where: { id: questId },
+            data: {
+                status: "CLAIMED",
+                claimedAt: new Date(),
+            },
+        });
+
+        return {
+            quest: updatedQuest,
+            rewards,
+            leveledUp: progressed.leveledUp ?? 0,
+            user: updatedUser,
+        };
     });
 }
