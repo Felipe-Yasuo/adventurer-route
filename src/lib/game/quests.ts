@@ -1,6 +1,11 @@
 
 import { prisma } from "@/lib/prisma";
 import { applyXpAndLevelUp } from "@/lib/game/progression";
+import type { Difficulty } from "@prisma/client"; // se você já usa enums do Prisma
+
+type TaskForQuest = {
+    difficulty: Difficulty; // "EASY" | "MEDIUM" | "HARD"
+};
 
 const TZ = "America/Sao_Paulo";
 
@@ -178,4 +183,54 @@ export async function claimQuest(userId: string, questId: string): Promise<Quest
             user: updatedUser,
         };
     });
+}
+export async function onTaskCompletedUpdateQuests(tx: any, userId: string, task: TaskForQuest) {
+    const dayKey = todayKeyInTz(TZ);
+
+    for (const q of DAILY_QUEST_TEMPLATES) {
+        await tx.quest.upsert({
+            where: {
+                userId_code_dayKey: { userId, code: q.code, dayKey },
+            },
+            create: {
+                userId,
+                type: "DAILY",
+                status: "ACTIVE",
+                code: q.code,
+                title: q.title,
+                description: q.description,
+                target: q.target,
+                progress: 0,
+                rewardXp: q.rewardXp,
+                rewardGold: q.rewardGold,
+                dayKey,
+            },
+            update: {},
+        });
+    }
+
+    async function bump(code: string, amount: number) {
+        const quest = await tx.quest.findFirst({
+            where: { userId, dayKey, code, status: "ACTIVE" },
+            select: { id: true, progress: true, target: true },
+        });
+
+        if (!quest) return;
+
+        const next = Math.min(quest.target, quest.progress + amount);
+
+        if (next !== quest.progress) {
+            await tx.quest.update({
+                where: { id: quest.id },
+                data: { progress: next },
+            });
+        }
+    }
+
+    await bump("DAILY_COMPLETE_1", 1);
+    await bump("DAILY_COMPLETE_3", 1);
+
+    if (task.difficulty === "HARD") {
+        await bump("DAILY_COMPLETE_HARD_1", 1);
+    }
 }
