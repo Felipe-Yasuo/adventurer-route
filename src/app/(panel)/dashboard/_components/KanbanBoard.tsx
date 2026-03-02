@@ -82,14 +82,22 @@ function Column({
   onCompleteTask: (t: TaskUI) => void;
   completingId: string | null;
 }) {
+  const enableScroll = tasks.length > 6;
+
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/10 p-4 min-h-[520px]">
-      <div className="mb-3 flex items-center justify-between">
+    <div className="rounded-2xl border border-white/10 bg-black/10 p-4 h-[520px] flex flex-col">
+      <div className="mb-3 flex items-center justify-between shrink-0">
         <h3 className="text-sm font-semibold text-cloudWhite">{title}</h3>
         <span className="text-xs text-white/60">{tasks.length}</span>
       </div>
 
-      <div className="space-y-3">
+      <div
+        className={[
+          "space-y-3 pr-1",
+          "flex-1",
+          enableScroll ? "overflow-y-auto" : "overflow-y-hidden",
+        ].join(" ")}
+      >
         {tasks.length === 0 ? (
           <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/60">
             Nenhuma tarefa encontrada com esses filtros.
@@ -109,7 +117,6 @@ function Column({
     </div>
   );
 }
-
 export default function KanbanBoard({
   tasks,
   setTasks,
@@ -224,6 +231,10 @@ export default function KanbanBoard({
       setCompletingId(null);
     }
   }
+
+
+
+
 
   return (
     <>
