@@ -7,6 +7,7 @@ import NewTaskCard from "./NewTaskCard";
 import FiltersCard from "./FiltersCard";
 import DailyGoalCard from "./DailyGoalCard";
 import WeekTabs from "./WeekTabs";
+import DayReadOnlyList from "./DayReadOnlyList";
 
 import type { TaskUI, TaskApi, UserApi, DifficultyFilter } from "../_types";
 import { mapTaskApiToUI } from "../_utils/map";
@@ -19,14 +20,13 @@ function todayKeyLocal() {
   return `${y}-${m}-${day}`;
 }
 
-// segunda = 0, ..., domingo = 6
 function weekStartLocalKey() {
   const now = new Date();
-  const day = now.getDay(); // 0=Dom, 1=Seg...
+  const day = now.getDay();
   const diffToMonday = (day + 6) % 7;
 
   const monday = new Date(now);
-  monday.setHours(12, 0, 0, 0); // evita edge de DST
+  monday.setHours(12, 0, 0, 0);
   monday.setDate(now.getDate() - diffToMonday);
 
   const y = monday.getFullYear();
@@ -48,8 +48,7 @@ function addDays(dayKey: string, days: number) {
 }
 
 function weekdayIndexMon0() {
-  const day = new Date().getDay(); // 0=Dom
-  // converte para 0=Seg ... 6=Dom
+  const day = new Date().getDay();
   return (day + 6) % 7;
 }
 
@@ -65,7 +64,6 @@ export default function DashboardClient() {
   const [filterDifficulty, setFilterDifficulty] =
     useState<DifficultyFilter>("ALL");
 
-  // ✅ Etapa 3: aba selecionada (0=Seg..6=Dom)
   const [selectedWeekday, setSelectedWeekday] = useState<number>(() =>
     weekdayIndexMon0()
   );
@@ -104,33 +102,30 @@ export default function DashboardClient() {
     setFilterDifficulty("ALL");
   }
 
-  // ✅ dayKey da aba selecionada (Seg..Dom) dentro da semana atual
+  const todayKey = useMemo(() => todayKeyLocal(), []);
   const selectedDayKey = useMemo(() => {
     const weekStart = weekStartLocalKey();
     return addDays(weekStart, selectedWeekday);
   }, [selectedWeekday]);
 
-  const filteredTasks = useMemo(() => {
+  const todayTasks = useMemo(() => {
     const q = filterQuery.trim().toLowerCase();
 
-    // ✅ Etapa 3: só tasks do dia selecionado
-    const byDay = tasks.filter((t) => t.dayKey === selectedDayKey);
+    return tasks
+      .filter((t) => t.dayKey === todayKey)
+      .filter((t) => {
+        const matchQuery = q.length === 0 || t.title.toLowerCase().includes(q);
+        const matchDifficulty =
+          filterDifficulty === "ALL" || t.difficulty === filterDifficulty;
+        return matchQuery && matchDifficulty;
+      });
+  }, [tasks, todayKey, filterQuery, filterDifficulty]);
 
-    return byDay.filter((t) => {
-      const matchQuery = q.length === 0 || t.title.toLowerCase().includes(q);
-      const matchDifficulty =
-        filterDifficulty === "ALL" || t.difficulty === filterDifficulty;
+  const selectedDayTasks = useMemo(() => {
+    return tasks.filter((t) => t.dayKey === selectedDayKey);
+  }, [tasks, selectedDayKey]);
 
-      return matchQuery && matchDifficulty;
-    });
-  }, [tasks, filterQuery, filterDifficulty, selectedDayKey]);
-
-  // (opcional) se você quiser mostrar no HUD quantas tasks totais existem (sem filtrar por dia),
-  // mantenha "tasks" no TopHud como está.
-
-  if (loading) {
-    return <div className="text-white/70">Carregando dashboard...</div>;
-  }
+  if (loading) return <div className="text-white/70">Carregando dashboard...</div>;
 
   if (error) {
     return (
@@ -146,7 +141,6 @@ export default function DashboardClient() {
     );
   }
 
-  // ✅ segurança
   if (!user) {
     return (
       <div className="rounded-2xl border border-white/10 bg-black/10 p-4 text-white/70">
@@ -174,21 +168,20 @@ export default function DashboardClient() {
       <section className="col-span-12 lg:col-span-9 space-y-6">
         <TopHud user={user} tasks={tasks} levelUpPulse={levelUpPulse} />
 
-        {/* ✅ Etapa 3: abas da semana */}
         <WeekTabs value={selectedWeekday} onChange={setSelectedWeekday} />
 
         <KanbanBoard
-          tasks={filteredTasks}
+          tasks={todayTasks}
           setTasks={setTasks}
           onNeedReload={loadAll}
           onLevelUp={() => setLevelUpPulse((v) => v + 1)}
         />
 
-        {/* debugzinho útil (remove depois) */}
-        <div className="text-xs text-white/40">
-          Dia selecionado: <span className="text-white/60">{selectedDayKey}</span>{" "}
-          • Hoje: <span className="text-white/60">{todayKeyLocal()}</span>
-        </div>
+        <DayReadOnlyList
+          title="Lista do dia selecionado (somente leitura)"
+          dayKey={selectedDayKey}
+          tasks={selectedDayTasks}
+        />
       </section>
     </div>
   );
