@@ -6,26 +6,7 @@ import TaskModal from "./TaskModal";
 import type { TaskUI } from "../_types";
 import { useToast } from "./toast";
 import { isOverdue } from "../_utils/date";
-
-type TaskApi = {
-  id: string;
-  title: string;
-  difficulty: "EASY" | "MEDIUM" | "HARD";
-  dueDate: string | null;
-  completed: boolean;
-  completedAt: string | null;
-};
-
-type CompleteResponse = {
-  rewards?: { xp: number; gold: number };
-  leveledUp?: number;
-  achievements?: {
-    unlocked?: Array<{ code: string; title: string; rewardGold: number; rewardXp: number }>;
-    totalRewardGold?: number;
-    totalRewardXp?: number;
-  };
-};
-
+import { TaskApi, CompleteResponse } from "../_types";
 
 function mapApiToUI(t: TaskApi): TaskUI {
   return {
@@ -36,6 +17,7 @@ function mapApiToUI(t: TaskApi): TaskUI {
     completed: t.completed,
     description: null,
     tags: [],
+    dayKey: t.dayKey,
   };
 }
 

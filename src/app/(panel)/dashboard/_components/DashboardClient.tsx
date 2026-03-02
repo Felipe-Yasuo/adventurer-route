@@ -53,6 +53,7 @@ function weekdayIndexMon0() {
 }
 
 export default function DashboardClient() {
+  // ✅ states
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,6 +69,7 @@ export default function DashboardClient() {
     weekdayIndexMon0()
   );
 
+  // ✅ effects
   async function loadAll() {
     setLoading(true);
     setError(null);
@@ -95,6 +97,7 @@ export default function DashboardClient() {
 
   useEffect(() => {
     loadAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function clearFilters() {
@@ -102,11 +105,16 @@ export default function DashboardClient() {
     setFilterDifficulty("ALL");
   }
 
+  // ✅ memos (TODOS antes dos returns)
   const todayKey = useMemo(() => todayKeyLocal(), []);
   const selectedDayKey = useMemo(() => {
     const weekStart = weekStartLocalKey();
     return addDays(weekStart, selectedWeekday);
   }, [selectedWeekday]);
+
+  const completedTotal = useMemo(() => {
+    return tasks.filter((t) => t.completed).length;
+  }, [tasks]);
 
   const todayTasks = useMemo(() => {
     const q = filterQuery.trim().toLowerCase();
@@ -125,6 +133,7 @@ export default function DashboardClient() {
     return tasks.filter((t) => t.dayKey === selectedDayKey);
   }, [tasks, selectedDayKey]);
 
+  // ✅ returns condicionais (agora ok)
   if (loading) return <div className="text-white/70">Carregando dashboard...</div>;
 
   if (error) {
@@ -166,7 +175,7 @@ export default function DashboardClient() {
       </aside>
 
       <section className="col-span-12 lg:col-span-9 space-y-6">
-        <TopHud user={user} tasks={tasks} levelUpPulse={levelUpPulse} />
+        <TopHud user={user} completedTotal={completedTotal} levelUpPulse={levelUpPulse} />
 
         <WeekTabs value={selectedWeekday} onChange={setSelectedWeekday} />
 
