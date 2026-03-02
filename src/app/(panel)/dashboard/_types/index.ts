@@ -11,6 +11,7 @@ export type UserApi = {
     streakCount: number;
     avatarUrl?: string | null;
     penalties?: any;
+    tasksCompletedTotal: number;
 };
 
 

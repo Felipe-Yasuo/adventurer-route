@@ -42,6 +42,7 @@ export default function TopHud({
     life: number;
     maxLife: number;
     streakCount: number;
+    tasksCompletedTotal: number;
   };
   tasks: TaskUI[];
   levelUpPulse: number;
@@ -100,7 +101,7 @@ export default function TopHud({
           label="Streak"
           highlight={streakActive}
         />
-        <HudStat icon="✅" value={completedTotal} label="Concluídas" />
+        <HudStat icon="✅" value={user.tasksCompletedTotal} label="Concluídas" />
         <HudStat icon="💎" value={user.gold} label="GOLD" />
 
         <div

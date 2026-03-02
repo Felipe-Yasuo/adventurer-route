@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { TaskUI, Difficulty } from "./types";
+import type { TaskUI, Difficulty } from "../_types";
 
 function ModalShell({
   open,
