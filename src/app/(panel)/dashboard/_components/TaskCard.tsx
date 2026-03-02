@@ -1,4 +1,5 @@
 import type { TaskUI } from "./types";
+import { isOverdue } from "./dateUtils";
 
 function difficultyBadge(difficulty: TaskUI["difficulty"]) {
   const base =
@@ -11,6 +12,8 @@ function difficultyBadge(difficulty: TaskUI["difficulty"]) {
   return `${base} bg-rose/20 text-cloudWhite border-white/10`;
 }
 
+
+
 export default function TaskCard({
   task,
   onOpen,
@@ -22,8 +25,16 @@ export default function TaskCard({
   onComplete: () => void;
   completing?: boolean;
 }) {
+
+  const overdue = isOverdue(task.dueDate, task.completed);
+
   return (
-    <div className="w-full rounded-2xl border border-white/10 bg-black/20 p-4 shadow-lg backdrop-blur hover:bg-black/30 transition">
+    <div
+      className={[
+        "w-full rounded-2xl border border-white/10 bg-black/20 p-4 shadow-lg backdrop-blur hover:bg-black/30 transition",
+        overdue ? "ring-1 ring-rose/40" : "",
+      ].join(" ")}
+    >
       <div className="flex items-start justify-between gap-3">
         <button onClick={onOpen} className="min-w-0 flex-1 text-left">
           <p className={["text-sm font-semibold truncate", task.completed ? "text-white/50 line-through" : "text-cloudWhite"].join(" ")}>
@@ -38,6 +49,12 @@ export default function TaskCard({
         </button>
 
         <div className="flex flex-col items-end gap-2">
+          {overdue ? (
+            <span className="mb-1 inline-flex items-center rounded-full bg-rose/25 px-2 py-0.5 text-[11px] font-semibold text-cloudWhite border border-white/10">
+              ⏰ VENCIDA
+            </span>
+          ) : null}
+
           <div className="text-xs text-white/50">
             {task.dueDate ? (
               <span className="rounded-lg border border-white/10 bg-white/5 px-2 py-1">
