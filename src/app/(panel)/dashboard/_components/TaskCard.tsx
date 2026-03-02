@@ -1,5 +1,5 @@
-import type { TaskUI } from "./types";
-import { isOverdue } from "./dateUtils";
+import type { TaskUI } from "../_types";
+import { isOverdue } from "../_utils/date";
 
 function difficultyBadge(difficulty: TaskUI["difficulty"]) {
   const base =
@@ -11,8 +11,6 @@ function difficultyBadge(difficulty: TaskUI["difficulty"]) {
     return `${base} bg-blueSoft/20 text-cloudWhite border-white/10`;
   return `${base} bg-rose/20 text-cloudWhite border-white/10`;
 }
-
-
 
 export default function TaskCard({
   task,

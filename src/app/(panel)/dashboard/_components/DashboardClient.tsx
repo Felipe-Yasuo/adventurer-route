@@ -6,43 +6,8 @@ import KanbanBoard from "./KanbanBoard";
 import NewTaskCard from "./NewTaskCard";
 import FiltersCard from "./FiltersCard";
 import DailyGoalCard from "./DailyGoalCard";
-import type { TaskUI } from "./types";
-
-
-type DifficultyFilter = "ALL" | "EASY" | "MEDIUM" | "HARD";
-
-type UserApi = {
-  level: number;
-  xp: number;
-  life: number;
-  maxLife: number;
-  gold: number;
-  streakCount: number;
-  avatarUrl?: string | null;
-  penalties?: any;
-};
-
-type TaskApi = {
-  id: string;
-  title: string;
-  difficulty: "EASY" | "MEDIUM" | "HARD";
-  dueDate: string | null;
-  completed: boolean;
-  completedAt: string | null;
-};
-
-function mapTaskApiToUI(t: TaskApi): TaskUI {
-  return {
-    id: t.id,
-    title: t.title,
-    difficulty: t.difficulty,
-    dueDate: t.dueDate ? t.dueDate.slice(0, 10) : null,
-    completed: t.completed,
-    description: null,
-    tags: [],
-  };
-}
-
+import type { TaskUI, TaskApi, UserApi, DifficultyFilter } from "../_types";
+import { mapTaskApiToUI } from "../_utils/map";
 
 
 export default function DashboardClient() {

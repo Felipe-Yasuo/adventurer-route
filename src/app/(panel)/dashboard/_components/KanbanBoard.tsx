@@ -3,9 +3,9 @@
 import { useMemo, useState } from "react";
 import TaskCard from "./TaskCard";
 import TaskModal from "./TaskModal";
-import type { TaskUI } from "./types";
+import type { TaskUI } from "../_types";
 import { useToast } from "./toast";
-import { isOverdue } from "./dateUtils";
+import { isOverdue } from "../_utils/date";
 
 type TaskApi = {
   id: string;

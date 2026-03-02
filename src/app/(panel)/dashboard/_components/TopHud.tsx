@@ -1,4 +1,4 @@
-import type { TaskUI } from "./types";
+import type { TaskUI } from "../_types";
 import { useEffect, useState } from "react";
 
 
