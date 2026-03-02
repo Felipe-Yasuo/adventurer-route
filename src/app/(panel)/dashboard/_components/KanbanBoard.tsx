@@ -5,6 +5,7 @@ import TaskCard from "./TaskCard";
 import TaskModal from "./TaskModal";
 import type { TaskUI } from "./types";
 import { useToast } from "./toast";
+import { isOverdue } from "./dateUtils";
 
 type TaskApi = {
   id: string;
@@ -113,17 +114,38 @@ export default function KanbanBoard({
   tasks,
   setTasks,
   onNeedReload,
+  onLevelUp,
 }: {
   tasks: TaskUI[];
   setTasks: React.Dispatch<React.SetStateAction<TaskUI[]>>;
   onNeedReload: () => Promise<void>;
+  onLevelUp: () => void;
 }) {
 
   const [selected, setSelected] = useState<TaskUI | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
   const [completingId, setCompletingId] = useState<string | null>(null);
 
-  const active = useMemo(() => tasks.filter((t) => !t.completed), [tasks]);
+  const active = useMemo(() => {
+    const onlyActive = tasks.filter((t) => !t.completed);
+
+    return [...onlyActive].sort((a, b) => {
+      const aOver = isOverdue(a.dueDate, a.completed);
+      const bOver = isOverdue(b.dueDate, b.completed);
+
+      if (aOver !== bOver) return aOver ? -1 : 1;
+
+      const aHas = !!a.dueDate;
+      const bHas = !!b.dueDate;
+      if (aHas !== bHas) return aHas ? -1 : 1;
+
+      if (a.dueDate && b.dueDate) return a.dueDate.localeCompare(b.dueDate);
+
+      return a.title.localeCompare(b.title);
+    });
+  }, [tasks]);
+
+
   const done = useMemo(() => tasks.filter((t) => t.completed), [tasks]);
   const toast = useToast();
 
@@ -168,6 +190,7 @@ export default function KanbanBoard({
 
       const leveledUp = result.leveledUp ?? 0;
       if (leveledUp > 0) {
+        onLevelUp();
         toast.push({
           type: "info",
           title: "LEVEL UP! ✨",
