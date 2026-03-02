@@ -1,5 +1,5 @@
 import type { TaskUI } from "../_types";
-import { isOverdue } from "../_utils/date";
+import { isOverdue, dateStatus } from "../_utils/date";
 
 function difficultyBadge(difficulty: TaskUI["difficulty"]) {
   const base =
@@ -25,12 +25,15 @@ export default function TaskCard({
 }) {
 
   const overdue = isOverdue(task.dueDate, task.completed);
+  const status = dateStatus(task.dueDate, task.completed);
 
   return (
     <div
       className={[
-        "w-full rounded-2xl border border-white/10 bg-black/20 p-4 shadow-lg backdrop-blur hover:bg-black/30 transition",
-        overdue ? "ring-1 ring-rose/40" : "",
+        "w-full rounded-2xl border border-white/10 p-4 shadow-lg backdrop-blur transition",
+        status === "overdue" ? "bg-rose/10 ring-1 ring-rose/40" :
+          status === "today" ? "bg-blueSoft/10 ring-1 ring-blueSoft/30" :
+            "bg-black/20 hover:bg-black/30"
       ].join(" ")}
     >
       <div className="flex items-start justify-between gap-3">
@@ -47,12 +50,23 @@ export default function TaskCard({
         </button>
 
         <div className="flex flex-col items-end gap-2">
-          {overdue ? (
-            <span className="mb-1 inline-flex items-center rounded-full bg-rose/25 px-2 py-0.5 text-[11px] font-semibold text-cloudWhite border border-white/10">
+          {status === "overdue" && (
+            <span className="mb-1 inline-flex items-center rounded-full bg-rose/30 px-2 py-0.5 text-[11px] font-semibold border border-white/10">
               ⏰ VENCIDA
             </span>
-          ) : null}
+          )}
 
+          {status === "today" && (
+            <span className="mb-1 inline-flex items-center rounded-full bg-blueSoft/30 px-2 py-0.5 text-[11px] font-semibold border border-white/10">
+              🔔 HOJE
+            </span>
+          )}
+
+          {status === "tomorrow" && (
+            <span className="mb-1 inline-flex items-center rounded-full bg-forest/30 px-2 py-0.5 text-[11px] font-semibold border border-white/10">
+              🌅 AMANHÃ
+            </span>
+          )}
           <div className="text-xs text-white/50">
             {task.dueDate ? (
               <span className="rounded-lg border border-white/10 bg-white/5 px-2 py-1">

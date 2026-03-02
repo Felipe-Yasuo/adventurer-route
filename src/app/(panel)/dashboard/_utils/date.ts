@@ -23,3 +23,20 @@ export function isOverdue(dueDateKey: string | null | undefined, completed: bool
     const today = todayKeyInTz();
     return dueDateKey < today;
 }
+
+export function dateStatus(dueDateKey: string | null | undefined, completed: boolean) {
+    if (!dueDateKey || completed) return "normal";
+
+    const today = todayKeyInTz();
+
+    if (dueDateKey < today) return "overdue";
+    if (dueDateKey === today) return "today";
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(new Date(today).getDate() + 1);
+    const tomorrowKey = tomorrow.toISOString().slice(0, 10);
+
+    if (dueDateKey === tomorrowKey) return "tomorrow";
+
+    return "normal";
+}
