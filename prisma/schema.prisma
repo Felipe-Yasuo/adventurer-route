@@ -49,6 +49,8 @@ model Task {
   completed   Boolean   @default(false)
   completedAt DateTime?
 
+  dayKey String
+
   overdueProcessedAt DateTime?
 
   userId String
