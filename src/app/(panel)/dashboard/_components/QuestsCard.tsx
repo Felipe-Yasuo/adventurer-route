@@ -1,8 +1,11 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import GlassCard from "./GlassCard";
 import { useToast } from "./toast";
 import type { QuestApi } from "../_types";
+
+type Tab = "DAILY" | "WEEKLY";
 
 function pct(progress: number, target: number) {
     if (target <= 0) return 0;
@@ -34,6 +37,30 @@ async function claimQuestApi(id: string) {
     };
 }
 
+function TabButton({
+    active,
+    children,
+    onClick,
+}: {
+    active: boolean;
+    children: React.ReactNode;
+    onClick: () => void;
+}) {
+    return (
+        <button
+            onClick={onClick}
+            className={[
+                "rounded-xl border px-3 py-2 text-xs font-semibold transition",
+                active
+                    ? "bg-cloudWhite text-twilight border-black/10"
+                    : "bg-black/20 text-white/70 border-white/10 hover:bg-black/30",
+            ].join(" ")}
+        >
+            {children}
+        </button>
+    );
+}
+
 export default function QuestsCard({
     quests,
     onNeedReload,
@@ -44,6 +71,12 @@ export default function QuestsCard({
     onLevelUp: () => void;
 }) {
     const toast = useToast();
+    const [tab, setTab] = useState<Tab>("DAILY");
+
+    const daily = useMemo(() => quests.filter((q) => q.type === "DAILY"), [quests]);
+    const weekly = useMemo(() => quests.filter((q) => q.type === "WEEKLY"), [quests]);
+
+    const shown = tab === "DAILY" ? daily : weekly;
 
     async function handleClaim(q: QuestApi) {
         try {
@@ -82,18 +115,35 @@ export default function QuestsCard({
 
     return (
         <GlassCard>
-            <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold">Quests de hoje</h3>
-                <span className="text-xs text-white/60">{quests.length}</span>
+            <div className="flex items-start justify-between gap-3">
+                <div>
+                    <h3 className="text-sm font-semibold">Quests</h3>
+                    <p className="mt-1 text-xs text-white/60">
+                        {tab === "DAILY" ? "Missões de hoje" : "Missões da semana"}
+                    </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <span className="text-xs text-white/60">{shown.length}</span>
+                </div>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-2">
+                <TabButton active={tab === "DAILY"} onClick={() => setTab("DAILY")}>
+                    Hoje ({daily.length})
+                </TabButton>
+                <TabButton active={tab === "WEEKLY"} onClick={() => setTab("WEEKLY")}>
+                    Semana ({weekly.length})
+                </TabButton>
             </div>
 
             <div className="mt-3 space-y-3">
-                {quests.length === 0 ? (
+                {shown.length === 0 ? (
                     <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/60">
-                        Nenhuma quest disponível (ainda).
+                        Nenhuma quest {tab === "DAILY" ? "de hoje" : "da semana"}.
                     </div>
                 ) : (
-                    quests.map((q) => {
+                    shown.map((q) => {
                         const done = q.progress >= q.target;
                         const claimed = q.status === "CLAIMED";
                         const p = pct(q.progress, q.target);
@@ -113,6 +163,7 @@ export default function QuestsCard({
                                                 {claimed ? "resgatada" : done ? "completa" : "ativa"}
                                             </span>
                                         </div>
+
                                         <p className="mt-1 text-xs text-white/60">{q.description}</p>
 
                                         <div className="mt-3">
@@ -130,10 +181,8 @@ export default function QuestsCard({
                                                 />
                                             </div>
 
-                                            <div className="mt-2 flex items-center justify-between text-[11px] text-white/50">
-                                                <span>
-                                                    Recompensa: +{q.rewardXp} XP • +{q.rewardGold} GOLD
-                                                </span>
+                                            <div className="mt-2 text-[11px] text-white/50">
+                                                Recompensa: +{q.rewardXp} XP • +{q.rewardGold} GOLD
                                             </div>
                                         </div>
                                     </div>
@@ -160,7 +209,7 @@ export default function QuestsCard({
             </div>
 
             <p className="mt-3 text-[11px] text-white/40">
-                * Complete tasks no Kanban para avançar nas quests. Quando completar, resgate aqui.
+                * Conclua tasks no Kanban para avançar. Quando completar, resgate aqui.
             </p>
         </GlassCard>
     );
