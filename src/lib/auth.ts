@@ -6,14 +6,33 @@ import { prisma } from "@/lib/prisma";
 export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
     adapter: PrismaAdapter(prisma),
+
     providers: [
         GoogleProvider({
             clientId: process.env.AUTH_GOOGLE_ID!,
             clientSecret: process.env.AUTH_GOOGLE_SECRET!,
         }),
     ],
-    pages: {
-        signIn: "/login",
+
+    pages: { signIn: "/login" },
+
+    session: { strategy: "jwt" },
+
+    callbacks: {
+        async jwt({ token, user }) {
+
+            if (user?.id) token.sub = user.id;
+            return token;
+        },
+
+        async session({ session, token }) {
+            const userId = token?.sub;
+
+            if (session.user && userId) {
+                (session.user as any).id = userId;
+            }
+
+            return session;
+        },
     },
-    session: { strategy: "database" },
 };
