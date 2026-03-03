@@ -180,15 +180,26 @@ export async function claimQuest(
     questId: string
 ): Promise<QuestClaimResult> {
     return prisma.$transaction(async (tx) => {
+
         const quest = await tx.quest.findFirst({
             where: { id: questId, userId },
         });
 
         if (!quest) throw new Error("Quest não encontrada");
-        if (quest.status !== "ACTIVE")
-            throw new Error("Quest já foi resgatada ou não está ativa");
-        if (quest.progress < quest.target)
+
+        if (quest.progress < quest.target) {
             throw new Error("Quest ainda não foi completada");
+        }
+        const claimed = await tx.quest.updateMany({
+            where: { id: questId, userId, status: "ACTIVE" },
+            data: { status: "CLAIMED", claimedAt: new Date() },
+        });
+
+        if (claimed.count === 0) {
+
+            throw new Error("Quest já foi resgatada ou não está ativa");
+        }
+
 
         const user = await tx.user.findUnique({
             where: { id: userId },
@@ -211,7 +222,10 @@ export async function claimQuest(
         if (!user) throw new Error("Usuário não encontrado");
 
         const rewards = { xp: quest.rewardXp, gold: quest.rewardGold };
-        const progressed = applyXpAndLevelUp(user, rewards.xp);
+        const progressed = applyXpAndLevelUp(
+            { level: user.level, xp: user.xp },
+            rewards.xp
+        );
 
         const updatedUser = await tx.user.update({
             where: { id: userId },
@@ -236,9 +250,8 @@ export async function claimQuest(
             },
         });
 
-        const updatedQuest = await tx.quest.update({
+        const updatedQuest = await tx.quest.findUnique({
             where: { id: questId },
-            data: { status: "CLAIMED", claimedAt: new Date() },
         });
 
         return {
@@ -249,7 +262,6 @@ export async function claimQuest(
         };
     });
 }
-
 export async function onTaskCompletedUpdateQuests(
     tx: Prisma.TransactionClient,
     userId: string,
