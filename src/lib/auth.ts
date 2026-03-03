@@ -19,14 +19,19 @@ export const authOptions: NextAuthOptions = {
     session: { strategy: "jwt" },
 
     callbacks: {
+        async redirect({ url, baseUrl }) {
+            if (url.startsWith("/")) return `${baseUrl}${url}`;
+            if (url.startsWith(baseUrl)) return url;
+            return `${baseUrl}/dashboard`;
+        },
+
         async jwt({ token, user }) {
             if (user?.id) token.sub = user.id;
             return token;
         },
+
         async session({ session, token }) {
-            if (session.user && token?.sub) {
-                session.user.id = token.sub;
-            }
+            if (session.user && token?.sub) session.user.id = token.sub;
             return session;
         },
     },
