@@ -43,6 +43,7 @@ export type CompleteResponse = {
         totalRewardGold?: number;
         totalRewardXp?: number;
     };
+    questsCompleted?: Array<{ code: string; title: string; type: "DAILY" | "WEEKLY" }>;
 };
 
 export type QuestApi = {
