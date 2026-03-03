@@ -2,10 +2,9 @@ import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import bcrypt from "bcryptjs";
-
 import { prisma } from "@/lib/prisma";
 import { seedGlobalGameData, seedUserDefaults } from "@/lib/game/seed";
+import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
@@ -29,26 +28,25 @@ export const authOptions: NextAuthOptions = {
 
                 if (!email || !password) return null;
 
-                // ✅ busca a conta local + user
                 const local = await prisma.localAccount.findUnique({
                     where: { email },
                     select: {
                         hash: true,
                         user: {
-                            select: { id: true, name: true, email: true, image: true },
+                            select: { id: true, email: true, name: true, image: true },
                         },
                     },
                 });
 
-                if (!local) return null;
+                if (!local?.user) return null;
 
                 const ok = await bcrypt.compare(password, local.hash);
                 if (!ok) return null;
 
                 return {
                     id: local.user.id,
-                    name: local.user.name,
                     email: local.user.email,
+                    name: local.user.name,
                     image: local.user.image,
                 };
             },
@@ -60,35 +58,6 @@ export const authOptions: NextAuthOptions = {
     session: { strategy: "database" },
 
     callbacks: {
-        async signIn({ user, account, profile }) {
-
-            if (account?.provider !== "google") return true;
-
-            const email = user.email?.toLowerCase().trim();
-            if (!email) return true;
-
-            const local = await prisma.localAccount.findUnique({
-                where: { email },
-                select: { userId: true },
-            });
-
-            if (!local) return true;
-
-            if (user.id !== local.userId) {
-
-                await prisma.account.updateMany({
-                    where: {
-                        provider: account.provider,
-                        providerAccountId: account.providerAccountId,
-                    },
-                    data: { userId: local.userId },
-                });
-
-            }
-
-            return true;
-        },
-
         async session({ session, user }) {
             if (session.user) (session.user as any).id = user.id;
             return session;
