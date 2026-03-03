@@ -55,9 +55,24 @@ export const authOptions: NextAuthOptions = {
 
     pages: { signIn: "/login" },
 
-    session: { strategy: "database" },
+    session: { strategy: "jwt" },
 
     callbacks: {
+        async jwt({ token, user }) {
+            // roda no login (Google e Credentials)
+            if (user) {
+                token.id = (user as any).id;
+            }
+            return token;
+        },
+
+        async session({ session, token }) {
+            if (session.user) {
+                (session.user as any).id = (token as any).id;
+            }
+            return session;
+        },
+
         async signIn({ user, account }) {
             if (account?.provider === "google") {
                 const email = user.email?.toLowerCase().trim();
@@ -66,19 +81,10 @@ export const authOptions: NextAuthOptions = {
                         where: { email },
                         select: { id: true },
                     });
-
-                    if (hasLocal) {
-                        return "/login?error=EmailJaCadastrado";
-                    }
+                    if (hasLocal) return "/login?error=EmailJaCadastrado";
                 }
             }
-
             return true;
-        },
-
-        async session({ session, user }) {
-            if (session.user) (session.user as any).id = user.id;
-            return session;
         },
 
         async redirect({ url, baseUrl }) {
@@ -87,7 +93,6 @@ export const authOptions: NextAuthOptions = {
             return `${baseUrl}/dashboard`;
         },
     },
-
     events: {
         async createUser({ user }) {
             await seedGlobalGameData();
