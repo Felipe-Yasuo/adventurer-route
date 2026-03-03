@@ -2,6 +2,7 @@ import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
+import { seedGlobalGameData, seedUserDefaults } from "@/lib/game/seed";
 
 export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
@@ -16,23 +17,27 @@ export const authOptions: NextAuthOptions = {
 
     pages: { signIn: "/login" },
 
-    session: { strategy: "jwt" },
+    session: { strategy: "database" },
 
     callbacks: {
+        async session({ session, user }) {
+            if (session.user) {
+                (session.user as any).id = user.id;
+            }
+            return session;
+        },
+
         async redirect({ url, baseUrl }) {
             if (url.startsWith("/")) return `${baseUrl}${url}`;
             if (url.startsWith(baseUrl)) return url;
             return `${baseUrl}/dashboard`;
         },
+    },
+    events: {
+        async createUser({ user }) {
+            await seedGlobalGameData();
 
-        async jwt({ token, user }) {
-            if (user?.id) token.sub = user.id;
-            return token;
-        },
-
-        async session({ session, token }) {
-            if (session.user && token?.sub) session.user.id = token.sub;
-            return session;
+            await seedUserDefaults(user.id);
         },
     },
 };
