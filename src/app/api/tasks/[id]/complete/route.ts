@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getDevUser } from "@/lib/devUser";
 import { rewardsByDifficulty } from "@/lib/game/rules";
 import { applyXpAndLevelUp } from "@/lib/game/progression";
 import { dateKeyInTz, diffDaysByDateKey } from "@/lib/game/time";
 import { checkAndUnlockAchievements } from "@/lib/game/achievements";
 import { onTaskCompletedUpdateQuests } from "@/lib/game/quests";
+import { requireUser } from "@/lib/requireUser";
 
 const TZ = "America/Sao_Paulo";
 
@@ -14,7 +14,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getDevUser();
+    const user = await requireUser();
+    if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     const { id: taskId } = await params;
 
     const result = await prisma.$transaction(async (tx) => {

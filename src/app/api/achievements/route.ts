@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getDevUser } from "@/lib/devUser";
+
+import { requireUser } from "@/lib/requireUser";
 
 export async function GET() {
   try {
-    const user = await getDevUser();
+    const user = await requireUser();
+    if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
 
     const achievements = await prisma.achievement.findMany({
       orderBy: { createdAt: "asc" },

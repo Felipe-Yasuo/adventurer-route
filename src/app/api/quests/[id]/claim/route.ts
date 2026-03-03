@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDevUser } from "@/lib/devUser";
+import { requireUser } from "@/lib/requireUser";
 import { claimQuest } from "@/lib/game/quests";
 
 export async function POST(
@@ -7,7 +7,8 @@ export async function POST(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const user = await getDevUser();
+        const user = await requireUser();
+        if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
         const { id: questId } = await params;
 
         const result = await claimQuest(user.id, questId);

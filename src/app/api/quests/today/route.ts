@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { getDevUser } from "@/lib/devUser";
+import { requireUser } from "@/lib/requireUser";
 import { ensureTodayQuests } from "@/lib/game/quests";
 
 export async function GET() {
     try {
-        const user = await getDevUser();
+        const user = await requireUser();
+        if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
         const quests = await ensureTodayQuests(user.id);
 
         return NextResponse.json(

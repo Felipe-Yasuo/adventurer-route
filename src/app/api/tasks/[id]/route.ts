@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getDevUser } from "@/lib/devUser";
+import { requireUser } from "@/lib/requireUser";
 import { Difficulty } from "@prisma/client";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function PATCH(req: Request, { params }: Ctx) {
     try {
-        const user = await getDevUser();
+        const user = await requireUser();
+        if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
 
         const { id } = await params;
 
@@ -34,17 +35,18 @@ export async function PATCH(req: Request, { params }: Ctx) {
             data.completedAt = body.completed ? new Date() : null;
         }
 
-        const updated = await prisma.task.update({
-            where: { id },
+        // ✅ update protegido por userId
+        const updated = await prisma.task.updateMany({
+            where: { id, userId: user.id },
             data,
         });
 
-
-        if (updated.userId !== user.id) {
-            return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
+        if (updated.count === 0) {
+            return NextResponse.json({ error: "Task não encontrada" }, { status: 404 });
         }
 
-        return NextResponse.json(updated);
+        const fresh = await prisma.task.findUnique({ where: { id } });
+        return NextResponse.json(fresh);
     } catch (err) {
         console.error(err);
         return NextResponse.json({ error: "Erro ao atualizar task" }, { status: 500 });
@@ -53,14 +55,19 @@ export async function PATCH(req: Request, { params }: Ctx) {
 
 export async function DELETE(_: Request, { params }: Ctx) {
     try {
-        const user = await getDevUser();
+        const user = await requireUser();
+        if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+
         const { id } = await params;
 
-        // ✅ primeiro garante que é do usuário
-        const task = await prisma.task.findFirst({ where: { id, userId: user.id } });
-        if (!task) return NextResponse.json({ error: "Task não encontrada" }, { status: 404 });
+        // ✅ delete protegido por userId
+        const deleted = await prisma.task.deleteMany({
+            where: { id, userId: user.id },
+        });
 
-        await prisma.task.delete({ where: { id } });
+        if (deleted.count === 0) {
+            return NextResponse.json({ error: "Task não encontrada" }, { status: 404 });
+        }
 
         return NextResponse.json({ ok: true });
     } catch (err) {

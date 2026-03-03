@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getDevUser } from "@/lib/devUser";
+import { requireUser } from "@/lib/requireUser";
 
 export async function POST(req: Request) {
     try {
-        const devUser = await getDevUser();
+        const requireuser = await requireUser();
+        if (!requireuser) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
         const body = (await req.json()) as { itemId?: string; quantity?: number };
 
         const itemId = body.itemId;
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
 
         const result = await prisma.$transaction(async (tx) => {
             const user = await tx.user.findUnique({
-                where: { id: devUser.id },
+                where: { id: requireuser.id },
                 select: { id: true, gold: true },
             });
 
