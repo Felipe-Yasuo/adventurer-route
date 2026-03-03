@@ -18,29 +18,44 @@ export async function PATCH(
     const { id: taskId } = await params;
 
     const result = await prisma.$transaction(async (tx) => {
+
       const task = await tx.task.findFirst({
         where: { id: taskId, userId: user.id },
+        select: { id: true, userId: true, difficulty: true, completed: true },
       });
 
       if (!task) {
         return { status: 404 as const, body: { error: "Task não encontrada" } };
       }
 
-      if (task.completed) {
+      const now = new Date();
+
+      const updatedCount = await tx.task.updateMany({
+        where: { id: taskId, userId: user.id, completed: false },
+        data: { completed: true, completedAt: now },
+      });
+
+      if (updatedCount.count === 0) {
+
         return { status: 400 as const, body: { error: "Task já concluída" } };
       }
 
-      const now = new Date();
+
+      const updatedTask = await tx.task.findUnique({
+        where: { id: taskId },
+      });
+
+      if (!updatedTask) {
+        return { status: 404 as const, body: { error: "Task não encontrada" } };
+      }
+
       const rewards = rewardsByDifficulty(task.difficulty);
 
-      const updatedTask = await tx.task.update({
-        where: { id: taskId },
-        data: { completed: true, completedAt: now },
-      });
 
       const newlyCompletedQuests = await onTaskCompletedUpdateQuests(tx, user.id, {
         difficulty: task.difficulty,
       });
+
 
       const currentUser = await tx.user.findUnique({
         where: { id: user.id },
@@ -65,6 +80,7 @@ export async function PATCH(
         rewards.xp
       );
 
+
       const todayKey = dateKeyInTz(now, TZ);
 
       let newStreak = currentUser.streakCount;
@@ -75,14 +91,11 @@ export async function PATCH(
         const lastKey = dateKeyInTz(currentUser.lastCompletionDate, TZ);
         const diffDays = diffDaysByDateKey(lastKey, todayKey);
 
-        if (diffDays === 0) {
-          newStreak = currentUser.streakCount;
-        } else if (diffDays === 1) {
-          newStreak = currentUser.streakCount + 1;
-        } else {
-          newStreak = 1;
-        }
+        if (diffDays === 0) newStreak = currentUser.streakCount;
+        else if (diffDays === 1) newStreak = currentUser.streakCount + 1;
+        else newStreak = 1;
       }
+
 
       const updatedUser = await tx.user.update({
         where: { id: user.id },
