@@ -222,6 +222,10 @@ export default function KanbanBoard({
         });
       }
 
+      setTasks((prev) =>
+        prev.map((t) => (t.id === task.id ? { ...t, completed: true } : t))
+      );
+
       toast.push({
         type: "success",
         title: "Tarefa concluída!",

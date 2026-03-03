@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import GlassCard from "./GlassCard";
+import type { TaskApi } from "../_types";
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD";
 
@@ -31,7 +32,7 @@ async function createTaskApi(payload: {
 export default function NewTaskCard({
   onCreated,
 }: {
-  onCreated: () => Promise<void>;
+  onCreated: (task: TaskApi) => void | Promise<void>;
 }) {
   const [title, setTitle] = useState("");
   const [difficulty, setDifficulty] = useState<Difficulty>("EASY");
@@ -54,7 +55,13 @@ export default function NewTaskCard({
       setDifficulty("EASY");
       setDueDate("");
 
-      await onCreated();
+      const created = (await createTaskApi({
+        title: t,
+        difficulty,
+        dueDate: dueDate || null,
+      })) as TaskApi;
+
+      await onCreated(created);
     } catch (e: any) {
       alert(e?.message ?? "Erro ao criar task");
     } finally {

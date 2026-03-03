@@ -197,7 +197,18 @@ export default function DashboardClient() {
   return (
     <div className="grid grid-cols-12 gap-6">
       <aside className="col-span-12 lg:col-span-3 space-y-6">
-        <NewTaskCard onCreated={loadAll} />
+        <NewTaskCard
+          onCreated={async (created) => {
+            const ui = mapTaskApiToUI(created);
+            if (ui.dayKey === todayKey) {
+              setTasksToday((prev) => [ui, ...prev]);
+            }
+            if (selectedDayKey === ui.dayKey) {
+              setTasksSelected((prev) => [ui, ...prev]);
+            }
+            await loadMeAndQuests();
+          }}
+        />
 
         <FiltersCard
           query={filterQuery}
