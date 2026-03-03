@@ -5,7 +5,6 @@ import TopHud from "./TopHud";
 import KanbanBoard from "./KanbanBoard";
 import NewTaskCard from "./NewTaskCard";
 import FiltersCard from "./FiltersCard";
-import DailyGoalCard from "./DailyGoalCard";
 import WeekTabs from "./WeekTabs";
 import DayReadOnlyList from "./DayReadOnlyList";
 import QuestsCard from "./QuestsCard";
@@ -185,8 +184,6 @@ export default function DashboardClient() {
           onNeedReload={loadAll}
           onLevelUp={() => setLevelUpPulse((v) => v + 1)}
         />
-
-        <DailyGoalCard />
       </aside>
 
       <section className="col-span-12 lg:col-span-9 space-y-6">
