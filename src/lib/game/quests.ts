@@ -24,13 +24,11 @@ function todayKeyInTz(tz: string) {
 }
 
 function weekKeyInTz(tz: string) {
-    // weekKey = segunda-feira da semana no fuso tz, em YYYY-MM-DD
     const todayKey = todayKeyInTz(tz);
     const [y, m, d] = todayKey.split("-").map(Number);
     const local = new Date(y, m - 1, d, 12, 0, 0);
 
-    // 0=Dom ... 6=Sáb
-    const jsDay = local.getDay();
+    const jsDay = local.getDay(); // 0=Dom ... 6=Sáb
     const diffToMonday = (jsDay + 6) % 7;
 
     local.setDate(local.getDate() - diffToMonday);
@@ -58,57 +56,83 @@ export type QuestClaimResult = {
 };
 
 export const DAILY_QUEST_TEMPLATES: QuestTemplate[] = [
-    {
-        code: "DAILY_COMPLETE_1",
-        title: "Aqueça o motor",
-        description: "Complete 1 tarefa hoje.",
-        target: 1,
-        rewardXp: 10,
-        rewardGold: 5,
-    },
-    {
-        code: "DAILY_COMPLETE_3",
-        title: "Ritmo de aventura",
-        description: "Complete 3 tarefas hoje.",
-        target: 3,
-        rewardXp: 25,
-        rewardGold: 12,
-    },
-    {
-        code: "DAILY_COMPLETE_HARD_1",
-        title: "Desafio de verdade",
-        description: "Complete 1 tarefa HARD hoje.",
-        target: 1,
-        rewardXp: 30,
-        rewardGold: 15,
-    },
+    { code: "DAILY_COMPLETE_1", title: "Aqueça o motor", description: "Complete 1 tarefa hoje.", target: 1, rewardXp: 10, rewardGold: 5 },
+    { code: "DAILY_COMPLETE_3", title: "Ritmo de aventura", description: "Complete 3 tarefas hoje.", target: 3, rewardXp: 25, rewardGold: 12 },
+    { code: "DAILY_COMPLETE_HARD_1", title: "Desafio de verdade", description: "Complete 1 tarefa HARD hoje.", target: 1, rewardXp: 30, rewardGold: 15 },
 ];
 
 export const WEEKLY_QUEST_TEMPLATES: QuestTemplate[] = [
-    {
-        code: "WEEKLY_COMPLETE_10",
-        title: "Maratona da semana",
-        description: "Complete 10 tarefas nesta semana.",
-        target: 10,
-        rewardXp: 120,
-        rewardGold: 60,
-    },
-    {
-        code: "WEEKLY_COMPLETE_HARD_3",
-        title: "Semana casca-grossa",
-        description: "Complete 3 tarefas HARD nesta semana.",
-        target: 3,
-        rewardXp: 150,
-        rewardGold: 80,
-    },
+    { code: "WEEKLY_COMPLETE_10", title: "Maratona da semana", description: "Complete 10 tarefas nesta semana.", target: 10, rewardXp: 120, rewardGold: 60 },
+    { code: "WEEKLY_COMPLETE_HARD_3", title: "Semana casca-grossa", description: "Complete 3 tarefas HARD nesta semana.", target: 3, rewardXp: 150, rewardGold: 80 },
 ];
+
+function dailyUpsertArgs(userId: string, dayKey: string, q: QuestTemplate) {
+    return {
+        where: { userId_code_dayKey: { userId, code: q.code, dayKey } },
+        create: {
+            userId,
+            type: "DAILY" as const,
+            status: "ACTIVE" as const,
+            code: q.code,
+            title: q.title,
+            description: q.description,
+            target: q.target,
+            progress: 0,
+            rewardXp: q.rewardXp,
+            rewardGold: q.rewardGold,
+            dayKey,
+            weekKey: null,
+            claimedAt: null,
+        },
+        update: {
+            // mantém progresso/status, mas garante template consistente
+            title: q.title,
+            description: q.description,
+            target: q.target,
+            rewardXp: q.rewardXp,
+            rewardGold: q.rewardGold,
+            dayKey,
+            weekKey: null,
+        },
+    } satisfies Prisma.QuestUpsertArgs;
+}
+
+function weeklyUpsertArgs(userId: string, weekKey: string, q: QuestTemplate) {
+    return {
+        where: { userId_code_weekKey: { userId, code: q.code, weekKey } },
+        create: {
+            userId,
+            type: "WEEKLY" as const,
+            status: "ACTIVE" as const,
+            code: q.code,
+            title: q.title,
+            description: q.description,
+            target: q.target,
+            progress: 0,
+            rewardXp: q.rewardXp,
+            rewardGold: q.rewardGold,
+            weekKey,
+            dayKey: null,
+            claimedAt: null,
+        },
+        update: {
+            title: q.title,
+            description: q.description,
+            target: q.target,
+            rewardXp: q.rewardXp,
+            rewardGold: q.rewardGold,
+            weekKey,
+            dayKey: null,
+        },
+    } satisfies Prisma.QuestUpsertArgs;
+}
 
 export async function ensureTodayQuests(userId: string) {
     const dayKey = todayKeyInTz(TZ);
     const weekKey = weekKeyInTz(TZ);
 
     await prisma.$transaction(async (tx) => {
-        // ✅ “Sumir” quests antigas (não expira, remove)
+        // remove quests fora do período atual (como você quer)
         await tx.quest.deleteMany({
             where: { userId, type: "DAILY", dayKey: { not: dayKey } },
         });
@@ -117,48 +141,12 @@ export async function ensureTodayQuests(userId: string) {
             where: { userId, type: "WEEKLY", weekKey: { not: weekKey } },
         });
 
-        // DAILY
         for (const q of DAILY_QUEST_TEMPLATES) {
-            await tx.quest.upsert({
-                where: { userId_code_dayKey: { userId, code: q.code, dayKey } },
-                create: {
-                    userId,
-                    type: "DAILY",
-                    status: "ACTIVE",
-                    code: q.code,
-                    title: q.title,
-                    description: q.description,
-                    target: q.target,
-                    progress: 0,
-                    rewardXp: q.rewardXp,
-                    rewardGold: q.rewardGold,
-                    dayKey,
-                    weekKey: null,
-                },
-                update: {},
-            });
+            await tx.quest.upsert(dailyUpsertArgs(userId, dayKey, q));
         }
 
-        // WEEKLY
         for (const q of WEEKLY_QUEST_TEMPLATES) {
-            await tx.quest.upsert({
-                where: { userId_code_weekKey: { userId, code: q.code, weekKey } },
-                create: {
-                    userId,
-                    type: "WEEKLY",
-                    status: "ACTIVE",
-                    code: q.code,
-                    title: q.title,
-                    description: q.description,
-                    target: q.target,
-                    progress: 0,
-                    rewardXp: q.rewardXp,
-                    rewardGold: q.rewardGold,
-                    weekKey,
-                    dayKey: null,
-                },
-                update: {},
-            });
+            await tx.quest.upsert(weeklyUpsertArgs(userId, weekKey, q));
         }
     });
 
@@ -175,31 +163,19 @@ export async function listTodayQuests(userId: string) {
     });
 }
 
-export async function claimQuest(
-    userId: string,
-    questId: string
-): Promise<QuestClaimResult> {
+export async function claimQuest(userId: string, questId: string): Promise<QuestClaimResult> {
     return prisma.$transaction(async (tx) => {
-
-        const quest = await tx.quest.findFirst({
-            where: { id: questId, userId },
-        });
-
+        const quest = await tx.quest.findFirst({ where: { id: questId, userId } });
         if (!quest) throw new Error("Quest não encontrada");
 
-        if (quest.progress < quest.target) {
-            throw new Error("Quest ainda não foi completada");
-        }
+        if (quest.progress < quest.target) throw new Error("Quest ainda não foi completada");
+
         const claimed = await tx.quest.updateMany({
             where: { id: questId, userId, status: "ACTIVE" },
             data: { status: "CLAIMED", claimedAt: new Date() },
         });
 
-        if (claimed.count === 0) {
-
-            throw new Error("Quest já foi resgatada ou não está ativa");
-        }
-
+        if (claimed.count === 0) throw new Error("Quest já foi resgatada ou não está ativa");
 
         const user = await tx.user.findUnique({
             where: { id: userId },
@@ -213,7 +189,7 @@ export async function claimQuest(
                 streakCount: true,
                 lastCompletionDate: true,
                 tasksCompletedTotal: true,
-                avatarUrl: true,
+                image: true,
                 name: true,
                 email: true,
             },
@@ -222,6 +198,7 @@ export async function claimQuest(
         if (!user) throw new Error("Usuário não encontrado");
 
         const rewards = { xp: quest.rewardXp, gold: quest.rewardGold };
+
         const progressed = applyXpAndLevelUp(
             { level: user.level, xp: user.xp },
             rewards.xp
@@ -244,15 +221,13 @@ export async function claimQuest(
                 streakCount: true,
                 lastCompletionDate: true,
                 tasksCompletedTotal: true,
-                avatarUrl: true,
+                image: true,
                 name: true,
                 email: true,
             },
         });
 
-        const updatedQuest = await tx.quest.findUnique({
-            where: { id: questId },
-        });
+        const updatedQuest = await tx.quest.findUnique({ where: { id: questId } });
 
         return {
             quest: updatedQuest,
@@ -262,6 +237,7 @@ export async function claimQuest(
         };
     });
 }
+
 export async function onTaskCompletedUpdateQuests(
     tx: Prisma.TransactionClient,
     userId: string,
@@ -270,46 +246,12 @@ export async function onTaskCompletedUpdateQuests(
     const dayKey = todayKeyInTz(TZ);
     const weekKey = weekKeyInTz(TZ);
 
+    // garante que existem
     for (const q of DAILY_QUEST_TEMPLATES) {
-        await tx.quest.upsert({
-            where: { userId_code_dayKey: { userId, code: q.code, dayKey } },
-            create: {
-                userId,
-                type: "DAILY",
-                status: "ACTIVE",
-                code: q.code,
-                title: q.title,
-                description: q.description,
-                target: q.target,
-                progress: 0,
-                rewardXp: q.rewardXp,
-                rewardGold: q.rewardGold,
-                dayKey,
-                weekKey: null,
-            },
-            update: {},
-        });
+        await tx.quest.upsert(dailyUpsertArgs(userId, dayKey, q));
     }
-
     for (const q of WEEKLY_QUEST_TEMPLATES) {
-        await tx.quest.upsert({
-            where: { userId_code_weekKey: { userId, code: q.code, weekKey } },
-            create: {
-                userId,
-                type: "WEEKLY",
-                status: "ACTIVE",
-                code: q.code,
-                title: q.title,
-                description: q.description,
-                target: q.target,
-                progress: 0,
-                rewardXp: q.rewardXp,
-                rewardGold: q.rewardGold,
-                weekKey,
-                dayKey: null,
-            },
-            update: {},
-        });
+        await tx.quest.upsert(weeklyUpsertArgs(userId, weekKey, q));
     }
 
     async function bumpDaily(code: string, amount: number) {
@@ -322,10 +264,7 @@ export async function onTaskCompletedUpdateQuests(
         const next = Math.min(quest.target, quest.progress + amount);
         if (next === quest.progress) return false;
 
-        await tx.quest.update({
-            where: { id: quest.id },
-            data: { progress: next },
-        });
+        await tx.quest.update({ where: { id: quest.id }, data: { progress: next } });
 
         return quest.progress < quest.target && next >= quest.target;
     }
@@ -340,50 +279,24 @@ export async function onTaskCompletedUpdateQuests(
         const next = Math.min(quest.target, quest.progress + amount);
         if (next === quest.progress) return false;
 
-        await tx.quest.update({
-            where: { id: quest.id },
-            data: { progress: next },
-        });
+        await tx.quest.update({ where: { id: quest.id }, data: { progress: next } });
 
         return quest.progress < quest.target && next >= quest.target;
     }
 
     const newly: QuestJustCompleted[] = [];
 
-    if (await bumpDaily("DAILY_COMPLETE_1", 1)) {
-        newly.push({ code: "DAILY_COMPLETE_1", title: "Aqueça o motor", type: "DAILY" });
-    }
-
-    if (await bumpDaily("DAILY_COMPLETE_3", 1)) {
-        newly.push({ code: "DAILY_COMPLETE_3", title: "Ritmo de aventura", type: "DAILY" });
-    }
+    if (await bumpDaily("DAILY_COMPLETE_1", 1)) newly.push({ code: "DAILY_COMPLETE_1", title: "Aqueça o motor", type: "DAILY" });
+    if (await bumpDaily("DAILY_COMPLETE_3", 1)) newly.push({ code: "DAILY_COMPLETE_3", title: "Ritmo de aventura", type: "DAILY" });
 
     if (task.difficulty === "HARD") {
-        if (await bumpDaily("DAILY_COMPLETE_HARD_1", 1)) {
-            newly.push({
-                code: "DAILY_COMPLETE_HARD_1",
-                title: "Desafio de verdade",
-                type: "DAILY",
-            });
-        }
+        if (await bumpDaily("DAILY_COMPLETE_HARD_1", 1)) newly.push({ code: "DAILY_COMPLETE_HARD_1", title: "Desafio de verdade", type: "DAILY" });
     }
 
-    if (await bumpWeekly("WEEKLY_COMPLETE_10", 1)) {
-        newly.push({
-            code: "WEEKLY_COMPLETE_10",
-            title: "Maratona da semana",
-            type: "WEEKLY",
-        });
-    }
+    if (await bumpWeekly("WEEKLY_COMPLETE_10", 1)) newly.push({ code: "WEEKLY_COMPLETE_10", title: "Maratona da semana", type: "WEEKLY" });
 
     if (task.difficulty === "HARD") {
-        if (await bumpWeekly("WEEKLY_COMPLETE_HARD_3", 1)) {
-            newly.push({
-                code: "WEEKLY_COMPLETE_HARD_3",
-                title: "Semana casca-grossa",
-                type: "WEEKLY",
-            });
-        }
+        if (await bumpWeekly("WEEKLY_COMPLETE_HARD_3", 1)) newly.push({ code: "WEEKLY_COMPLETE_HARD_3", title: "Semana casca-grossa", type: "WEEKLY" });
     }
 
     return newly;
