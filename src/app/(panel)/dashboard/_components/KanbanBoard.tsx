@@ -209,7 +209,18 @@ export default function KanbanBoard({
 
       const xp = result.rewards?.xp ?? 0;
       const gold = result.rewards?.gold ?? 0;
+      const qc = (result as any).questsCompleted ?? [];
+      if (qc.length > 0) {
+        const shown = qc.slice(0, 2).map((q: any) => `✅ ${q.title}`).join(" • ");
+        const more = qc.length > 2 ? ` +${qc.length - 2}` : "";
 
+        toast.push({
+          type: "success",
+          title: "Quest completa! 🧭",
+          message: `${shown}${more}`,
+          durationMs: 3800,
+        });
+      }
 
       toast.push({
         type: "success",

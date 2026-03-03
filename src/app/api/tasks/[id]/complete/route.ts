@@ -38,7 +38,9 @@ export async function PATCH(
         data: { completed: true, completedAt: now },
       });
 
-      await onTaskCompletedUpdateQuests(tx, user.id, { difficulty: task.difficulty });
+      const newlyCompletedQuests = await onTaskCompletedUpdateQuests(tx, user.id, {
+        difficulty: task.difficulty,
+      });
 
       const currentUser = await tx.user.findUnique({
         where: { id: user.id },
@@ -129,6 +131,7 @@ export async function PATCH(
           leveledUp: progressed.leveledUp,
           user: finalUser ?? updatedUser,
           achievements: achievementsResult,
+          questsCompleted: newlyCompletedQuests,
         },
       };
     });
