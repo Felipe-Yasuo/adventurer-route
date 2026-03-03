@@ -6,15 +6,16 @@ import { requireUser } from "@/lib/requireUser";
 
 const TZ = "America/Sao_Paulo";
 
-export async function GET() {
+export async function GET(req: Request) {
     try {
         const user = await requireUser();
-        if (!user) {
-            return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
-        }
+        if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+
+        const url = new URL(req.url);
+        const dayKey = url.searchParams.get("dayKey"); // ✅
 
         const tasks = await prisma.task.findMany({
-            where: { userId: user.id },
+            where: { userId: user.id, ...(dayKey ? { dayKey } : {}) },
             orderBy: [{ completed: "asc" }, { createdAt: "desc" }],
         });
 

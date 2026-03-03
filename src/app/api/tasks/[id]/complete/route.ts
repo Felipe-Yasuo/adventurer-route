@@ -42,8 +42,8 @@ export async function PATCH(
       }
 
 
-      const updatedTask = await tx.task.findUnique({
-        where: { id: taskId },
+      const updatedTask = await tx.task.findFirst({
+        where: { id: taskId, userId: user.id },
       });
 
       if (!updatedTask) {

@@ -46,6 +46,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
         }
 
         const fresh = await prisma.task.findUnique({ where: { id } });
+        if (!fresh) return NextResponse.json({ error: "Task não encontrada" }, { status: 404 });
         return NextResponse.json(fresh);
     } catch (err) {
         console.error(err);
