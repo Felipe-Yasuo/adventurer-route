@@ -4,15 +4,17 @@ import { claimQuest } from "@/lib/game/quests";
 
 export async function POST(
     _req: Request,
-    ctx: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const user = await getDevUser();
-        const questId = ctx.params.id;
+        const { id: questId } = await params;
 
         const result = await claimQuest(user.id, questId);
 
-        return NextResponse.json(result, { headers: { "Cache-Control": "no-store" } });
+        return NextResponse.json(result, {
+            headers: { "Cache-Control": "no-store" },
+        });
     } catch (e: any) {
         const msg = e?.message ?? "Erro ao resgatar quest";
 
