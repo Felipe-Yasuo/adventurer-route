@@ -24,9 +24,11 @@ enum QuestStatus {
 }
 
 model User {
-  id    String  @id @default(cuid())
-  name  String?
-  email String? @unique
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
 
   level   Int @default(1)
   xp      Int @default(0)
@@ -39,7 +41,6 @@ model User {
 
   tasksCompletedTotal Int @default(0)
 
-  avatarUrl String?
   inventory InventoryItem[]
 
   lastInactivityPenaltyAt DateTime?

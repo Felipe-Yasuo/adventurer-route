@@ -1,44 +1,33 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/requireUser";
 import { applyOverduePenalty } from "@/lib/game/overdue";
 import { applyInactivityPenalty } from "@/lib/game/inactivity";
 import { startOfWeekKey } from "@/lib/game/time";
 
-const DEV_USER_EMAIL = "yasuo@adventurer.route";
-
 const TZ = "America/Sao_Paulo";
-
-
-
 
 export async function GET() {
     try {
-        const base = await prisma.user.findUnique({
-            where: { email: DEV_USER_EMAIL },
-            select: { id: true },
-        });
+        const u = await requireUser();
 
-
-        if (!base) {
-            return NextResponse.json({ error: "Usuário de teste não encontrado. Rode o seed." }, { status: 404 });
+        if (!u) {
+            return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
         }
-
-
 
         const weekStart = startOfWeekKey(TZ);
 
         await prisma.task.deleteMany({
             where: {
-                userId: base.id,
+                userId: u.id,
                 dayKey: { lt: weekStart },
             },
         });
 
-        const overdue = await applyOverduePenalty(base.id);
-        const inactivity = await applyInactivityPenalty(base.id);
-
+        const overdue = await applyOverduePenalty(u.id);
+        const inactivity = await applyInactivityPenalty(u.id);
         const user = await prisma.user.findUnique({
-            where: { id: base.id },
+            where: { id: u.id },
             select: {
                 id: true,
                 name: true,
@@ -50,9 +39,14 @@ export async function GET() {
                 gold: true,
                 streakCount: true,
                 lastCompletionDate: true,
-                avatarUrl: true,
+                image: true,
+                tasksCompletedTotal: true,
             },
         });
+
+        if (!user) {
+            return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+        }
 
         return NextResponse.json({
             ...user,

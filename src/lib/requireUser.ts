@@ -1,0 +1,25 @@
+import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/session";
+
+export async function requireUser() {
+    const session = await getSession();
+    const email = session?.user?.email;
+
+    if (!email) return null;
+
+    const user = await prisma.user.upsert({
+        where: { email },
+        create: {
+            email,
+            name: session.user?.name ?? null,
+            image: (session.user as any)?.image ?? null,
+        },
+        update: {
+            name: session.user?.name ?? null,
+            image: (session.user as any)?.image ?? null,
+        },
+        select: { id: true, email: true },
+    });
+
+    return user;
+}
