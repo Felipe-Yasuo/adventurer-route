@@ -1,10 +1,9 @@
-
 import { prisma } from "@/lib/prisma";
 import { applyXpAndLevelUp } from "@/lib/game/progression";
-import type { Difficulty } from "@prisma/client"; // se você já usa enums do Prisma
+import type { Difficulty } from "@prisma/client";
 
 type TaskForQuest = {
-    difficulty: Difficulty; // "EASY" | "MEDIUM" | "HARD"
+    difficulty: Difficulty;
 };
 
 const TZ = "America/Sao_Paulo";
@@ -16,6 +15,24 @@ function todayKeyInTz(tz: string) {
         month: "2-digit",
         day: "2-digit",
     }).format(new Date());
+}
+
+function weekKeyInTz(tz: string) {
+    // weekKey = segunda-feira da semana no fuso tz, em YYYY-MM-DD
+    const todayKey = todayKeyInTz(tz);
+    const [y, m, d] = todayKey.split("-").map(Number);
+    const local = new Date(y, m - 1, d, 12, 0, 0);
+
+    // 0=Dom ... 6=Sáb
+    const jsDay = local.getDay();
+    const diffToMonday = (jsDay + 6) % 7;
+
+    local.setDate(local.getDate() - diffToMonday);
+
+    const yy = local.getFullYear();
+    const mm = String(local.getMonth() + 1).padStart(2, "0");
+    const dd = String(local.getDate()).padStart(2, "0");
+    return `${yy}-${mm}-${dd}`;
 }
 
 export type QuestTemplate = {
@@ -33,9 +50,6 @@ export type QuestClaimResult = {
     leveledUp: number;
     user: any;
 };
-
-
-
 
 export const DAILY_QUEST_TEMPLATES: QuestTemplate[] = [
     {
@@ -64,10 +78,31 @@ export const DAILY_QUEST_TEMPLATES: QuestTemplate[] = [
     },
 ];
 
+export const WEEKLY_QUEST_TEMPLATES: QuestTemplate[] = [
+    {
+        code: "WEEKLY_COMPLETE_10",
+        title: "Maratona da semana",
+        description: "Complete 10 tarefas nesta semana.",
+        target: 10,
+        rewardXp: 120,
+        rewardGold: 60,
+    },
+    {
+        code: "WEEKLY_COMPLETE_HARD_3",
+        title: "Semana casca-grossa",
+        description: "Complete 3 tarefas HARD nesta semana.",
+        target: 3,
+        rewardXp: 150,
+        rewardGold: 80,
+    },
+];
+
 export async function ensureTodayQuests(userId: string) {
     const dayKey = todayKeyInTz(TZ);
+    const weekKey = weekKeyInTz(TZ);
 
     await prisma.$transaction(async (tx) => {
+        // DAILY
         for (const q of DAILY_QUEST_TEMPLATES) {
             await tx.quest.upsert({
                 where: {
@@ -85,6 +120,31 @@ export async function ensureTodayQuests(userId: string) {
                     rewardXp: q.rewardXp,
                     rewardGold: q.rewardGold,
                     dayKey,
+                    weekKey: null,
+                },
+                update: {},
+            });
+        }
+
+        // WEEKLY
+        for (const q of WEEKLY_QUEST_TEMPLATES) {
+            await tx.quest.upsert({
+                where: {
+                    userId_code_weekKey: { userId, code: q.code, weekKey },
+                },
+                create: {
+                    userId,
+                    type: "WEEKLY",
+                    status: "ACTIVE",
+                    code: q.code,
+                    title: q.title,
+                    description: q.description,
+                    target: q.target,
+                    progress: 0,
+                    rewardXp: q.rewardXp,
+                    rewardGold: q.rewardGold,
+                    weekKey,
+                    dayKey: null,
                 },
                 update: {},
             });
@@ -96,30 +156,31 @@ export async function ensureTodayQuests(userId: string) {
 
 export async function listTodayQuests(userId: string) {
     const dayKey = todayKeyInTz(TZ);
+    const weekKey = weekKeyInTz(TZ);
 
     return prisma.quest.findMany({
-        where: { userId, dayKey },
-        orderBy: [{ status: "asc" }, { createdAt: "asc" }],
+        where: {
+            userId,
+            OR: [{ dayKey }, { weekKey }],
+        },
+        orderBy: [{ type: "asc" }, { createdAt: "asc" }],
     });
 }
 
-export async function claimQuest(userId: string, questId: string): Promise<QuestClaimResult> {
+export async function claimQuest(
+    userId: string,
+    questId: string
+): Promise<QuestClaimResult> {
     return prisma.$transaction(async (tx) => {
         const quest = await tx.quest.findFirst({
             where: { id: questId, userId },
         });
 
-        if (!quest) {
-            throw new Error("Quest não encontrada");
-        }
-
-        if (quest.status !== "ACTIVE") {
+        if (!quest) throw new Error("Quest não encontrada");
+        if (quest.status !== "ACTIVE")
             throw new Error("Quest já foi resgatada ou não está ativa");
-        }
-
-        if (quest.progress < quest.target) {
+        if (quest.progress < quest.target)
             throw new Error("Quest ainda não foi completada");
-        }
 
         const user = await tx.user.findUnique({
             where: { id: userId },
@@ -142,7 +203,6 @@ export async function claimQuest(userId: string, questId: string): Promise<Quest
         if (!user) throw new Error("Usuário não encontrado");
 
         const rewards = { xp: quest.rewardXp, gold: quest.rewardGold };
-
         const progressed = applyXpAndLevelUp(user, rewards.xp);
 
         const updatedUser = await tx.user.update({
@@ -170,10 +230,7 @@ export async function claimQuest(userId: string, questId: string): Promise<Quest
 
         const updatedQuest = await tx.quest.update({
             where: { id: questId },
-            data: {
-                status: "CLAIMED",
-                claimedAt: new Date(),
-            },
+            data: { status: "CLAIMED", claimedAt: new Date() },
         });
 
         return {
@@ -184,14 +241,19 @@ export async function claimQuest(userId: string, questId: string): Promise<Quest
         };
     });
 }
-export async function onTaskCompletedUpdateQuests(tx: any, userId: string, task: TaskForQuest) {
-    const dayKey = todayKeyInTz(TZ);
 
+export async function onTaskCompletedUpdateQuests(
+    tx: any,
+    userId: string,
+    task: TaskForQuest
+) {
+    const dayKey = todayKeyInTz(TZ);
+    const weekKey = weekKeyInTz(TZ);
+
+    // 1) Garante DAILY + WEEKLY existirem (idempotente)
     for (const q of DAILY_QUEST_TEMPLATES) {
         await tx.quest.upsert({
-            where: {
-                userId_code_dayKey: { userId, code: q.code, dayKey },
-            },
+            where: { userId_code_dayKey: { userId, code: q.code, dayKey } },
             create: {
                 userId,
                 type: "DAILY",
@@ -204,21 +266,42 @@ export async function onTaskCompletedUpdateQuests(tx: any, userId: string, task:
                 rewardXp: q.rewardXp,
                 rewardGold: q.rewardGold,
                 dayKey,
+                weekKey: null,
             },
             update: {},
         });
     }
 
-    async function bump(code: string, amount: number) {
+    for (const q of WEEKLY_QUEST_TEMPLATES) {
+        await tx.quest.upsert({
+            where: { userId_code_weekKey: { userId, code: q.code, weekKey } },
+            create: {
+                userId,
+                type: "WEEKLY",
+                status: "ACTIVE",
+                code: q.code,
+                title: q.title,
+                description: q.description,
+                target: q.target,
+                progress: 0,
+                rewardXp: q.rewardXp,
+                rewardGold: q.rewardGold,
+                weekKey,
+                dayKey: null,
+            },
+            update: {},
+        });
+    }
+
+
+    async function bumpDaily(code: string, amount: number) {
         const quest = await tx.quest.findFirst({
             where: { userId, dayKey, code, status: "ACTIVE" },
             select: { id: true, progress: true, target: true },
         });
-
         if (!quest) return;
 
         const next = Math.min(quest.target, quest.progress + amount);
-
         if (next !== quest.progress) {
             await tx.quest.update({
                 where: { id: quest.id },
@@ -227,10 +310,31 @@ export async function onTaskCompletedUpdateQuests(tx: any, userId: string, task:
         }
     }
 
-    await bump("DAILY_COMPLETE_1", 1);
-    await bump("DAILY_COMPLETE_3", 1);
+    async function bumpWeekly(code: string, amount: number) {
+        const quest = await tx.quest.findFirst({
+            where: { userId, weekKey, code, status: "ACTIVE" },
+            select: { id: true, progress: true, target: true },
+        });
+        if (!quest) return;
 
+        const next = Math.min(quest.target, quest.progress + amount);
+        if (next !== quest.progress) {
+            await tx.quest.update({
+                where: { id: quest.id },
+                data: { progress: next },
+            });
+        }
+    }
+
+    // 3) Regras (MVP)
+    await bumpDaily("DAILY_COMPLETE_1", 1);
+    await bumpDaily("DAILY_COMPLETE_3", 1);
     if (task.difficulty === "HARD") {
-        await bump("DAILY_COMPLETE_HARD_1", 1);
+        await bumpDaily("DAILY_COMPLETE_HARD_1", 1);
+    }
+
+    await bumpWeekly("WEEKLY_COMPLETE_10", 1);
+    if (task.difficulty === "HARD") {
+        await bumpWeekly("WEEKLY_COMPLETE_HARD_3", 1);
     }
 }

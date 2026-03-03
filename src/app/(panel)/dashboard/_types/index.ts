@@ -47,6 +47,7 @@ export type CompleteResponse = {
 
 export type QuestApi = {
     id: string;
+    type: "DAILY" | "WEEKLY";
     code: string;
     title: string;
     description: string;
@@ -55,5 +56,6 @@ export type QuestApi = {
     rewardXp: number;
     rewardGold: number;
     status: "ACTIVE" | "CLAIMED" | "EXPIRED";
-    dayKey: string;
+    dayKey?: string | null;
+    weekKey?: string | null;
 };
