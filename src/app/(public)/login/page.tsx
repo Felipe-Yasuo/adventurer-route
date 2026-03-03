@@ -25,11 +25,9 @@ export default function LoginPage() {
 
     const [mode, setMode] = useState<Mode>("login");
 
-    // login
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    // register
     const [name, setName] = useState("");
 
     const [busy, setBusy] = useState(false);
@@ -55,7 +53,6 @@ export default function LoginPage() {
 
         setBusy(true);
         try {
-            // redirect: false => a gente controla o erro e redireciona manualmente
             const res = await signIn("credentials", {
                 email: em,
                 password,
@@ -111,7 +108,6 @@ export default function LoginPage() {
                 return;
             }
 
-            // ✅ cria conta e já faz login automático
             const loginRes = await signIn("credentials", {
                 email: em,
                 password,
@@ -157,7 +153,7 @@ export default function LoginPage() {
                         </div>
                     )}
 
-                    {/* Google */}
+
                     <div className="mt-6">
                         <button
                             onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
@@ -174,7 +170,6 @@ export default function LoginPage() {
                         <div className="h-px flex-1 bg-white/10" />
                     </div>
 
-                    {/* Form */}
                     {mode === "login" ? (
                         <form onSubmit={handleLoginCredentials} className="space-y-3">
                             <div>

@@ -60,10 +60,37 @@ export const authOptions: NextAuthOptions = {
     session: { strategy: "database" },
 
     callbacks: {
-        async session({ session, user }) {
-            if (session.user) {
-                (session.user as any).id = user.id;
+        async signIn({ user, account, profile }) {
+
+            if (account?.provider !== "google") return true;
+
+            const email = user.email?.toLowerCase().trim();
+            if (!email) return true;
+
+            const local = await prisma.localAccount.findUnique({
+                where: { email },
+                select: { userId: true },
+            });
+
+            if (!local) return true;
+
+            if (user.id !== local.userId) {
+
+                await prisma.account.updateMany({
+                    where: {
+                        provider: account.provider,
+                        providerAccountId: account.providerAccountId,
+                    },
+                    data: { userId: local.userId },
+                });
+
             }
+
+            return true;
+        },
+
+        async session({ session, user }) {
+            if (session.user) (session.user as any).id = user.id;
             return session;
         },
 
