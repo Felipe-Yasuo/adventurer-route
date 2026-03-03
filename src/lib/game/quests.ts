@@ -102,7 +102,24 @@ export async function ensureTodayQuests(userId: string) {
     const weekKey = weekKeyInTz(TZ);
 
     await prisma.$transaction(async (tx) => {
-        // DAILY
+
+
+        await tx.quest.deleteMany({
+            where: {
+                userId,
+                type: "DAILY",
+                dayKey: { not: dayKey },
+            },
+        });
+
+        await tx.quest.deleteMany({
+            where: {
+                userId,
+                type: "WEEKLY",
+                weekKey: { not: weekKey },
+            },
+        });
+
         for (const q of DAILY_QUEST_TEMPLATES) {
             await tx.quest.upsert({
                 where: {
@@ -326,7 +343,6 @@ export async function onTaskCompletedUpdateQuests(
         }
     }
 
-    // 3) Regras (MVP)
     await bumpDaily("DAILY_COMPLETE_1", 1);
     await bumpDaily("DAILY_COMPLETE_3", 1);
     if (task.difficulty === "HARD") {

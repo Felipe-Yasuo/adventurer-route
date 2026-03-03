@@ -17,7 +17,7 @@ function statusBadge(q: QuestApi) {
         "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold border border-white/10";
 
     if (q.status === "CLAIMED") return `${base} bg-forest/20 text-cloudWhite`;
-    if (q.progress >= q.target) return `${base} bg-blueSoft/20 text-cloudWhite`;
+    if (q.progress >= q.target) return `${base} bg-blueSoft/30 text-cloudWhite ring-1 ring-blueSoft/40`;
     return `${base} bg-white/5 text-white/70`;
 }
 
@@ -77,6 +77,26 @@ export default function QuestsCard({
     const weekly = useMemo(() => quests.filter((q) => q.type === "WEEKLY"), [quests]);
 
     const shown = tab === "DAILY" ? daily : weekly;
+    const shownSorted = useMemo(() => {
+        function rank(q: QuestApi) {
+            const done = q.progress >= q.target;
+            const claimed = q.status === "CLAIMED";
+            if (done && !claimed) return 0;
+            if (!done && !claimed) return 1;
+            return 2;
+        }
+
+        return [...shown].sort((a, b) => {
+            const ra = rank(a);
+            const rb = rank(b);
+            if (ra !== rb) return ra - rb;
+
+
+            const pa = a.target > 0 ? a.progress / a.target : 0;
+            const pb = b.target > 0 ? b.progress / b.target : 0;
+            return pb - pa;
+        });
+    }, [shown]);
 
     async function handleClaim(q: QuestApi) {
         try {
@@ -143,7 +163,7 @@ export default function QuestsCard({
                         Nenhuma quest {tab === "DAILY" ? "de hoje" : "da semana"}.
                     </div>
                 ) : (
-                    shown.map((q) => {
+                    shownSorted.map((q) => {
                         const done = q.progress >= q.target;
                         const claimed = q.status === "CLAIMED";
                         const p = pct(q.progress, q.target);
@@ -151,7 +171,12 @@ export default function QuestsCard({
                         return (
                             <div
                                 key={q.id}
-                                className="rounded-2xl border border-white/10 bg-black/20 p-3"
+                                className={[
+                                    "rounded-2xl border border-white/10 bg-black/20 p-3",
+                                    q.status !== "CLAIMED" && q.progress >= q.target
+                                        ? "ring-1 ring-blueSoft/40 bg-blueSoft/5"
+                                        : "",
+                                ].join(" ")}
                             >
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0">
@@ -160,7 +185,7 @@ export default function QuestsCard({
                                                 {q.title}
                                             </p>
                                             <span className={statusBadge(q)}>
-                                                {claimed ? "resgatada" : done ? "completa" : "ativa"}
+                                                {claimed ? "resgatada" : done ? "✅ COMPLETA" : "ativa"}
                                             </span>
                                         </div>
 
