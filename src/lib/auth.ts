@@ -58,6 +58,24 @@ export const authOptions: NextAuthOptions = {
     session: { strategy: "database" },
 
     callbacks: {
+        async signIn({ user, account }) {
+            if (account?.provider === "google") {
+                const email = user.email?.toLowerCase().trim();
+                if (email) {
+                    const hasLocal = await prisma.localAccount.findUnique({
+                        where: { email },
+                        select: { id: true },
+                    });
+
+                    if (hasLocal) {
+                        return "/login?error=EmailJaCadastrado";
+                    }
+                }
+            }
+
+            return true;
+        },
+
         async session({ session, user }) {
             if (session.user) (session.user as any).id = user.id;
             return session;
