@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import GlassCard from "./GlassCard";
 import { useToast } from "./toast";
 import type { QuestApi } from "../_types";
+import { useMe } from "./me-store"; // ✅ NOVO
 
 type Tab = "DAILY" | "WEEKLY";
 
@@ -17,7 +18,8 @@ function statusBadge(q: QuestApi) {
         "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold border border-white/10";
 
     if (q.status === "CLAIMED") return `${base} bg-forest/20 text-cloudWhite`;
-    if (q.progress >= q.target) return `${base} bg-blueSoft/30 text-cloudWhite ring-1 ring-blueSoft/40`;
+    if (q.progress >= q.target)
+        return `${base} bg-blueSoft/30 text-cloudWhite ring-1 ring-blueSoft/40`;
     return `${base} bg-white/5 text-white/70`;
 }
 
@@ -71,12 +73,14 @@ export default function QuestsCard({
     onLevelUp: () => void;
 }) {
     const toast = useToast();
+    const { setMe } = useMe(); // ✅ NOVO
     const [tab, setTab] = useState<Tab>("DAILY");
 
     const daily = useMemo(() => quests.filter((q) => q.type === "DAILY"), [quests]);
     const weekly = useMemo(() => quests.filter((q) => q.type === "WEEKLY"), [quests]);
 
     const shown = tab === "DAILY" ? daily : weekly;
+
     const shownSorted = useMemo(() => {
         function rank(q: QuestApi) {
             const done = q.progress >= q.target;
@@ -91,7 +95,6 @@ export default function QuestsCard({
             const rb = rank(b);
             if (ra !== rb) return ra - rb;
 
-
             const pa = a.target > 0 ? a.progress / a.target : 0;
             const pb = b.target > 0 ? b.progress / b.target : 0;
             return pb - pa;
@@ -101,6 +104,11 @@ export default function QuestsCard({
     async function handleClaim(q: QuestApi) {
         try {
             const result = await claimQuestApi(q.id);
+
+            if (result.user) {
+                setMe((prev) => (prev ? { ...prev, ...result.user } : result.user));
+            }
+
             const xp = result.rewards?.xp ?? 0;
             const gold = result.rewards?.gold ?? 0;
 
