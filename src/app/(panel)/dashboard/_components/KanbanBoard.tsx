@@ -7,6 +7,7 @@ import type { TaskUI } from "../_types";
 import { useToast } from "./toast";
 import { isOverdue } from "../_utils/date";
 import { TaskApi, CompleteResponse } from "../_types";
+import { useMe } from "./me-store"; // ✅ NOVO
 
 function mapApiToUI(t: TaskApi): TaskUI {
   return {
@@ -50,7 +51,6 @@ async function deleteTask(id: string) {
 
   return true;
 }
-
 
 async function completeTask(id: string): Promise<CompleteResponse> {
   const res = await fetch(`/api/tasks/${id}/complete`, { method: "PATCH" });
@@ -114,6 +114,7 @@ function Column({
     </div>
   );
 }
+
 export default function KanbanBoard({
   tasks,
   setTasks,
@@ -125,10 +126,13 @@ export default function KanbanBoard({
   onNeedReload: () => Promise<void>;
   onLevelUp: () => void;
 }) {
-
   const [selected, setSelected] = useState<TaskUI | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
   const [completingId, setCompletingId] = useState<string | null>(null);
+
+  const toast = useToast();
+
+  const { setMe } = useMe();
 
   const active = useMemo(() => {
     const onlyActive = tasks.filter((t) => !t.completed);
@@ -149,9 +153,7 @@ export default function KanbanBoard({
     });
   }, [tasks]);
 
-
   const done = useMemo(() => tasks.filter((t) => t.completed), [tasks]);
-  const toast = useToast();
 
   async function handleSaveEdit(updated: TaskUI) {
     if (!selected) return;
@@ -176,7 +178,6 @@ export default function KanbanBoard({
   }
 
   async function handleDelete(task: TaskUI) {
-
     const prev = tasks;
     setTasks((p) => p.filter((t) => t.id !== task.id));
 
@@ -186,7 +187,9 @@ export default function KanbanBoard({
       toast.push({
         type: "success",
         title: "Tarefa excluída",
-        message: task.completed ? "Concluída removida do histórico visual." : "Tarefa removida.",
+        message: task.completed
+          ? "Concluída removida do histórico visual."
+          : "Tarefa removida.",
       });
 
       await onNeedReload();
@@ -206,9 +209,14 @@ export default function KanbanBoard({
 
     try {
       const result = await completeTask(task.id);
+      if ((result as any).user) {
+        const u = (result as any).user;
+        setMe((prev) => (prev ? { ...prev, ...u } : u));
+      }
 
       const xp = result.rewards?.xp ?? 0;
       const gold = result.rewards?.gold ?? 0;
+
       const qc = (result as any).questsCompleted ?? [];
       if (qc.length > 0) {
         const shown = qc.slice(0, 2).map((q: any) => `✅ ${q.title}`).join(" • ");
