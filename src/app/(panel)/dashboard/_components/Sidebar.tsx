@@ -33,6 +33,7 @@ export default function Sidebar() {
         <Item href="/dashboard/achievements" label="Conquistas" icon="🏆" />
         <Item href="/dashboard/rewards" label="Recompensas" icon="🎁" />
         <Item href="/dashboard/shop" label="Loja" icon="🛒" />
+        <Item href="/dashboard/inventory" label="Inventário" icon="🎒" />
         <Item href="/dashboard/profile" label="Perfil" icon="🧙" />
       </nav>
 

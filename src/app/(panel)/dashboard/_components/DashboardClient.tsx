@@ -9,8 +9,10 @@ import WeekTabs from "./WeekTabs";
 import DayReadOnlyList from "./DayReadOnlyList";
 import QuestsCard from "./QuestsCard";
 
-import type { TaskUI, TaskApi, UserApi, DifficultyFilter, QuestApi } from "../_types";
+import type { TaskUI, TaskApi, DifficultyFilter, QuestApi } from "../_types";
 import { mapTaskApiToUI } from "../_utils/map";
+
+import { useMe } from "@/app/(panel)/dashboard/_components/me-store";
 
 function todayKeyLocal() {
   const d = new Date();
@@ -62,11 +64,13 @@ async function fetchJson<T>(url: string): Promise<T> {
 }
 
 export default function DashboardClient() {
+
+  const { me, loading: meLoading, error: meError, reload: reloadMe } = useMe();
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [quests, setQuests] = useState<QuestApi[]>([]);
-  const [user, setUser] = useState<UserApi | null>(null);
 
   const [tasksToday, setTasksToday] = useState<TaskUI[]>([]);
   const [tasksSelected, setTasksSelected] = useState<TaskUI[]>([]);
@@ -84,13 +88,8 @@ export default function DashboardClient() {
     return addDays(weekStart, selectedWeekday);
   }, [selectedWeekday]);
 
-  async function loadMeAndQuests() {
-    const [meJson, questsJson] = await Promise.all([
-      fetchJson<UserApi>("/api/me"),
-      fetchJson<{ quests: QuestApi[] }>("/api/quests/today"),
-    ]);
-
-    setUser(meJson);
+  async function loadQuests() {
+    const questsJson = await fetchJson<{ quests: QuestApi[] }>("/api/quests/today");
     setQuests(questsJson.quests ?? []);
   }
 
@@ -115,7 +114,8 @@ export default function DashboardClient() {
 
     try {
       await Promise.all([
-        loadMeAndQuests(),
+        reloadMe(), // ✅ atualiza HUD (gold/vida/xp/level)
+        loadQuests(),
         loadToday(),
         loadSelectedDay(selectedDayKey),
       ]);
@@ -128,6 +128,7 @@ export default function DashboardClient() {
 
   useEffect(() => {
     loadAll();
+
   }, []);
 
   useEffect(() => {
@@ -141,6 +142,7 @@ export default function DashboardClient() {
         setError(e?.message ?? "Erro desconhecido");
       }
     })();
+
   }, [selectedDayKey]);
 
   useEffect(() => {
@@ -168,14 +170,16 @@ export default function DashboardClient() {
     });
   }, [tasksToday, filterQuery, filterDifficulty]);
 
-  if (loading) {
+
+  if (loading || meLoading) {
     return <div className="text-white/70">Carregando dashboard...</div>;
   }
 
-  if (error) {
+  if (error || meError) {
+    const msg = error ?? meError ?? "Erro desconhecido";
     return (
       <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
-        <p className="text-rose">Erro: {error}</p>
+        <p className="text-rose">Erro: {msg}</p>
         <button
           onClick={loadAll}
           className="mt-3 rounded-xl bg-cloudWhite px-4 py-2 text-sm font-semibold text-twilight"
@@ -186,7 +190,7 @@ export default function DashboardClient() {
     );
   }
 
-  if (!user) {
+  if (!me) {
     return (
       <div className="rounded-2xl border border-white/10 bg-black/10 p-4 text-white/70">
         Usuário não carregado.
@@ -206,7 +210,8 @@ export default function DashboardClient() {
             if (selectedDayKey === ui.dayKey) {
               setTasksSelected((prev) => [ui, ...prev]);
             }
-            await loadMeAndQuests();
+
+            await Promise.all([reloadMe(), loadQuests()]);
           }}
         />
 
@@ -226,7 +231,7 @@ export default function DashboardClient() {
       </aside>
 
       <section className="col-span-12 lg:col-span-9 space-y-6">
-        <TopHud user={user} completedTotal={completedTotal} levelUpPulse={levelUpPulse} />
+        <TopHud user={me} completedTotal={completedTotal} levelUpPulse={levelUpPulse} />
 
         <WeekTabs value={selectedWeekday} onChange={setSelectedWeekday} />
 
