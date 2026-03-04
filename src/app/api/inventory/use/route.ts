@@ -5,8 +5,8 @@ import { requireUser } from "@/lib/requireUser";
 
 export async function POST(req: Request) {
     try {
-        const requireuser = await requireUser();
-        if (!requireuser) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+        const me = await requireUser();
+        if (!me) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
         const body = (await req.json()) as { itemId?: string };
 
         if (!body.itemId) {
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
         const result = await prisma.$transaction(async (tx) => {
             const user = await tx.user.findUnique({
-                where: { id: requireuser.id },
+                where: { id: me.id },
                 select: { id: true, life: true, maxLife: true },
             });
 

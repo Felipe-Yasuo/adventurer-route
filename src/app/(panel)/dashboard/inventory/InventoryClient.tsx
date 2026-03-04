@@ -75,13 +75,10 @@ export default function InventoryClient() {
         setError(null);
 
         try {
-            const [inv, meJson] = await Promise.all([
-                fetchJson<InventoryRow[]>("/api/inventory"),
-                fetchJson<MeApi>("/api/me"),
-            ]);
-
+            const inv = await fetchJson<InventoryRow[]>("/api/inventory");
             setRows(inv);
-            setMe(meJson);
+
+            await reload();
         } catch (e: any) {
             setError(e?.message ?? "Erro desconhecido");
         } finally {
@@ -115,12 +112,9 @@ export default function InventoryClient() {
         try {
             const result = await useItemApi(row.item.id);
 
-            // ✅ atualiza vida instantaneamente
             setMe((prev) =>
                 prev ? { ...prev, life: result.user.life, maxLife: result.user.maxLife } : prev
             );
-            await reload();
-            // ✅ atualiza quantidade localmente (sem precisar recarregar tudo)
             setRows((prev) =>
                 prev.map((r) =>
                     r.item.id === row.item.id ? { ...r, quantity: result.remaining } : r
