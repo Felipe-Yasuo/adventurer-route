@@ -57,7 +57,10 @@ export async function POST(req: Request) {
             };
         });
 
-        return NextResponse.json(result.body, { status: result.status });
+        return NextResponse.json(result.body, {
+            status: result.status,
+            headers: { "Cache-Control": "no-store" },
+        });
     } catch (err) {
         console.error(err);
         return NextResponse.json({ error: "Erro ao comprar item" }, { status: 500 });

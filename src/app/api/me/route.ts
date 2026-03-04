@@ -48,10 +48,15 @@ export async function GET() {
             return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
         }
 
-        return NextResponse.json({
-            ...user,
-            penalties: { overdue, inactivity },
-        });
+        return NextResponse.json(
+            {
+                ...user,
+                penalties: { overdue, inactivity },
+            },
+            {
+                headers: { "Cache-Control": "no-store" },
+            }
+        );
     } catch (err) {
         console.error(err);
         return NextResponse.json({ error: "Erro ao buscar usuário" }, { status: 500 });
