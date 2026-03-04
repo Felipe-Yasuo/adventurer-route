@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import GlassCard from "@/app/(panel)/dashboard/_components/GlassCard";
 import { useToast } from "@/app/(panel)/dashboard/_components/toast";
+import { useMe } from "@/app/(panel)/dashboard/_components/me-store";
 
 type ShopItem = {
     id: string;
@@ -60,7 +61,7 @@ export default function ShopClient() {
     const [error, setError] = useState<string | null>(null);
 
     const [items, setItems] = useState<ShopItem[]>([]);
-    const [me, setMe] = useState<MeApi | null>(null);
+    const { me, setMe, reload } = useMe();
 
     // quantidade por item
     const [qty, setQty] = useState<Record<string, number>>({});
@@ -71,15 +72,9 @@ export default function ShopClient() {
         setError(null);
 
         try {
-            const [shop, meJson] = await Promise.all([
-                fetchJson<ShopItem[]>("/api/shop"),
-                fetchJson<MeApi>("/api/me"),
-            ]);
-
+            const shop = await fetchJson<ShopItem[]>("/api/shop");
             setItems(shop);
-            setMe(meJson);
 
-            // inicializa qty=1 para itens novos
             setQty((prev) => {
                 const next = { ...prev };
                 for (const it of shop) {
@@ -134,9 +129,7 @@ export default function ShopClient() {
             setMe((prev) => (prev ? { ...prev, gold: result.user.gold } : prev));
 
 
-            const meJson = await fetchJson<MeApi>("/api/me");
-            setMe(meJson);
-
+            await reload();
         } catch (e: any) {
             toast.push({
                 type: "error",

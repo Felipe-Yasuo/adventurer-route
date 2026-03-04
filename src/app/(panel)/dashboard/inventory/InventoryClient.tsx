@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import GlassCard from "@/app/(panel)/dashboard/_components/GlassCard";
 import { useToast } from "@/app/(panel)/dashboard/_components/toast";
+import { useMe } from "@/app/(panel)/dashboard/_components/me-store";
 
 type InventoryRow = {
     id: string;
@@ -65,7 +66,7 @@ export default function InventoryClient() {
     const [error, setError] = useState<string | null>(null);
 
     const [rows, setRows] = useState<InventoryRow[]>([]);
-    const [me, setMe] = useState<MeApi | null>(null);
+    const { me, setMe, reload } = useMe();
 
     const [busyItemId, setBusyItemId] = useState<string | null>(null);
 
@@ -118,7 +119,7 @@ export default function InventoryClient() {
             setMe((prev) =>
                 prev ? { ...prev, life: result.user.life, maxLife: result.user.maxLife } : prev
             );
-
+            await reload();
             // ✅ atualiza quantidade localmente (sem precisar recarregar tudo)
             setRows((prev) =>
                 prev.map((r) =>
@@ -133,9 +134,6 @@ export default function InventoryClient() {
                 durationMs: 3600,
             });
 
-            // (opcional) refetch pra manter tudo 100% sincronizado
-            // const meJson = await fetchJson<MeApi>("/api/me");
-            // setMe(meJson);
         } catch (e: any) {
             toast.push({
                 type: "error",
