@@ -12,12 +12,10 @@ type AchievementApi = {
     target: number;
     rewardGold: number;
     rewardXp: number;
-
-    // normalmente vem do backend como:
-    // unlocked: boolean ou unlockedAt: string | null
-    unlocked?: boolean;
-    unlockedAt?: string | null;
+    unlocked: boolean;
+    unlockedAt: string | null;
 };
+
 
 type Filter = "ALL" | "UNLOCKED" | "LOCKED";
 
@@ -31,18 +29,18 @@ async function fetchJson<T>(url: string): Promise<T> {
     return json as T;
 }
 
-function formatPtBrDate(iso: string) {
+function formatPtBrDateTime(iso: string) {
     const dt = new Date(iso);
     if (Number.isNaN(dt.getTime())) return iso;
-    return dt.toLocaleDateString("pt-BR");
+
+    return dt.toLocaleString("pt-BR", {
+        dateStyle: "short",
+        timeStyle: "short",
+    });
 }
 
 function statusFrom(a: AchievementApi) {
-    // suporta os 2 formatos:
-    // - unlocked boolean
-    // - unlockedAt string
-    const unlocked = a.unlocked === true || !!a.unlockedAt;
-    return unlocked ? "UNLOCKED" : "LOCKED";
+    return a.unlocked ? "UNLOCKED" : "LOCKED";
 }
 
 function StatusBadge({ status }: { status: "UNLOCKED" | "LOCKED" }) {
@@ -92,12 +90,7 @@ export default function AchievementsClient() {
         setError(null);
 
         try {
-            // Alguns backends retornam array direto, outros { achievements: [...] }.
-            const json = await fetchJson<any>("/api/achievements");
-            const list: AchievementApi[] = Array.isArray(json)
-                ? json
-                : (json?.achievements ?? json?.data ?? []);
-
+            const list = await fetchJson<AchievementApi[]>("/api/achievements");
             setAll(list);
         } catch (e: any) {
             setError(e?.message ?? "Erro desconhecido");
@@ -105,10 +98,6 @@ export default function AchievementsClient() {
             setLoading(false);
         }
     }
-
-    useEffect(() => {
-        loadAll();
-    }, []);
 
     const counts = useMemo(() => {
         let unlocked = 0;
@@ -130,7 +119,7 @@ export default function AchievementsClient() {
     }, [all, filter]);
 
     const sorted = useMemo(() => {
-        // ordena: desbloqueadas primeiro, e dentro delas por data; bloqueadas por título
+
         return [...filtered].sort((a, b) => {
             const sa = statusFrom(a);
             const sb = statusFrom(b);
@@ -237,7 +226,7 @@ export default function AchievementsClient() {
                                         <>
                                             Desbloqueada em:{" "}
                                             <span className="text-white/60">
-                                                {a.unlockedAt ? formatPtBrDate(a.unlockedAt) : "—"}
+                                                {a.unlockedAt ? formatPtBrDateTime(a.unlockedAt) : "—"}
                                             </span>
                                         </>
                                     ) : (
