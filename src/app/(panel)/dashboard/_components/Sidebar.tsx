@@ -28,15 +28,14 @@ export default function Sidebar() {
 
       <nav className="px-3 space-y-1 flex-1">
         <Item href="/dashboard" label="Home" icon="🏠" />
-        <Item href="/rules" label="Regras" icon="📜" />
-        <Item href="/adventure" label="Modo Aventura" icon="🗺️" />
-        <Item href="/achievements" label="Conquistas" icon="🏆" />
-        <Item href="/rewards" label="Recompensas" icon="🎁" />
-        <Item href="/shop" label="Loja" icon="🛒" />
-        <Item href="/profile" label="Perfil" icon="🧙" />
+        <Item href="/dashboard/rules" label="Regras" icon="📜" />
+        <Item href="/dashboard/adventure" label="Modo Aventura" icon="🗺️" />
+        <Item href="/dashboard/achievements" label="Conquistas" icon="🏆" />
+        <Item href="/dashboard/rewards" label="Recompensas" icon="🎁" />
+        <Item href="/dashboard/shop" label="Loja" icon="🛒" />
+        <Item href="/dashboard/profile" label="Perfil" icon="🧙" />
       </nav>
 
-      {/* ✅ fica colado embaixo */}
       <LogoutItem />
     </aside>
   );
