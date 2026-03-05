@@ -99,6 +99,10 @@ export default function AchievementsClient() {
         }
     }
 
+    useEffect(() => {
+        loadAll();
+    }, []);
+
     const counts = useMemo(() => {
         let unlocked = 0;
         let locked = 0;

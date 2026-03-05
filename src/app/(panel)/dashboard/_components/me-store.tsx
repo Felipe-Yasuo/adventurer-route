@@ -3,14 +3,20 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 export type MeApi = {
+    id: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
+
+    gold: number;
     level: number;
     xp: number;
     life: number;
     maxLife: number;
-    gold: number;
     streakCount: number;
     tasksCompletedTotal: number;
 };
+
 
 type MeContextValue = {
     me: MeApi | null;

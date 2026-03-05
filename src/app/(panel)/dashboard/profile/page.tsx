@@ -1,7 +1,5 @@
-export default function Home() {
-    return (
-        <div>
+import ProfileClient from "./ProfileClient";
 
-        </div>
-    );
+export default function ProfilePage() {
+    return <ProfileClient />;
 }
