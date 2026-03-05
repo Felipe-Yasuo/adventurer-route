@@ -36,8 +36,18 @@ export default function NewTaskCard({
 }) {
   const [title, setTitle] = useState("");
   const [difficulty, setDifficulty] = useState<Difficulty>("EASY");
-  const [dueDate, setDueDate] = useState<string>("");
+  const [dueDate, setDueDate] = useState<string>(todayKeyLocal());
   const [creating, setCreating] = useState(false);
+
+
+  function todayKeyLocal() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
 
   async function handleCreate() {
     const t = title.trim();

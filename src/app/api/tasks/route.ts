@@ -27,6 +27,12 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+    function todayNoon() {
+        const d = new Date();
+        d.setHours(12, 0, 0, 0);
+        return d;
+    }
+
     try {
         const user = await requireUser();
         if (!user) {
@@ -37,7 +43,7 @@ export async function POST(req: Request) {
             title?: string;
             difficulty?: Difficulty;
             dueDate?: string | null;
-            dayKey?: string; // opcional, se você quiser permitir criar em outro dia
+            dayKey?: string;
         };
 
         const title = (body.title ?? "").trim();
@@ -48,11 +54,21 @@ export async function POST(req: Request) {
         const difficulty = body.difficulty ?? "EASY";
         const dayKey = (body.dayKey ?? todayKey(TZ)).trim();
 
+        const dueDate =
+            body.dueDate && String(body.dueDate).trim().length > 0
+                ? new Date(body.dueDate)
+                : todayNoon();
+
+
+        if (Number.isNaN(dueDate.getTime())) {
+            return NextResponse.json({ error: "dueDate inválida" }, { status: 400 });
+        }
+
         const task = await prisma.task.create({
             data: {
                 title,
                 difficulty,
-                dueDate: body.dueDate ? new Date(body.dueDate) : null,
+                dueDate,
                 userId: user.id,
                 dayKey,
             },
