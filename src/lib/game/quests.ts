@@ -12,7 +12,51 @@ export type QuestJustCompleted = {
     type: "DAILY" | "WEEKLY";
 };
 
+export type QuestTemplate = {
+    code: string;
+    title: string;
+    description: string;
+    target: number;
+    rewardXp: number;
+    rewardGold: number;
+};
+
+export type QuestClaimResult = {
+    quest: any;
+    rewards: { xp: number; gold: number };
+    leveledUp: number;
+    user: any;
+};
+
 const TZ = "America/Sao_Paulo";
+
+function hashStringToInt(str: string) {
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+}
+
+function pickDeterministic<T>(arr: T[], count: number, seedStr: string): T[] {
+    if (count <= 0) return [];
+    if (arr.length <= count) return [...arr];
+
+    const pool = [...arr];
+    const picked: T[] = [];
+
+    let seed = hashStringToInt(seedStr);
+
+    while (picked.length < count && pool.length > 0) {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        const idx = seed % pool.length;
+        picked.push(pool[idx]);
+        pool.splice(idx, 1);
+    }
+
+    return picked;
+}
 
 function todayKeyInTz(tz: string) {
     return new Intl.DateTimeFormat("en-CA", {
@@ -39,32 +83,30 @@ function weekKeyInTz(tz: string) {
     return `${yy}-${mm}-${dd}`;
 }
 
-export type QuestTemplate = {
-    code: string;
-    title: string;
-    description: string;
-    target: number;
-    rewardXp: number;
-    rewardGold: number;
-};
-
-export type QuestClaimResult = {
-    quest: any;
-    rewards: { xp: number; gold: number };
-    leveledUp: number;
-    user: any;
-};
-
-export const DAILY_QUEST_TEMPLATES: QuestTemplate[] = [
+export const DAILY_POOL: QuestTemplate[] = [
     { code: "DAILY_COMPLETE_1", title: "Aqueça o motor", description: "Complete 1 tarefa hoje.", target: 1, rewardXp: 10, rewardGold: 5 },
+    { code: "DAILY_COMPLETE_2", title: "Dois passos", description: "Complete 2 tarefas hoje.", target: 2, rewardXp: 18, rewardGold: 9 },
     { code: "DAILY_COMPLETE_3", title: "Ritmo de aventura", description: "Complete 3 tarefas hoje.", target: 3, rewardXp: 25, rewardGold: 12 },
+    { code: "DAILY_COMPLETE_5", title: "Dia produtivo", description: "Complete 5 tarefas hoje.", target: 5, rewardXp: 45, rewardGold: 22 },
     { code: "DAILY_COMPLETE_HARD_1", title: "Desafio de verdade", description: "Complete 1 tarefa HARD hoje.", target: 1, rewardXp: 30, rewardGold: 15 },
+    { code: "DAILY_COMPLETE_MEDIUM_2", title: "Sem moleza", description: "Complete 2 tarefas MEDIUM hoje.", target: 2, rewardXp: 35, rewardGold: 18 },
 ];
 
-export const WEEKLY_QUEST_TEMPLATES: QuestTemplate[] = [
+export const WEEKLY_POOL: QuestTemplate[] = [
+    { code: "WEEKLY_COMPLETE_8", title: "Aquecimento semanal", description: "Complete 8 tarefas nesta semana.", target: 8, rewardXp: 95, rewardGold: 45 },
     { code: "WEEKLY_COMPLETE_10", title: "Maratona da semana", description: "Complete 10 tarefas nesta semana.", target: 10, rewardXp: 120, rewardGold: 60 },
+    { code: "WEEKLY_COMPLETE_15", title: "Imparável", description: "Complete 15 tarefas nesta semana.", target: 15, rewardXp: 180, rewardGold: 90 },
     { code: "WEEKLY_COMPLETE_HARD_3", title: "Semana casca-grossa", description: "Complete 3 tarefas HARD nesta semana.", target: 3, rewardXp: 150, rewardGold: 80 },
+    { code: "WEEKLY_COMPLETE_MEDIUM_6", title: "Constância", description: "Complete 6 tarefas MEDIUM nesta semana.", target: 6, rewardXp: 140, rewardGold: 70 },
 ];
+
+function dailyTemplatesForDay(dayKey: string) {
+    return pickDeterministic(DAILY_POOL, 3, `daily:${dayKey}`);
+}
+
+function weeklyTemplatesForWeek(weekKey: string) {
+    return pickDeterministic(WEEKLY_POOL, 2, `weekly:${weekKey}`);
+}
 
 function dailyUpsertArgs(userId: string, dayKey: string, q: QuestTemplate) {
     return {
@@ -85,7 +127,6 @@ function dailyUpsertArgs(userId: string, dayKey: string, q: QuestTemplate) {
             claimedAt: null,
         },
         update: {
-            // mantém progresso/status, mas garante template consistente
             title: q.title,
             description: q.description,
             target: q.target,
@@ -127,12 +168,20 @@ function weeklyUpsertArgs(userId: string, weekKey: string, q: QuestTemplate) {
     } satisfies Prisma.QuestUpsertArgs;
 }
 
+function isDailyCompleteAny(code: string) {
+    return code.startsWith("DAILY_COMPLETE_") && !code.includes("_HARD_") && !code.includes("_MEDIUM_");
+}
+
+function isWeeklyCompleteAny(code: string) {
+    return code.startsWith("WEEKLY_COMPLETE_") && !code.includes("_HARD_") && !code.includes("_MEDIUM_");
+}
+
 export async function ensureTodayQuests(userId: string) {
     const dayKey = todayKeyInTz(TZ);
     const weekKey = weekKeyInTz(TZ);
 
     await prisma.$transaction(async (tx) => {
-        // remove quests fora do período atual (como você quer)
+
         await tx.quest.deleteMany({
             where: { userId, type: "DAILY", dayKey: { not: dayKey } },
         });
@@ -141,11 +190,15 @@ export async function ensureTodayQuests(userId: string) {
             where: { userId, type: "WEEKLY", weekKey: { not: weekKey } },
         });
 
-        for (const q of DAILY_QUEST_TEMPLATES) {
+
+        const daily = dailyTemplatesForDay(dayKey);
+        const weekly = weeklyTemplatesForWeek(weekKey);
+
+        for (const q of daily) {
             await tx.quest.upsert(dailyUpsertArgs(userId, dayKey, q));
         }
 
-        for (const q of WEEKLY_QUEST_TEMPLATES) {
+        for (const q of weekly) {
             await tx.quest.upsert(weeklyUpsertArgs(userId, weekKey, q));
         }
     });
@@ -246,11 +299,13 @@ export async function onTaskCompletedUpdateQuests(
     const dayKey = todayKeyInTz(TZ);
     const weekKey = weekKeyInTz(TZ);
 
-    // garante que existem
-    for (const q of DAILY_QUEST_TEMPLATES) {
+    const daily = dailyTemplatesForDay(dayKey);
+    const weekly = weeklyTemplatesForWeek(weekKey);
+
+    for (const q of daily) {
         await tx.quest.upsert(dailyUpsertArgs(userId, dayKey, q));
     }
-    for (const q of WEEKLY_QUEST_TEMPLATES) {
+    for (const q of weekly) {
         await tx.quest.upsert(weeklyUpsertArgs(userId, weekKey, q));
     }
 
@@ -286,17 +341,29 @@ export async function onTaskCompletedUpdateQuests(
 
     const newly: QuestJustCompleted[] = [];
 
-    if (await bumpDaily("DAILY_COMPLETE_1", 1)) newly.push({ code: "DAILY_COMPLETE_1", title: "Aqueça o motor", type: "DAILY" });
-    if (await bumpDaily("DAILY_COMPLETE_3", 1)) newly.push({ code: "DAILY_COMPLETE_3", title: "Ritmo de aventura", type: "DAILY" });
 
-    if (task.difficulty === "HARD") {
-        if (await bumpDaily("DAILY_COMPLETE_HARD_1", 1)) newly.push({ code: "DAILY_COMPLETE_HARD_1", title: "Desafio de verdade", type: "DAILY" });
+    for (const q of daily) {
+        if (isDailyCompleteAny(q.code)) {
+            if (await bumpDaily(q.code, 1)) newly.push({ code: q.code, title: q.title, type: "DAILY" });
+        }
+        if (task.difficulty === "HARD" && q.code.includes("_HARD_")) {
+            if (await bumpDaily(q.code, 1)) newly.push({ code: q.code, title: q.title, type: "DAILY" });
+        }
+        if (task.difficulty === "MEDIUM" && q.code.includes("_MEDIUM_")) {
+            if (await bumpDaily(q.code, 1)) newly.push({ code: q.code, title: q.title, type: "DAILY" });
+        }
     }
 
-    if (await bumpWeekly("WEEKLY_COMPLETE_10", 1)) newly.push({ code: "WEEKLY_COMPLETE_10", title: "Maratona da semana", type: "WEEKLY" });
-
-    if (task.difficulty === "HARD") {
-        if (await bumpWeekly("WEEKLY_COMPLETE_HARD_3", 1)) newly.push({ code: "WEEKLY_COMPLETE_HARD_3", title: "Semana casca-grossa", type: "WEEKLY" });
+    for (const q of weekly) {
+        if (isWeeklyCompleteAny(q.code)) {
+            if (await bumpWeekly(q.code, 1)) newly.push({ code: q.code, title: q.title, type: "WEEKLY" });
+        }
+        if (task.difficulty === "HARD" && q.code.includes("_HARD_")) {
+            if (await bumpWeekly(q.code, 1)) newly.push({ code: q.code, title: q.title, type: "WEEKLY" });
+        }
+        if (task.difficulty === "MEDIUM" && q.code.includes("_MEDIUM_")) {
+            if (await bumpWeekly(q.code, 1)) newly.push({ code: q.code, title: q.title, type: "WEEKLY" });
+        }
     }
 
     return newly;
