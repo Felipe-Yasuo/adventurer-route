@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import GlassCard from "@/app/(panel)/dashboard/_components/GlassCard";
 import { useMe } from "@/app/(panel)/dashboard/_components/me-store";
+import { useToast } from "@/app/(panel)/dashboard/_components/toast";
+import Image from "next/image";
 
 type MeApi = {
     id: string;
@@ -34,10 +36,17 @@ function initials(name?: string | null, email?: string | null) {
 }
 
 export default function ProfileClient() {
+    const toast = useToast();
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const { me, setMe } = useMe();
+    const { me, setMe, reload } = useMe();
+
+    // Avatar states
+    const [file, setFile] = useState<File | null>(null);
+    const [preview, setPreview] = useState<string | null>(null);
+    const [savingAvatar, setSavingAvatar] = useState(false);
 
     async function load() {
         setLoading(true);
@@ -53,7 +62,6 @@ export default function ProfileClient() {
     }
 
     useEffect(() => {
-        // se já tiver me no store, não precisa “piscar” a tela
         if (me) {
             setLoading(false);
             return;
@@ -61,6 +69,74 @@ export default function ProfileClient() {
         load();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // preview cleanup (evita leak de memória)
+    useEffect(() => {
+        return () => {
+            if (preview) URL.revokeObjectURL(preview);
+        };
+    }, [preview]);
+
+    function onPick(f: File | null) {
+        // limpa preview anterior
+        if (preview) URL.revokeObjectURL(preview);
+
+        setFile(f);
+
+        if (!f) {
+            setPreview(null);
+            return;
+        }
+
+        const url = URL.createObjectURL(f);
+        setPreview(url);
+    }
+
+    async function uploadAvatar() {
+        if (!file) return;
+
+        setSavingAvatar(true);
+        try {
+            const fd = new FormData();
+            fd.append("file", file);
+
+            const res = await fetch("/api/profile/avatar", {
+                method: "POST",
+                body: fd,
+            });
+
+            const json = await res.json().catch(() => null);
+            if (!res.ok) throw new Error(json?.error ?? "Falha ao salvar avatar");
+
+            const newImage = json?.user?.image as string | null;
+
+            // ✅ atualiza instantâneo no store
+            setMe((prev) => (prev ? { ...prev, image: newImage } : prev));
+
+            toast.push({
+                type: "success",
+                title: "Avatar atualizado! 🖼️",
+                message: "Seu novo avatar já está no perfil.",
+                durationMs: 3200,
+            });
+
+            // limpa seleção
+            setFile(null);
+            setPreview(null);
+
+            // opcional: garante consistência total do store
+            await reload?.();
+        } catch (e: any) {
+            toast.push({
+                type: "error",
+                title: "Erro ao atualizar avatar",
+                message: e?.message ?? "Tente novamente",
+                durationMs: 3400,
+            });
+        } finally {
+            setSavingAvatar(false);
+        }
+    }
 
     const lifePct = useMemo(() => {
         const life = me?.life ?? 0;
@@ -107,9 +183,21 @@ export default function ProfileClient() {
                 <div className="col-span-12 lg:col-span-5">
                     <GlassCard>
                         <div className="flex items-start gap-4">
-                            {/* Avatar (placeholder por enquanto) */}
-                            <div className="h-16 w-16 rounded-2xl bg-cloudWhite/10 border border-white/10 grid place-items-center text-cloudWhite font-semibold">
-                                {initials(me.name, me.email)}
+                            {/* Avatar */}
+                            <div className="h-16 w-16 rounded-2xl overflow-hidden border border-white/10 bg-black/20 grid place-items-center">
+                                {preview ? (
+                                    <img src={preview} alt="Preview avatar" className="h-full w-full object-cover" />
+                                ) : me.image ? (
+                                    <Image
+                                        src={me.image}
+                                        alt="Avatar"
+                                        width={64}
+                                        height={64}
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="text-cloudWhite font-semibold">{initials(me.name, me.email)}</span>
+                                )}
                             </div>
 
                             <div className="min-w-0">
@@ -141,14 +229,27 @@ export default function ProfileClient() {
                             </div>
                         </div>
 
-                        {/* botão ainda não faz nada — no passo 2 vamos implementar a troca de avatar */}
-                        <button
-                            disabled
-                            className="mt-5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white/40 cursor-not-allowed"
-                            title="Vamos implementar no próximo passo"
-                        >
-                            Trocar avatar (em breve)
-                        </button>
+                        {/* Upload avatar */}
+                        <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label className="text-xs text-white/70">Trocar avatar</label>
+                                <input
+                                    type="file"
+                                    accept="image/png,image/jpeg,image/webp"
+                                    onChange={(e) => onPick(e.target.files?.[0] ?? null)}
+                                    className="mt-1 w-full rounded-xl bg-black/20 border border-white/10 px-3 py-2 text-sm outline-none"
+                                />
+                                <p className="mt-1 text-[11px] text-white/40">png/jpg/webp • até 2MB</p>
+                            </div>
+
+                            <button
+                                onClick={uploadAvatar}
+                                disabled={!file || savingAvatar}
+                                className="h-[44px] self-end rounded-xl bg-cloudWhite text-twilight px-4 py-2 text-sm font-semibold hover:opacity-90 disabled:opacity-70"
+                            >
+                                {savingAvatar ? "Salvando..." : "Salvar avatar"}
+                            </button>
+                        </div>
                     </GlassCard>
                 </div>
 
