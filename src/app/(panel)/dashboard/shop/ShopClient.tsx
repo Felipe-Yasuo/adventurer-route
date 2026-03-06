@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import GlassCard from "@/app/(panel)/dashboard/_components/GlassCard";
 import { useToast } from "@/app/(panel)/dashboard/_components/toast";
 import { useMe } from "@/app/(panel)/dashboard/_components/me-store";
 
@@ -11,16 +10,6 @@ type ShopItem = {
     name: string;
     price: number;
     healValue: number;
-};
-
-type MeApi = {
-    gold: number;
-    level: number;
-    xp: number;
-    life: number;
-    maxLife: number;
-    streakCount: number;
-    tasksCompletedTotal: number;
 };
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -54,6 +43,95 @@ async function buyItemApi(itemId: string, quantity: number) {
     };
 }
 
+function GoldCard({ gold }: { gold: number }) {
+    return (
+        <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] px-5 py-4 shadow-[0_10px_18px_rgba(0,0,0,0.08)]">
+            <div className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/60">
+                Seu Gold
+            </div>
+            <div className="mt-2 text-2xl font-bold text-[color:var(--color-ink)]">
+                🪙 {gold}
+            </div>
+        </div>
+    );
+}
+
+function ShopItemCard({
+    item,
+    quantity,
+    busy,
+    onChangeQty,
+    onBuy,
+}: {
+    item: ShopItem;
+    quantity: number;
+    busy: boolean;
+    onChangeQty: (value: number) => void;
+    onBuy: () => void;
+}) {
+    const total = item.price * quantity;
+
+    return (
+        <section className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-5 shadow-[0_10px_18px_rgba(0,0,0,0.1)] transition hover:translate-y-[-2px] hover:shadow-[0_14px_24px_rgba(0,0,0,0.12)]">
+            <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <h3 className="truncate text-[16px] font-bold tracking-wide text-[color:var(--color-ink)]">
+                        {item.name}
+                    </h3>
+
+                    <p className="mt-1 text-sm text-[color:var(--color-ink)]/68">
+                        Restaura{" "}
+                        <span className="font-semibold text-[color:var(--color-ink)]">
+                            +{item.healValue}
+                        </span>{" "}
+                        de vida.
+                    </p>
+                </div>
+
+                <div className="shrink-0 rounded-xl border border-black/10 bg-[rgba(255,255,255,0.26)] px-3 py-2 text-sm font-bold text-[color:var(--color-ink)] shadow-[0_4px_8px_rgba(0,0,0,0.05)]">
+                    🪙 {item.price}
+                </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-3">
+                <div>
+                    <label className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/60">
+                        Quantidade
+                    </label>
+                    <input
+                        type="number"
+                        min={1}
+                        value={quantity}
+                        onChange={(e) => onChangeQty(Math.max(1, Number(e.target.value || 1)))}
+                        className="mt-2 w-full rounded-xl border border-black/10 bg-[rgba(255,255,255,0.32)] px-4 py-3 text-sm text-[color:var(--color-ink)] outline-none transition focus:border-[rgba(212,160,23,0.45)] focus:bg-[rgba(255,255,255,0.48)]"
+                    />
+                </div>
+
+                <div className="rounded-2xl border border-black/10 bg-[rgba(255,255,255,0.24)] px-4 py-3">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/55">
+                        Total
+                    </div>
+                    <div className="mt-2 text-sm font-bold text-[color:var(--color-ink)]">
+                        🪙 {total}
+                    </div>
+                </div>
+            </div>
+
+            <button
+                onClick={onBuy}
+                disabled={busy}
+                className="mt-4 w-full rounded-xl border border-[rgba(212,160,23,0.42)] bg-[rgba(212,160,23,0.18)] py-3 text-sm font-semibold text-[color:var(--color-ink)] transition hover:bg-[rgba(212,160,23,0.28)] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+                {busy ? "Comprando..." : "Comprar"}
+            </button>
+
+            <div className="mt-3 text-[12px] text-[color:var(--color-ink)]/48">
+                Tipo: {item.type}
+            </div>
+        </section>
+    );
+}
+
 export default function ShopClient() {
     const toast = useToast();
 
@@ -63,7 +141,6 @@ export default function ShopClient() {
     const [items, setItems] = useState<ShopItem[]>([]);
     const { me, setMe, reload } = useMe();
 
-    // quantidade por item
     const [qty, setQty] = useState<Record<string, number>>({});
     const [busyItemId, setBusyItemId] = useState<string | null>(null);
 
@@ -125,10 +202,7 @@ export default function ShopClient() {
                 durationMs: 3500,
             });
 
-
             setMe((prev) => (prev ? { ...prev, gold: result.user.gold } : prev));
-
-
             await reload();
         } catch (e: any) {
             toast.push({
@@ -143,16 +217,20 @@ export default function ShopClient() {
     }
 
     if (loading) {
-        return <div className="text-white/70">Carregando loja...</div>;
+        return (
+            <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.9)] p-6 text-[color:var(--color-ink)]/70 shadow-[0_8px_14px_rgba(0,0,0,0.1)]">
+                Carregando loja...
+            </div>
+        );
     }
 
     if (error) {
         return (
-            <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
-                <p className="text-rose">Erro: {error}</p>
+            <div className="rounded-2xl border border-[rgba(178,59,59,0.2)] bg-[rgba(242,228,198,0.9)] p-6 shadow-[0_8px_14px_rgba(0,0,0,0.08)]">
+                <p className="text-[color:var(--color-ink)]">Erro: {error}</p>
                 <button
                     onClick={loadAll}
-                    className="mt-3 rounded-xl bg-cloudWhite px-4 py-2 text-sm font-semibold text-twilight"
+                    className="mt-4 rounded-xl border border-black/10 bg-[rgba(255,255,255,0.28)] px-4 py-2 text-sm font-semibold text-[color:var(--color-ink)] transition hover:bg-[rgba(255,255,255,0.45)]"
                 >
                     Tentar novamente
                 </button>
@@ -162,85 +240,47 @@ export default function ShopClient() {
 
     return (
         <div className="space-y-6">
-            <header className="flex items-end justify-between gap-4">
-                <div>
-                    <h1 className="text-xl font-semibold text-cloudWhite">🛒 Loja</h1>
-                    <p className="mt-1 text-sm text-white/60">
-                        Compre itens usando seu GOLD.
+            <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-6 shadow-[0_10px_18px_rgba(0,0,0,0.1)]">
+                    <h1 className="text-2xl font-bold tracking-wide text-[color:var(--color-ink)]">
+                        🛒 Loja
+                    </h1>
+                    <p className="mt-2 text-sm leading-relaxed text-[color:var(--color-ink)]/68">
+                        Compre itens para ajudar na sua jornada e recuperar vida.
                     </p>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-black/10 px-4 py-3">
-                    <div className="text-xs text-white/60">Seu GOLD</div>
-                    <div className="text-lg font-semibold text-cloudWhite">💎 {gold}</div>
-                </div>
+                <GoldCard gold={gold} />
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {sorted.length === 0 ? (
-                    <div className="rounded-2xl border border-white/10 bg-black/10 p-4 text-white/60">
-                        Nenhum item disponível no momento.
-                    </div>
-                ) : (
-                    sorted.map((item) => {
+            {sorted.length === 0 ? (
+                <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-5 text-[color:var(--color-ink)]/68 shadow-[0_8px_14px_rgba(0,0,0,0.08)]">
+                    Nenhum item disponível no momento.
+                </div>
+            ) : (
+                <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    {sorted.map((item) => {
                         const q = qty[item.id] ?? 1;
-                        const total = item.price * q;
                         const busy = busyItemId === item.id;
 
                         return (
-                            <GlassCard key={item.id}>
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                        <p className="text-sm font-semibold text-cloudWhite truncate">
-                                            {item.name}
-                                        </p>
-                                        <p className="mt-1 text-xs text-white/60">
-                                            Cura: <span className="text-white/80">+{item.healValue}</span>
-                                        </p>
-                                    </div>
-
-                                    <div className="shrink-0 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-cloudWhite">
-                                        💎 {item.price}
-                                    </div>
-                                </div>
-
-                                <div className="mt-4 grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label className="text-xs text-white/70">Qtd</label>
-                                        <input
-                                            type="number"
-                                            min={1}
-                                            value={q}
-                                            onChange={(e) =>
-                                                setQty((prev) => ({
-                                                    ...prev,
-                                                    [item.id]: Math.max(1, Number(e.target.value || 1)),
-                                                }))
-                                            }
-                                            className="mt-1 w-full rounded-xl bg-black/20 border border-white/10 px-3 py-2 text-sm outline-none focus:border-blueSoft/60"
-                                        />
-                                    </div>
-
-                                    <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2">
-                                        <div className="text-xs text-white/60">Total</div>
-                                        <div className="text-sm font-semibold text-cloudWhite">💎 {total}</div>
-                                    </div>
-                                </div>
-
-                                <button
-                                    onClick={() => handleBuy(item)}
-                                    disabled={busy}
-                                    className="mt-4 w-full rounded-xl bg-cloudWhite text-twilight py-2 text-sm font-semibold hover:opacity-90 disabled:opacity-70"
-                                >
-                                    {busy ? "Comprando..." : "Comprar"}
-                                </button>
-
-                                <div className="mt-3 text-[11px] text-white/40">Tipo: {item.type}</div>
-                            </GlassCard>
+                            <ShopItemCard
+                                key={item.id}
+                                item={item}
+                                quantity={q}
+                                busy={busy}
+                                onChangeQty={(value) =>
+                                    setQty((prev) => ({
+                                        ...prev,
+                                        [item.id]: value,
+                                    }))
+                                }
+                                onBuy={() => handleBuy(item)}
+                            />
                         );
-                    })
-                )}
-            </div>
+                    })}
+                </section>
+            )}
         </div>
     );
 }
