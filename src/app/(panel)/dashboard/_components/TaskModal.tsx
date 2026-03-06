@@ -14,13 +14,22 @@ function ModalShell({
 
   return (
     <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/60" />
+      <div className="absolute inset-0 bg-[rgba(20,12,8,0.58)] backdrop-blur-[2px]" />
+
       <div className="absolute inset-0 flex items-center justify-center p-4">
-        <div className="w-full max-w-xl rounded-2xl border border-white/10 bg-twilight shadow-2xl">
+        <div className="w-full max-w-xl rounded-[28px] border border-black/10 bg-[rgba(242,228,198,0.98)] shadow-[0_18px_40px_rgba(0,0,0,0.28)]">
           {children}
         </div>
       </div>
     </div>
+  );
+}
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <label className="text-xs font-semibold tracking-wide text-[color:var(--color-ink)]/75">
+      {children}
+    </label>
   );
 }
 
@@ -63,76 +72,79 @@ export default function TaskModal({
 
   return (
     <ModalShell open={open}>
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-3">
+      <div className="p-6 text-[color:var(--color-ink)]">
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-base font-semibold text-cloudWhite">
+            <h2 className="text-xl font-bold tracking-wide">
               Editar tarefa
             </h2>
-            <p className="text-xs text-white/60">
-              O modal serve apenas para editar (concluir é pelo card).
+            <p className="mt-1 text-sm text-[color:var(--color-ink)]/65">
+              Atualize os detalhes da sua missão.
             </p>
           </div>
 
           <button
             onClick={onClose}
             disabled={!!saving}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10 disabled:opacity-50"
+            className="rounded-xl border border-black/10 bg-[rgba(255,255,255,0.28)] px-3 py-2 text-sm font-semibold text-[color:var(--color-ink)]/75 transition hover:bg-[rgba(255,255,255,0.42)] disabled:opacity-50"
+            aria-label="Fechar modal"
           >
             ✕
           </button>
         </div>
 
-        <div className="mt-4 space-y-3">
+        <div className="mt-6 space-y-4">
           <div>
-            <label className="text-xs text-white/70">Título</label>
+            <FieldLabel>Título</FieldLabel>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="mt-1 w-full rounded-xl bg-black/20 border border-white/10 px-3 py-2 text-sm outline-none focus:border-blueSoft/60"
+              placeholder="Nome da tarefa"
+              className="mt-2 w-full rounded-xl border border-black/10 bg-[rgba(255,255,255,0.38)] px-4 py-3 text-sm text-[color:var(--color-ink)] outline-none transition placeholder:text-[color:var(--color-ink)]/40 focus:border-[rgba(212,160,23,0.45)] focus:bg-[rgba(255,255,255,0.5)]"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-xs text-white/70">Dificuldade</label>
+              <FieldLabel>Dificuldade</FieldLabel>
               <select
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-                className="mt-1 w-full rounded-xl bg-black/20 border border-white/10 px-3 py-2 text-sm outline-none"
+                className="mt-2 w-full rounded-xl border border-black/10 bg-[rgba(255,255,255,0.38)] px-4 py-3 text-sm text-[color:var(--color-ink)] outline-none transition focus:border-[rgba(212,160,23,0.45)] focus:bg-[rgba(255,255,255,0.5)]"
               >
-                <option value="EASY">EASY</option>
-                <option value="MEDIUM">MEDIUM</option>
-                <option value="HARD">HARD</option>
+                <option value="EASY">Easy</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HARD">Hard</option>
               </select>
             </div>
 
             <div>
-              <label className="text-xs text-white/70">Data</label>
+              <FieldLabel>Data</FieldLabel>
               <input
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="mt-1 w-full rounded-xl bg-black/20 border border-white/10 px-3 py-2 text-sm outline-none"
+                className="mt-2 w-full rounded-xl border border-black/10 bg-[rgba(255,255,255,0.38)] px-4 py-3 text-sm text-[color:var(--color-ink)] outline-none transition focus:border-[rgba(212,160,23,0.45)] focus:bg-[rgba(255,255,255,0.5)]"
               />
             </div>
           </div>
         </div>
 
-        <div className="mt-5 flex items-center justify-end gap-3">
+        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button
             onClick={onClose}
             disabled={!!saving}
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 disabled:opacity-50"
+            className="rounded-xl border border-black/10 bg-[rgba(255,255,255,0.28)] px-4 py-3 text-sm font-semibold text-[color:var(--color-ink)]/80 transition hover:bg-[rgba(255,255,255,0.45)] disabled:opacity-50"
           >
             Cancelar
           </button>
+
           <button
             onClick={handleSave}
             disabled={!!saving}
-            className="rounded-xl bg-cloudWhite px-4 py-2 text-sm font-semibold text-twilight hover:opacity-90 disabled:opacity-70"
+            className="rounded-xl border border-[rgba(212,160,23,0.42)] bg-[rgba(212,160,23,0.18)] px-5 py-3 text-sm font-semibold text-[color:var(--color-ink)] transition hover:bg-[rgba(212,160,23,0.28)] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {saving ? "Salvando..." : "Salvar"}
+            {saving ? "Salvando..." : "Salvar alterações"}
           </button>
         </div>
       </div>

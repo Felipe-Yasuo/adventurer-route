@@ -79,7 +79,7 @@ function Column({
   onDeleteTask: (t: TaskUI) => void;
   completingId: string | null;
 }) {
-  const enableScroll = tasks.length > 4;
+  const enableScroll = tasks.length > 2;
 
   return (
     <div className="space-y-2 ">
