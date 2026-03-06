@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import GlassCard from "@/app/(panel)/dashboard/_components/GlassCard";
 import { useToast } from "@/app/(panel)/dashboard/_components/toast";
 import { useMe } from "@/app/(panel)/dashboard/_components/me-store";
 
@@ -15,16 +14,6 @@ type InventoryRow = {
         price: number;
         healValue: number;
     };
-};
-
-type MeApi = {
-    gold: number;
-    level: number;
-    xp: number;
-    life: number;
-    maxLife: number;
-    streakCount: number;
-    tasksCompletedTotal: number;
 };
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -59,6 +48,98 @@ async function useItemApi(itemId: string) {
     };
 }
 
+function LifeCard({
+    life,
+    maxLife,
+}: {
+    life: number;
+    maxLife: number;
+}) {
+    return (
+        <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] px-5 py-4 shadow-[0_10px_18px_rgba(0,0,0,0.08)]">
+            <div className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/60">
+                Vida atual
+            </div>
+            <div className="mt-2 text-2xl font-bold text-[color:var(--color-ink)]">
+                ❤️ {life}/{maxLife}
+            </div>
+        </div>
+    );
+}
+
+function InventoryItemCard({
+    row,
+    busy,
+    disabled,
+    onUse,
+}: {
+    row: InventoryRow;
+    busy: boolean;
+    disabled: boolean;
+    onUse: () => void;
+}) {
+    return (
+        <section className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-5 shadow-[0_10px_18px_rgba(0,0,0,0.1)] transition hover:translate-y-[-2px] hover:shadow-[0_14px_24px_rgba(0,0,0,0.12)]">
+            <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <h3 className="truncate text-[16px] font-bold tracking-wide text-[color:var(--color-ink)]">
+                        {row.item.name}
+                    </h3>
+
+                    <p className="mt-1 text-sm text-[color:var(--color-ink)]/68">
+                        Recupera{" "}
+                        <span className="font-semibold text-[color:var(--color-ink)]">
+                            +{row.item.healValue}
+                        </span>{" "}
+                        de vida.
+                    </p>
+                </div>
+
+                <div className="shrink-0 rounded-xl border border-black/10 bg-[rgba(255,255,255,0.24)] px-3 py-2 text-sm font-bold text-[color:var(--color-ink)] shadow-[0_4px_8px_rgba(0,0,0,0.05)]">
+                    x{row.quantity}
+                </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-black/10 bg-[rgba(255,255,255,0.22)] px-4 py-3">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/55">
+                        Cura
+                    </div>
+                    <div className="mt-2 text-sm font-bold text-[color:var(--color-ink)]">
+                        +{row.item.healValue}
+                    </div>
+                </div>
+
+                <div className="rounded-2xl border border-black/10 bg-[rgba(255,255,255,0.22)] px-4 py-3">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/55">
+                        Preço
+                    </div>
+                    <div className="mt-2 text-sm font-bold text-[color:var(--color-ink)]">
+                        🪙 {row.item.price}
+                    </div>
+                </div>
+            </div>
+
+            <button
+                onClick={onUse}
+                disabled={busy || disabled}
+                className={[
+                    "mt-4 w-full rounded-xl border py-3 text-sm font-semibold transition",
+                    busy || disabled
+                        ? "cursor-not-allowed border-black/10 bg-[rgba(0,0,0,0.05)] text-[color:var(--color-ink)]/40"
+                        : "border-[rgba(47,143,91,0.25)] bg-[rgba(47,143,91,0.15)] text-[color:var(--color-ink)] hover:bg-[rgba(47,143,91,0.24)]",
+                ].join(" ")}
+            >
+                {busy ? "Usando..." : "Usar"}
+            </button>
+
+            <div className="mt-3 text-[12px] text-[color:var(--color-ink)]/48">
+                Tipo: {row.item.type}
+            </div>
+        </section>
+    );
+}
+
 export default function InventoryClient() {
     const toast = useToast();
 
@@ -77,7 +158,6 @@ export default function InventoryClient() {
         try {
             const inv = await fetchJson<InventoryRow[]>("/api/inventory");
             setRows(inv);
-
             await reload();
         } catch (e: any) {
             setError(e?.message ?? "Erro desconhecido");
@@ -93,13 +173,11 @@ export default function InventoryClient() {
     const life = me?.life ?? 0;
     const maxLife = me?.maxLife ?? 0;
 
-    const lifePct =
-        maxLife > 0 ? Math.max(0, Math.min(100, (life / maxLife) * 100)) : 0;
-
     const sorted = useMemo(() => {
-        // mais úteis primeiro (cura maior), depois por nome
         return [...rows].sort((a, b) => {
-            if (b.item.healValue !== a.item.healValue) return b.item.healValue - a.item.healValue;
+            if (b.item.healValue !== a.item.healValue) {
+                return b.item.healValue - a.item.healValue;
+            }
             return a.item.name.localeCompare(b.item.name);
         });
     }, [rows]);
@@ -115,6 +193,7 @@ export default function InventoryClient() {
             setMe((prev) =>
                 prev ? { ...prev, life: result.user.life, maxLife: result.user.maxLife } : prev
             );
+
             setRows((prev) =>
                 prev.map((r) =>
                     r.item.id === row.item.id ? { ...r, quantity: result.remaining } : r
@@ -127,7 +206,6 @@ export default function InventoryClient() {
                 message: `+${result.healed} vida • ${result.usedItem.name} (restam ${result.remaining})`,
                 durationMs: 3600,
             });
-
         } catch (e: any) {
             toast.push({
                 type: "error",
@@ -141,16 +219,20 @@ export default function InventoryClient() {
     }
 
     if (loading) {
-        return <div className="text-white/70">Carregando inventário...</div>;
+        return (
+            <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.9)] p-6 text-[color:var(--color-ink)]/70 shadow-[0_8px_14px_rgba(0,0,0,0.1)]">
+                Carregando inventário...
+            </div>
+        );
     }
 
     if (error) {
         return (
-            <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
-                <p className="text-rose">Erro: {error}</p>
+            <div className="rounded-2xl border border-[rgba(178,59,59,0.2)] bg-[rgba(242,228,198,0.9)] p-6 shadow-[0_8px_14px_rgba(0,0,0,0.08)]">
+                <p className="text-[color:var(--color-ink)]">Erro: {error}</p>
                 <button
                     onClick={loadAll}
-                    className="mt-3 rounded-xl bg-cloudWhite px-4 py-2 text-sm font-semibold text-twilight"
+                    className="mt-4 rounded-xl border border-black/10 bg-[rgba(255,255,255,0.28)] px-4 py-2 text-sm font-semibold text-[color:var(--color-ink)] transition hover:bg-[rgba(255,255,255,0.45)]"
                 >
                     Tentar novamente
                 </button>
@@ -160,72 +242,41 @@ export default function InventoryClient() {
 
     return (
         <div className="space-y-6">
-            <header className="flex items-end justify-between gap-4">
-                <div>
-                    <h1 className="text-xl font-semibold text-cloudWhite">🎒 Inventário</h1>
-                    <p className="mt-1 text-sm text-white/60">
-                        Use itens para recuperar vida.
+            <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-6 shadow-[0_10px_18px_rgba(0,0,0,0.1)]">
+                    <h1 className="text-2xl font-bold tracking-wide text-[color:var(--color-ink)]">
+                        🎒 Inventário
+                    </h1>
+                    <p className="mt-2 text-sm leading-relaxed text-[color:var(--color-ink)]/68">
+                        Use seus itens para recuperar vida e continuar sua jornada.
                     </p>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-black/10 px-4 py-3 min-w-[220px]">
-                    <div className="text-xs text-white/60 mb-2">
-                        VIDA {life}/{maxLife}
-                    </div>
-                    <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                        <div className="h-full bg-roseSoft transition-all" style={{ width: `${lifePct}%` }} />
-                    </div>
-                </div>
+                <LifeCard life={life} maxLife={maxLife} />
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {sorted.length === 0 ? (
-                    <div className="rounded-2xl border border-white/10 bg-black/10 p-4 text-white/60">
-                        Seu inventário está vazio. Compre itens na Loja.
-                    </div>
-                ) : (
-                    sorted.map((row) => {
+            {sorted.length === 0 ? (
+                <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-5 text-[color:var(--color-ink)]/68 shadow-[0_8px_14px_rgba(0,0,0,0.08)]">
+                    Seu inventário está vazio. Compre itens na Loja.
+                </div>
+            ) : (
+                <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    {sorted.map((row) => {
                         const busy = busyItemId === row.item.id;
                         const disabled = row.quantity <= 0 || (me ? me.life >= me.maxLife : false);
 
                         return (
-                            <GlassCard key={row.id}>
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                        <p className="text-sm font-semibold text-cloudWhite truncate">
-                                            {row.item.name}
-                                        </p>
-                                        <p className="mt-1 text-xs text-white/60">
-                                            Cura: <span className="text-white/80">+{row.item.healValue}</span>
-                                        </p>
-                                    </div>
-
-                                    <div className="shrink-0 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-cloudWhite">
-                                        x{row.quantity}
-                                    </div>
-                                </div>
-
-                                <button
-                                    onClick={() => handleUse(row)}
-                                    disabled={busy || disabled}
-                                    className={[
-                                        "mt-4 w-full rounded-xl py-2 text-sm font-semibold border transition",
-                                        busy || disabled
-                                            ? "bg-white/5 border-white/10 text-white/40 cursor-not-allowed"
-                                            : "bg-forest/40 border-white/10 text-cloudWhite hover:bg-forest/55",
-                                    ].join(" ")}
-                                >
-                                    {busy ? "Usando..." : "Usar"}
-                                </button>
-
-                                <div className="mt-3 text-[11px] text-white/40">
-                                    Tipo: {row.item.type} • Preço na loja: 💎 {row.item.price}
-                                </div>
-                            </GlassCard>
+                            <InventoryItemCard
+                                key={row.id}
+                                row={row}
+                                busy={busy}
+                                disabled={disabled}
+                                onUse={() => handleUse(row)}
+                            />
                         );
-                    })
-                )}
-            </div>
+                    })}
+                </section>
+            )}
         </div>
     );
 }
