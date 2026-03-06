@@ -35,6 +35,7 @@ export default function Sidebar() {
         <Item href="/dashboard/achievements" label="Conquistas" iconSrc="/ui/icons/conquistas.png" />
         <Item href="/dashboard/history" label="Histórico" iconSrc="/ui/icons/historico.png" />
         <Item href="/dashboard/rules" label="Regras" iconSrc="/ui/icons/regras.png" />
+        <Item href="/dashboard/profile" label="Perfil" iconSrc="🧙" />
       </nav>
 
       <LogoutItem />
