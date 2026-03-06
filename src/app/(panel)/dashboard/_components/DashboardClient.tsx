@@ -123,8 +123,8 @@ export default function DashboardClient() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[420px_1fr] xl:gap-6">
-      <aside className="space-y-4 xl:space-y-6">
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[340px_minmax(0,1fr)] 2xl:grid-cols-[380px_minmax(0,1fr)]">
+      <aside className="space-y-4">
         <NewTaskCard
           onCreated={async (created) => {
             const ui = mapTaskApiToUI(created);
@@ -144,7 +144,7 @@ export default function DashboardClient() {
         />
       </aside>
 
-      <section className="space-y-4 xl:space-y-6">
+      <section className="space-y-4">
         <TopHud
           user={me}
           completedTotal={completedTotal}

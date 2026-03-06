@@ -99,7 +99,7 @@ export default function TopHud({
   return (
     <header
       className={[
-        "flex items-start justify-between gap-6",
+        "flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between xl:gap-6",
         glow
           ? "rounded-2xl p-2 -m-2 ring-2 ring-[rgba(212,160,23,0.35)] shadow-[0_0_30px_rgba(212,160,23,0.22)]"
           : "",

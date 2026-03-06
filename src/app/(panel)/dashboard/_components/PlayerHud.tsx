@@ -11,7 +11,7 @@ export default function PlayerHud({
 }: PlayerHudProps) {
     return (
         <div className="flex items-center gap-4">
-            {/* Moldura/avatar */}
+
             <div className="relative h-[92px] w-[220px] shrink-0">
                 <img
                     src="/ui/frames/background-avatar.png"
@@ -32,7 +32,6 @@ export default function PlayerHud({
                     )}
                 </div>
 
-                {/* infos */}
                 <div className="absolute left-[108px] top-[26px] right-[14px] text-[color:var(--color-ink)]">
                     <div className="text-lg font-bold leading-none">Level: {level}</div>
                 </div>

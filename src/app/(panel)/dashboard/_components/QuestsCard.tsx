@@ -147,7 +147,7 @@ export default function QuestsCard({
     return (
         <QuestFrame>
             <div className="text-[color:var(--color-ink)]">
-                <div className="mt-10 grid grid-cols-2 gap-2">
+                <div className="mt-12 grid grid-cols-2 gap-2">
                     <button
                         onClick={() => setTab("DAILY")}
                         className={[

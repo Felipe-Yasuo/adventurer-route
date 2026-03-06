@@ -11,9 +11,8 @@ export default function TasksFrame({
     return (
         <UiFrame
             frameSrc="/ui/frames/background-tasks.png"
-            className={["w-full", "h-[560px] flex flex-col drop-shadow-[0_12px_18px_rgba(0,0,0,0.25)]", className].join(" ")}
-
-            paddingClassName="px-12 pt-12 pb-16"
+            className={["w-full", "min-h-[380px] sm:min-h-[380px] 2xl:h-[760px] flex flex-col drop-shadow-[0_12px_18px_rgba(0,0,0,0.25)]", className].join(" ")}
+            paddingClassName="px-12 pt-12 pb-16 "
         >
             {children}
         </UiFrame>

@@ -98,7 +98,7 @@ function Column({
           className={[
             "space-y-4 pr-2 pt-2",
 
-            "max-h-[460px]",
+            "max-h-[660px]",
             enableScroll ? "overflow-y-auto" : "overflow-y-hidden",
           ].join(" ")}
         >
@@ -289,7 +289,7 @@ export default function KanbanBoard({
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Column
           title="Tasks"
           tasks={active}
