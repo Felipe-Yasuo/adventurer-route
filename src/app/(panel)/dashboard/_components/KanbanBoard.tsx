@@ -8,6 +8,7 @@ import { useToast } from "./toast";
 import { isOverdue } from "../_utils/date";
 import { TaskApi, CompleteResponse } from "../_types";
 import { useMe } from "./me-store"; // ✅ NOVO
+import TasksFrame from "./TaskFrame";
 
 function mapApiToUI(t: TaskApi): TaskUI {
   return {
@@ -78,42 +79,52 @@ function Column({
   onDeleteTask: (t: TaskUI) => void;
   completingId: string | null;
 }) {
-  const enableScroll = tasks.length > 6;
+  const enableScroll = tasks.length > 4;
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/10 p-4 h-[520px] flex flex-col">
-      <div className="mb-3 flex items-center justify-between shrink-0">
-        <h3 className="text-sm font-semibold text-cloudWhite">{title}</h3>
-        <span className="text-xs text-white/60">{tasks.length}</span>
+    <div className="space-y-2 ">
+      {/* Header fora do pergaminho (igual UI de jogo) */}
+      <div className="flex items-center justify-between px-3">
+        <h3 className="text-base font-bold text-(--color-ink)">
+          {title}
+        </h3>
+        <span className="text-sm text-(--color-ink)/60">
+          {tasks.length}
+        </span>
       </div>
 
-      <div
-        className={[
-          "space-y-3 pr-1",
-          "flex-1",
-          enableScroll ? "overflow-y-auto" : "overflow-y-hidden",
-        ].join(" ")}
-      >
-        {tasks.length === 0 ? (
-          <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/60">
-            Nenhuma tarefa encontrada com esses filtros.
-          </div>
-        ) : (
-          tasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onOpen={() => onOpenTask(task)}
-              onComplete={() => onCompleteTask(task)}
-              onDelete={() => onDeleteTask(task)}
-              completing={completingId === task.id}
-            />
-          ))
-        )}
-      </div>
+      {/* Pergaminho só para a lista */}
+      <TasksFrame className="h-[560px] flex flex-col shadow-[0_12px_18px_rgba(0,0,0,0.25)]">
+        <div
+          className={[
+            "space-y-4 pr-2 pt-2",
+
+            "max-h-[460px]",
+            enableScroll ? "overflow-y-auto" : "overflow-y-hidden",
+          ].join(" ")}
+        >
+          {tasks.length === 0 ? (
+            <div className="rounded-xl border border-black/10 bg-[rgba(242,228,198,0.85)] p-4 text-sm text-(--color-ink)/70">
+              Nenhuma tarefa encontrada com esses filtros.
+            </div>
+          ) : (
+            tasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                onOpen={() => onOpenTask(task)}
+                onComplete={() => onCompleteTask(task)}
+                onDelete={() => onDeleteTask(task)}
+                completing={completingId === task.id}
+              />
+            ))
+          )}
+        </div>
+      </TasksFrame>
     </div>
   );
 }
+
 
 export default function KanbanBoard({
   tasks,

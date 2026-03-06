@@ -1,14 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --color-Blue: #a6c8f5;
-  --color-skyMist: #dce9f9;
-  --color-cloudWhite: #f5f8fc;
-  --color-lilacWhisper: #c8bbe6;
-  --color-roseSoft: #f3dde1;
-  --color-deepTwilight: #2f3c56;
-  --color-fogGray: #dde3eb;
-  --color-forestPale: #cfead9;
+  --color-ink: #2b241b;
+  --color-wood: #4a2f1d;
+  --color-woodDark: #2f1a10;
+  --color-parchment: #f2e4c6;
+
+  --color-parchmentSoft: #e8d8b7;
+
+  --color-gold: #d4a017;
+  --color-success: #2f8f5b;
+  --color-danger: #b23b3b;
+  --color-info: #4b6fb8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,6 +23,10 @@
 
 html,
 body {
-  background: var(--color-deepTwilight);
-  color: var(--color-cloudWhite);
+  min-height: 100%;
+  background-image: url("/ui/background/background.png");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: var(--color-ink);
 }

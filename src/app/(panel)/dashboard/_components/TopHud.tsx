@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PlayerHud from "./PlayerHud";
 
 type TopHudProps = {
   user: {
@@ -8,31 +9,74 @@ type TopHudProps = {
     life: number;
     maxLife: number;
     streakCount: number;
+    image?: string | null;
   };
   completedTotal: number;
   levelUpPulse: number;
 };
 
-function HudStat({
-  icon,
-  value,
-  label,
+
+function LifeStat({
+  life,
+  maxLife,
 }: {
-  icon: string;
-  value: string | number;
-  label: string;
+  life: number;
+  maxLife: number;
 }) {
   return (
-    <div className="flex items-center gap-2 rounded-xl bg-cloudWhite px-3 py-2 text-twilight border border-black/5 shadow-sm">
-      <span className="text-base">{icon}</span>
+    <div
+      className="
+      flex items-center gap-3
+      rounded-2xl
+      border border-black/10
+      bg-[rgba(242,228,198,0.92)]
+      px-4 py-3
+      shadow-[0_6px_10px_rgba(0,0,0,0.15)]
+      text-[color:var(--color-ink)]
+    "
+    >
+      <span className="text-2xl">❤️</span>
+
       <div className="leading-tight">
-        <div className="text-sm font-semibold">{value}</div>
-        <div className="text-[10px] opacity-70">{label}</div>
+        <div className="text-base font-bold">
+          {life}/{maxLife}
+        </div>
+        <div className="text-xs opacity-70">Life</div>
       </div>
     </div>
   );
 }
 
+
+function HudStat({
+  iconSrc,
+  value,
+  label,
+}: {
+  iconSrc: string;
+  value: string | number;
+  label: string;
+}) {
+  return (
+    <div
+      className="
+      flex items-center gap-3
+      rounded-2xl
+      border border-black/10
+      bg-[rgba(242,228,198,0.92)]
+      px-4 py-3
+      shadow-[0_6px_10px_rgba(0,0,0,0.15)]
+    "
+    >
+      <img src={iconSrc} className="h-9 w-9 object-contain" />
+
+      <div className="leading-tight text-[color:var(--color-ink)]">
+        <div className="text-base font-bold">{value}</div>
+        <div className="text-xs opacity-70">{label}</div>
+      </div>
+    </div>
+  );
+}
 export default function TopHud({
   user,
   completedTotal,
@@ -55,40 +99,38 @@ export default function TopHud({
   return (
     <header
       className={[
-        "flex items-center justify-between transition",
+        "flex items-start justify-between gap-6",
         glow
-          ? "ring-2 ring-blueSoft/40 shadow-[0_0_30px_rgba(166,200,245,0.25)] rounded-2xl p-2 -m-2"
+          ? "rounded-2xl p-2 -m-2 ring-2 ring-[rgba(212,160,23,0.35)] shadow-[0_0_30px_rgba(212,160,23,0.22)]"
           : "",
       ].join(" ")}
     >
-      <div className="flex items-start gap-3">
-        <div className="h-12 w-12 rounded-2xl bg-cloudWhite/90 border border-black/10" />
-        <div className="text-sm text-cloudWhite">
-          <div className="leading-5">
-            <span className="font-semibold">LVL:</span> {user.level}
-          </div>
-          <div className="leading-5">
-            <span className="font-semibold">EXP:</span> {user.xp}
-          </div>
-        </div>
-      </div>
+      <PlayerHud
+        level={user.level}
+        xp={user.xp}
+        image={user.image ?? null}
+      />
 
-      <div className="flex items-center gap-2">
-        <HudStat icon="🏁" value={user.streakCount} label="Streak" />
-        <HudStat icon="✅" value={completedTotal} label="Concluídas" />
-        <HudStat icon="💎" value={user.gold} label="GOLD" />
+      <div className="flex flex-col items-end gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <HudStat
+            iconSrc="/ui/stats/streak.png"
+            value={user.streakCount}
+            label="Streak"
+          />
+          <HudStat
+            iconSrc="/ui/stats/concluido.png"
+            value={completedTotal}
+            label="Concluídas"
+          />
+          <HudStat
+            iconSrc="/ui/stats/gold.png"
+            value={user.gold}
+            label="Gold"
+          />
 
-        <div className="w-32">
-          <div className="text-[10px] text-white/60 mb-1">
-            LIFE {user.life}/{user.maxLife}
-          </div>
+          <LifeStat life={user.life} maxLife={user.maxLife} />
 
-          <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-            <div
-              className="h-full bg-roseSoft transition-all duration-500"
-              style={{ width: `${lifePct}%` }}
-            />
-          </div>
         </div>
       </div>
     </header>
