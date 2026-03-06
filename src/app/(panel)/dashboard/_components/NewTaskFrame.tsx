@@ -12,7 +12,7 @@ export default function NewTaskFrame({
         <UiFrame
             frameSrc="/ui/frames/background-new-task.jpg"
             className={["w-full", className].join(" ")}
-            paddingClassName="px-10 pt-10 pb-10"
+            paddingClassName="px-10 pt-10 pb-10 sm:px-8 sm:py-8"
         >
             {children}
         </UiFrame>

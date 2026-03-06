@@ -263,9 +263,6 @@ export default function QuestsCard({
                     )}
                 </div>
 
-                <p className="mt-4 text-[11px] text-[color:var(--color-ink)]/50">
-                    * Conclua tasks para avançar. Quando completar, resgate aqui.
-                </p>
             </div>
         </QuestFrame>
     );

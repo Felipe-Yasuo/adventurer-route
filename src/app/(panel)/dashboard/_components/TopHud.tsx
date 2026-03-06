@@ -111,8 +111,8 @@ export default function TopHud({
         image={user.image ?? null}
       />
 
-      <div className="flex flex-col items-end gap-3">
-        <div className="flex flex-wrap items-center justify-end gap-3">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between xl:gap-6">
+        <div className="flex flex-wrap items-center gap-3 xl:justify-end">
           <HudStat
             iconSrc="/ui/stats/streak.png"
             value={user.streakCount}
