@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import GlassCard from "@/app/(panel)/dashboard/_components/GlassCard";
 import { useMe } from "@/app/(panel)/dashboard/_components/me-store";
 import { useToast } from "@/app/(panel)/dashboard/_components/toast";
 import Image from "next/image";
@@ -11,7 +10,6 @@ type MeApi = {
     name: string | null;
     email: string | null;
     image: string | null;
-
     level: number;
     xp: number;
     gold: number;
@@ -35,6 +33,61 @@ function initials(name?: string | null, email?: string | null) {
     return parts.map((p) => p[0]?.toUpperCase() ?? "").join("") || "??";
 }
 
+function StatCard({
+    icon,
+    label,
+    value,
+    helper,
+}: {
+    icon: string;
+    label: string;
+    value: string | number;
+    helper: string;
+}) {
+    return (
+        <section className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-5 shadow-[0_10px_18px_rgba(0,0,0,0.1)]">
+            <div className="flex items-start gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-black/10 bg-[rgba(255,255,255,0.24)] text-xl shadow-[0_4px_8px_rgba(0,0,0,0.05)]">
+                    {icon}
+                </div>
+
+                <div>
+                    <div className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/58">
+                        {label}
+                    </div>
+                    <div className="mt-1 text-2xl font-bold text-[color:var(--color-ink)]">
+                        {value}
+                    </div>
+                    <div className="mt-2 text-[12px] leading-relaxed text-[color:var(--color-ink)]/52">
+                        {helper}
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function InfoBadge({
+    label,
+    value,
+    icon,
+}: {
+    label: string;
+    value: string | number;
+    icon: string;
+}) {
+    return (
+        <div className="rounded-xl border border-black/10 bg-[rgba(255,255,255,0.24)] px-3 py-2 shadow-[0_4px_8px_rgba(0,0,0,0.04)]">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/55">
+                {icon} {label}
+            </div>
+            <div className="mt-1 text-sm font-bold text-[color:var(--color-ink)]">
+                {value}
+            </div>
+        </div>
+    );
+}
+
 export default function ProfileClient() {
     const toast = useToast();
 
@@ -43,7 +96,6 @@ export default function ProfileClient() {
 
     const { me, setMe, reload } = useMe();
 
-    // Avatar states
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
     const [savingAvatar, setSavingAvatar] = useState(false);
@@ -70,7 +122,6 @@ export default function ProfileClient() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // preview cleanup (evita leak de memória)
     useEffect(() => {
         return () => {
             if (preview) URL.revokeObjectURL(preview);
@@ -78,7 +129,6 @@ export default function ProfileClient() {
     }, [preview]);
 
     function onPick(f: File | null) {
-        // limpa preview anterior
         if (preview) URL.revokeObjectURL(preview);
 
         setFile(f);
@@ -110,7 +160,6 @@ export default function ProfileClient() {
 
             const newImage = json?.user?.image as string | null;
 
-            // ✅ atualiza instantâneo no store
             setMe((prev) => (prev ? { ...prev, image: newImage } : prev));
 
             toast.push({
@@ -120,11 +169,9 @@ export default function ProfileClient() {
                 durationMs: 3200,
             });
 
-            // limpa seleção
             setFile(null);
             setPreview(null);
 
-            // opcional: garante consistência total do store
             await reload?.();
         } catch (e: any) {
             toast.push({
@@ -138,22 +185,25 @@ export default function ProfileClient() {
         }
     }
 
-    const lifePct = useMemo(() => {
-        const life = me?.life ?? 0;
-        const max = me?.maxLife ?? 0;
-        if (max <= 0) return 0;
-        return Math.max(0, Math.min(100, (life / max) * 100));
+    const lifeText = useMemo(() => {
+        return `${me?.life ?? 0}/${me?.maxLife ?? 0}`;
     }, [me?.life, me?.maxLife]);
 
-    if (loading) return <div className="text-white/70">Carregando perfil...</div>;
+    if (loading) {
+        return (
+            <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.9)] p-6 text-[color:var(--color-ink)]/70 shadow-[0_8px_14px_rgba(0,0,0,0.1)]">
+                Carregando perfil...
+            </div>
+        );
+    }
 
     if (error) {
         return (
-            <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
-                <p className="text-rose">Erro: {error}</p>
+            <div className="rounded-2xl border border-[rgba(178,59,59,0.2)] bg-[rgba(242,228,198,0.9)] p-6 shadow-[0_8px_14px_rgba(0,0,0,0.08)]">
+                <p className="text-[color:var(--color-ink)]">Erro: {error}</p>
                 <button
                     onClick={load}
-                    className="mt-3 rounded-xl bg-cloudWhite px-4 py-2 text-sm font-semibold text-twilight"
+                    className="mt-4 rounded-xl border border-black/10 bg-[rgba(255,255,255,0.28)] px-4 py-2 text-sm font-semibold text-[color:var(--color-ink)] transition hover:bg-[rgba(255,255,255,0.45)]"
                 >
                     Tentar novamente
                 </button>
@@ -163,7 +213,7 @@ export default function ProfileClient() {
 
     if (!me) {
         return (
-            <div className="rounded-2xl border border-white/10 bg-black/10 p-4 text-white/70">
+            <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.9)] p-6 text-[color:var(--color-ink)]/70 shadow-[0_8px_14px_rgba(0,0,0,0.08)]">
                 Usuário não carregado.
             </div>
         );
@@ -171,116 +221,121 @@ export default function ProfileClient() {
 
     return (
         <div className="space-y-6">
-            <header className="flex items-end justify-between gap-4">
-                <div>
-                    <h1 className="text-xl font-semibold text-cloudWhite">🧙 Perfil</h1>
-                    <p className="mt-1 text-sm text-white/60">Seu progresso e estatísticas.</p>
-                </div>
+            <header className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-6 shadow-[0_10px_18px_rgba(0,0,0,0.1)]">
+                <h1 className="text-2xl font-bold tracking-wide text-[color:var(--color-ink)]">
+                    🧙 Perfil
+                </h1>
+                <p className="mt-2 text-sm leading-relaxed text-[color:var(--color-ink)]/68">
+                    Veja suas informações, acompanhe seus status e personalize seu avatar.
+                </p>
             </header>
 
-            <div className="grid grid-cols-12 gap-6">
-                {/* Card principal */}
-                <div className="col-span-12 lg:col-span-5">
-                    <GlassCard>
-                        <div className="flex items-start gap-4">
-                            {/* Avatar */}
-                            <div className="h-16 w-16 rounded-2xl overflow-hidden border border-white/10 bg-black/20 grid place-items-center">
-                                {preview ? (
-                                    <img src={preview} alt="Preview avatar" className="h-full w-full object-cover" />
-                                ) : me.image ? (
-                                    <Image
-                                        src={me.image}
-                                        alt="Avatar"
-                                        width={64}
-                                        height={64}
-                                        className="h-full w-full object-cover"
-                                    />
-                                ) : (
-                                    <span className="text-cloudWhite font-semibold">{initials(me.name, me.email)}</span>
-                                )}
-                            </div>
-
-                            <div className="min-w-0">
-                                <div className="text-sm font-semibold text-cloudWhite truncate">
-                                    {me.name ?? "Sem nome"}
-                                </div>
-                                <div className="mt-1 text-xs text-white/60 truncate">{me.email ?? "Sem email"}</div>
-
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                    <span className="rounded-xl border border-white/10 bg-black/20 px-3 py-1 text-xs text-white/70">
-                                        LVL <span className="text-cloudWhite font-semibold">{me.level}</span>
-                                    </span>
-                                    <span className="rounded-xl border border-white/10 bg-black/20 px-3 py-1 text-xs text-white/70">
-                                        XP <span className="text-cloudWhite font-semibold">{me.xp}</span>
-                                    </span>
-                                    <span className="rounded-xl border border-white/10 bg-black/20 px-3 py-1 text-xs text-white/70">
-                                        💎 <span className="text-cloudWhite font-semibold">{me.gold}</span>
-                                    </span>
-                                </div>
-                            </div>
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_1fr]">
+                <section className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-6 shadow-[0_10px_18px_rgba(0,0,0,0.1)]">
+                    <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+                        <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-[24px] border border-black/10 bg-[rgba(255,255,255,0.24)] shadow-[0_6px_12px_rgba(0,0,0,0.08)]">
+                            {preview ? (
+                                <img
+                                    src={preview}
+                                    alt="Preview avatar"
+                                    className="h-full w-full object-cover"
+                                />
+                            ) : me.image ? (
+                                <Image
+                                    src={me.image}
+                                    alt="Avatar"
+                                    width={96}
+                                    height={96}
+                                    className="h-full w-full object-cover"
+                                />
+                            ) : (
+                                <span className="text-xl font-bold text-[color:var(--color-ink)]">
+                                    {initials(me.name, me.email)}
+                                </span>
+                            )}
                         </div>
 
-                        <div className="mt-5">
-                            <div className="text-[11px] text-white/60 mb-2">
-                                VIDA {me.life}/{me.maxLife}
-                            </div>
-                            <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                                <div className="h-full bg-roseSoft transition-all" style={{ width: `${lifePct}%` }} />
+                        <div className="min-w-0 flex-1">
+                            <h2 className="truncate text-2xl font-bold tracking-wide text-[color:var(--color-ink)]">
+                                {me.name ?? "Sem nome"}
+                            </h2>
+
+                            <p className="mt-1 truncate text-sm text-[color:var(--color-ink)]/65">
+                                {me.email ?? "Sem email"}
+                            </p>
+
+                            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                <InfoBadge label="Level" value={me.level} icon="⚔️" />
+                                <InfoBadge label="XP" value={me.xp} icon="✨" />
+                                <InfoBadge label="Gold" value={me.gold} icon="🪙" />
+                                <InfoBadge label="Life" value={lifeText} icon="❤️" />
                             </div>
                         </div>
+                    </div>
 
-                        {/* Upload avatar */}
-                        <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="mt-6 rounded-2xl border border-black/10 bg-[rgba(255,255,255,0.22)] p-4">
+                        <div className="text-sm font-semibold text-[color:var(--color-ink)]">
+                            Atualizar avatar
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto] md:items-end">
                             <div>
-                                <label className="text-xs text-white/70">Trocar avatar</label>
+                                <label className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/60">
+                                    Selecionar imagem
+                                </label>
+
                                 <input
                                     type="file"
                                     accept="image/png,image/jpeg,image/webp"
                                     onChange={(e) => onPick(e.target.files?.[0] ?? null)}
-                                    className="mt-1 w-full rounded-xl bg-black/20 border border-white/10 px-3 py-2 text-sm outline-none"
+                                    className="mt-2 w-full rounded-xl border border-black/10 bg-[rgba(255,255,255,0.32)] px-4 py-3 text-sm text-[color:var(--color-ink)] outline-none transition file:mr-3 file:rounded-lg file:border-0 file:bg-[rgba(212,160,23,0.18)] file:px-3 file:py-2 file:text-sm file:font-semibold file:text-[color:var(--color-ink)] hover:file:bg-[rgba(212,160,23,0.28)]"
                                 />
-                                <p className="mt-1 text-[11px] text-white/40">png/jpg/webp • até 2MB</p>
+
+                                <p className="mt-2 text-[11px] text-[color:var(--color-ink)]/48">
+                                    png, jpg ou webp • até 2MB
+                                </p>
                             </div>
 
                             <button
                                 onClick={uploadAvatar}
                                 disabled={!file || savingAvatar}
-                                className="h-[44px] self-end rounded-xl bg-cloudWhite text-twilight px-4 py-2 text-sm font-semibold hover:opacity-90 disabled:opacity-70"
+                                className="h-[48px] rounded-xl border border-[rgba(212,160,23,0.42)] bg-[rgba(212,160,23,0.18)] px-5 py-3 text-sm font-semibold text-[color:var(--color-ink)] transition hover:bg-[rgba(212,160,23,0.28)] disabled:cursor-not-allowed disabled:opacity-60"
                             >
                                 {savingAvatar ? "Salvando..." : "Salvar avatar"}
                             </button>
                         </div>
-                    </GlassCard>
-                </div>
-
-                {/* Stats */}
-                <div className="col-span-12 lg:col-span-7">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <GlassCard>
-                            <div className="text-xs text-white/60">🔥 Streak</div>
-                            <div className="mt-1 text-lg font-semibold text-cloudWhite">{me.streakCount}</div>
-                            <div className="mt-2 text-[11px] text-white/40">Dias seguidos completando tasks</div>
-                        </GlassCard>
-
-                        <GlassCard>
-                            <div className="text-xs text-white/60">✅ Tasks concluídas</div>
-                            <div className="mt-1 text-lg font-semibold text-cloudWhite">{me.tasksCompletedTotal}</div>
-                            <div className="mt-2 text-[11px] text-white/40">Total acumulado no jogo</div>
-                        </GlassCard>
-
-                        <GlassCard>
-                            <div className="text-xs text-white/60">⚔️ Level</div>
-                            <div className="mt-1 text-lg font-semibold text-cloudWhite">{me.level}</div>
-                            <div className="mt-2 text-[11px] text-white/40">Progresso de XP define o level</div>
-                        </GlassCard>
-
-                        <GlassCard>
-                            <div className="text-xs text-white/60">💠 XP</div>
-                            <div className="mt-1 text-lg font-semibold text-cloudWhite">{me.xp}</div>
-                            <div className="mt-2 text-[11px] text-white/40">Ganho ao completar tasks e quests</div>
-                        </GlassCard>
                     </div>
-                </div>
+                </section>
+
+                <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <StatCard
+                        icon="🔥"
+                        label="Streak"
+                        value={me.streakCount}
+                        helper="Dias seguidos completando tarefas."
+                    />
+
+                    <StatCard
+                        icon="✅"
+                        label="Tasks concluídas"
+                        value={me.tasksCompletedTotal}
+                        helper="Total acumulado de tarefas finalizadas."
+                    />
+
+                    <StatCard
+                        icon="⚔️"
+                        label="Level"
+                        value={me.level}
+                        helper="Seu nível sobe conforme o XP acumulado."
+                    />
+
+                    <StatCard
+                        icon="✨"
+                        label="XP"
+                        value={me.xp}
+                        helper="Ganho ao completar tarefas, quests e desafios."
+                    />
+                </section>
             </div>
         </div>
     );

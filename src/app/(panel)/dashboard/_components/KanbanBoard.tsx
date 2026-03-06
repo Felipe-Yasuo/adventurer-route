@@ -83,7 +83,6 @@ function Column({
 
   return (
     <div className="space-y-2 ">
-      {/* Header fora do pergaminho (igual UI de jogo) */}
       <div className="flex items-center justify-between px-3">
         <h3 className="text-base font-bold text-(--color-ink)">
           {title}
@@ -93,7 +92,7 @@ function Column({
         </span>
       </div>
 
-      {/* Pergaminho só para a lista */}
+
       <TasksFrame className="h-[560px] flex flex-col shadow-[0_12px_18px_rgba(0,0,0,0.25)]">
         <div
           className={[

@@ -20,7 +20,6 @@ export default function PlayerHud({
                     draggable={false}
                 />
 
-                {/* área circular do avatar */}
                 <div className="absolute left-[30px] top-[8px] flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full">
                     {image ? (
                         <img
