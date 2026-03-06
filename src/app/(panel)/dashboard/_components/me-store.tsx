@@ -45,6 +45,7 @@ export function MeProvider({ children }: { children: React.ReactNode }) {
         setError(null);
         try {
             const data = await fetchMe();
+            console.log("RELOAD /api/me retornou image:", data.image);
             setMe(data);
         } catch (e: any) {
             setError(e?.message ?? "Erro desconhecido");

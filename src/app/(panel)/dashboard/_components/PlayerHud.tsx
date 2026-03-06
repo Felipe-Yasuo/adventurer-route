@@ -20,7 +20,7 @@ export default function PlayerHud({
                     draggable={false}
                 />
 
-                <div className="absolute left-[30px] top-[8px] flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full">
+                <div className="absolute left-[28px] top-[11px] flex h-[68px] w-[68px] items-center justify-center overflow-hidden rounded-full">
                     {image ? (
                         <img
                             src={image}

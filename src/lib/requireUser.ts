@@ -16,7 +16,6 @@ export async function requireUser() {
         },
         update: {
             name: session.user?.name ?? null,
-            image: (session.user as any)?.image ?? null,
         },
         select: { id: true, email: true },
     });

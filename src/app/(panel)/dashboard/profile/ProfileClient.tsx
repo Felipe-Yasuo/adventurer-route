@@ -159,6 +159,7 @@ export default function ProfileClient() {
             if (!res.ok) throw new Error(json?.error ?? "Falha ao salvar avatar");
 
             const newImage = json?.user?.image as string | null;
+            console.log("UPLOAD respondeu com image:", newImage);
 
             setMe((prev) => (prev ? { ...prev, image: newImage } : prev));
 
@@ -218,7 +219,6 @@ export default function ProfileClient() {
             </div>
         );
     }
-
     return (
         <div className="space-y-6">
             <header className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-6 shadow-[0_10px_18px_rgba(0,0,0,0.1)]">

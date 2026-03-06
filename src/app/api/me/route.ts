@@ -15,6 +15,19 @@ export async function GET() {
             return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
         }
 
+        console.log("ME ROUTE requireUser id:", u.id);
+        console.log("ME ROUTE requireUser email:", u.email);
+
+        const beforeUser = await prisma.user.findUnique({
+            where: { id: u.id },
+            select: {
+                id: true,
+                image: true,
+            },
+        });
+
+        console.log("ANTES das penalidades image:", beforeUser?.image);
+
         const weekStart = startOfWeekKey(TZ);
 
         await prisma.task.deleteMany({
@@ -26,6 +39,17 @@ export async function GET() {
 
         const overdue = await applyOverduePenalty(u.id);
         const inactivity = await applyInactivityPenalty(u.id);
+
+        const afterPenaltyUser = await prisma.user.findUnique({
+            where: { id: u.id },
+            select: {
+                id: true,
+                image: true,
+            },
+        });
+
+        console.log("DEPOIS das penalidades image:", afterPenaltyUser?.image);
+
         const user = await prisma.user.findUnique({
             where: { id: u.id },
             select: {
@@ -47,6 +71,9 @@ export async function GET() {
         if (!user) {
             return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
         }
+
+        console.log("ME ROUTE prisma user id:", user.id);
+        console.log("ME ROUTE prisma user image:", user.image);
 
         return NextResponse.json(
             {
