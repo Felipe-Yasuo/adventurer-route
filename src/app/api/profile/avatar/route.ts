@@ -1,65 +1,104 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/requireUser";
-import path from "path";
-import fs from "fs/promises";
+import { cloudinary } from "@/lib/cloudinary";
 
-export const runtime = "nodejs";
+function uploadBufferToCloudinary(
+    buffer: Buffer,
+    options: {
+        folder: string;
+        public_id: string;
+        overwrite?: boolean;
+    }
+): Promise<{
+    secure_url: string;
+    public_id: string;
+}> {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            {
+                folder: options.folder,
+                public_id: options.public_id,
+                overwrite: options.overwrite ?? true,
+                resource_type: "image",
+            },
+            (error, result) => {
+                if (error) return reject(error);
+                if (!result) return reject(new Error("Upload sem resultado"));
+                resolve({
+                    secure_url: result.secure_url,
+                    public_id: result.public_id,
+                });
+            }
+        );
 
-function extFromType(type: string) {
-    if (type === "image/png") return "png";
-    if (type === "image/jpeg") return "jpg";
-    if (type === "image/webp") return "webp";
-    return null;
+        stream.end(buffer);
+    });
 }
 
 export async function POST(req: Request) {
     try {
-        const user = await requireUser();
-        if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+        const session = await getServerSession(authOptions);
 
-        const form = await req.formData();
-        const file = form.get("file");
+        if (!session?.user?.email) {
+            return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+        }
 
-        if (!file || !(file instanceof File)) {
-            return NextResponse.json({ error: "Arquivo 'file' é obrigatório" }, { status: 400 });
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+            select: { id: true, image: true },
+        });
+
+        if (!user) {
+            return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+        }
+
+        const formData = await req.formData();
+        const file = formData.get("file");
+
+        if (!(file instanceof File)) {
+            return NextResponse.json({ error: "Arquivo inválido" }, { status: 400 });
         }
 
         if (!file.type.startsWith("image/")) {
-            return NextResponse.json({ error: "Envie uma imagem" }, { status: 400 });
+            return NextResponse.json({ error: "Envie apenas imagens" }, { status: 400 });
         }
 
-        const ext = extFromType(file.type);
-        if (!ext) {
-            return NextResponse.json({ error: "Formato suportado: png, jpg/jpeg, webp" }, { status: 400 });
+        const maxSizeBytes = 2 * 1024 * 1024;
+        if (file.size > maxSizeBytes) {
+            return NextResponse.json({ error: "Imagem deve ter no máximo 2MB" }, { status: 400 });
         }
 
-        const maxBytes = 2 * 1024 * 1024;
-        if (file.size > maxBytes) {
-            return NextResponse.json({ error: "Imagem muito grande (máx 2MB)" }, { status: 400 });
-        }
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
 
-        const bytes = Buffer.from(await file.arrayBuffer());
-
-        const dir = path.join(process.cwd(), "public", "avatars");
-        await fs.mkdir(dir, { recursive: true });
-
-        const filename = `${user.id}-${Date.now()}.${ext}`;
-        const filepath = path.join(dir, filename);
-
-        await fs.writeFile(filepath, bytes);
-
-        const url = `/avatars/${filename}`;
-
-        const updated = await prisma.user.update({
-            where: { id: user.id },
-            data: { image: url },
-            select: { id: true, image: true, name: true, email: true },
+        const uploaded = await uploadBufferToCloudinary(buffer, {
+            folder: "adventurer-route/avatars",
+            public_id: `user-${user.id}`,
+            overwrite: true,
         });
 
-        return NextResponse.json({ user: updated });
-    } catch (err) {
-        console.error(err);
-        return NextResponse.json({ error: "Erro ao atualizar avatar" }, { status: 500 });
+        const updatedUser = await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                image: uploaded.secure_url,
+            },
+            select: {
+                id: true,
+                image: true,
+            },
+        });
+
+        return NextResponse.json({
+            ok: true,
+            user: updatedUser,
+        });
+    } catch (error) {
+        console.error("Erro ao enviar avatar para Cloudinary:", error);
+        return NextResponse.json(
+            { error: "Falha ao salvar avatar" },
+            { status: 500 }
+        );
     }
 }
