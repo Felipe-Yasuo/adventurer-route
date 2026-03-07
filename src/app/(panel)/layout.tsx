@@ -19,7 +19,7 @@ export default async function PanelLayout({
     <PanelProviders>
       <div className="min-h-screen">
         <div className="grid min-h-screen grid-cols-[86px_1fr] lg:grid-cols-[210px_1fr]">
-          <aside className="sticky top-0 h-screen border-r border-black/10 bg-[rgba(0,0,0,0.03)]">
+          <aside className="sticky top-0 h-screen">
             <Sidebar />
           </aside>
 
