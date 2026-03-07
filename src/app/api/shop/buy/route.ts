@@ -1,23 +1,33 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/requireUser";
+import { buyItemSchema } from "@/lib/validators/shop";
+import { getFirstZodError } from "@/lib/validators/get-first-zod-error";
 
 export async function POST(req: Request) {
     try {
-        const requireuser = await requireUser();
-        if (!requireuser) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
-        const body = (await req.json()) as { itemId?: string; quantity?: number };
-
-        const itemId = body.itemId;
-        const quantity = Math.max(1, Number(body.quantity ?? 1));
-
-        if (!itemId) {
-            return NextResponse.json({ error: "itemId é obrigatório" }, { status: 400 });
+        const user = await requireUser();
+        if (!user) {
+            return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
         }
 
+        const body = await req.json();
+        const parsed = buyItemSchema.safeParse(body);
+
+        if (!parsed.success) {
+            return NextResponse.json(
+                { error: getFirstZodError(parsed.error) },
+                { status: 400 }
+            );
+        }
+
+        const data = parsed.data;
+        const itemId = data.itemId;
+        const quantity = Math.max(1, Number(data.quantity ?? 1));
+
         const result = await prisma.$transaction(async (tx) => {
-            const user = await tx.user.findUnique({
-                where: { id: requireuser.id },
+            const dbUser = await tx.user.findUnique({
+                where: { id: user.id },
                 select: { id: true, gold: true },
             });
 
@@ -26,28 +36,45 @@ export async function POST(req: Request) {
                 select: { id: true, name: true, price: true, healValue: true, type: true },
             });
 
-            if (!user) return { status: 404 as const, body: { error: "Usuário não encontrado" } };
-            if (!item) return { status: 404 as const, body: { error: "Item não encontrado" } };
+            if (!dbUser) {
+                return { status: 404 as const, body: { error: "Usuário não encontrado" } };
+            }
+
+            if (!item) {
+                return { status: 404 as const, body: { error: "Item não encontrado" } };
+            }
 
             const totalCost = item.price * quantity;
-            if (user.gold < totalCost) {
-                return { status: 400 as const, body: { error: "Gold insuficiente", gold: user.gold, totalCost } };
+
+            if (dbUser.gold < totalCost) {
+                return {
+                    status: 400 as const,
+                    body: { error: "Gold insuficiente", gold: dbUser.gold, totalCost },
+                };
             }
 
             const updatedUser = await tx.user.update({
-                where: { id: user.id },
+                where: { id: dbUser.id },
                 data: { gold: { decrement: totalCost } },
                 select: { id: true, gold: true },
             });
 
             const inv = await tx.inventoryItem.upsert({
-                where: { userId_itemId: { userId: user.id, itemId: item.id } },
+                where: { userId_itemId: { userId: dbUser.id, itemId: item.id } },
                 update: { quantity: { increment: quantity } },
-                create: { userId: user.id, itemId: item.id, quantity },
+                create: { userId: dbUser.id, itemId: item.id, quantity },
                 select: {
                     id: true,
                     quantity: true,
-                    item: { select: { id: true, name: true, type: true, healValue: true, price: true } },
+                    item: {
+                        select: {
+                            id: true,
+                            name: true,
+                            type: true,
+                            healValue: true,
+                            price: true,
+                        },
+                    },
                 },
             });
 

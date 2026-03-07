@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Difficulty } from "@prisma/client";
 import { todayKey } from "@/lib/game/time";
 import { requireUser } from "@/lib/requireUser";
+import { createTaskSchema } from "@/lib/validators/task";
+import { getFirstZodError } from "@/lib/validators/get-first-zod-error";
 
 const TZ = "America/Sao_Paulo";
 
@@ -12,7 +13,7 @@ export async function GET(req: Request) {
         if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
 
         const url = new URL(req.url);
-        const dayKey = url.searchParams.get("dayKey"); // ✅
+        const dayKey = url.searchParams.get("dayKey");
 
         const tasks = await prisma.task.findMany({
             where: { userId: user.id, ...(dayKey ? { dayKey } : {}) },
@@ -39,38 +40,36 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
         }
 
-        const body = (await req.json()) as {
-            title?: string;
-            difficulty?: Difficulty;
-            dueDate?: string | null;
-            dayKey?: string;
-        };
+        const body = await req.json();
+        const parsed = createTaskSchema.safeParse(body);
 
-        const title = (body.title ?? "").trim();
-        if (!title) {
-            return NextResponse.json({ error: "title é obrigatório" }, { status: 400 });
-        }
+        if (!parsed.success) {
+            return NextResponse.json(
+              { error: getFirstZodError(parsed.error) },
+              { status: 400 }
+            );
+          }
 
-        const difficulty = body.difficulty ?? "EASY";
-        const dayKey = (body.dayKey ?? todayKey(TZ)).trim();
+        const { title, difficulty, dueDate, dayKey } = parsed.data;
 
-        const dueDate =
-            body.dueDate && String(body.dueDate).trim().length > 0
-                ? new Date(body.dueDate)
+        const resolvedDayKey = (dayKey ?? todayKey(TZ)).trim();
+
+        const resolvedDueDate =
+            dueDate && dueDate.trim().length > 0
+                ? new Date(dueDate)
                 : todayNoon();
 
-
-        if (Number.isNaN(dueDate.getTime())) {
+        if (Number.isNaN(resolvedDueDate.getTime())) {
             return NextResponse.json({ error: "dueDate inválida" }, { status: 400 });
         }
 
         const task = await prisma.task.create({
             data: {
                 title,
-                difficulty,
-                dueDate,
+                difficulty: difficulty ?? "EASY",
+                dueDate: resolvedDueDate,
                 userId: user.id,
-                dayKey,
+                dayKey: resolvedDayKey,
             },
         });
 

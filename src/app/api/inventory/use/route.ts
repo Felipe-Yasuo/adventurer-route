@@ -2,16 +2,25 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { clampHeal } from "@/lib/game/heal";
 import { requireUser } from "@/lib/requireUser";
+import { useItemSchema } from "@/lib/validators/shop";
+import { getFirstZodError } from "@/lib/validators/get-first-zod-error";
 
 export async function POST(req: Request) {
     try {
         const me = await requireUser();
         if (!me) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
-        const body = (await req.json()) as { itemId?: string };
 
-        if (!body.itemId) {
-            return NextResponse.json({ error: "itemId é obrigatório" }, { status: 400 });
-        }
+        const body = await req.json();
+        const parsed = useItemSchema.safeParse(body);
+
+        if (!parsed.success) {
+            return NextResponse.json(
+              { error: getFirstZodError(parsed.error) },
+              { status: 400 }
+            );
+          }
+
+        const { itemId } = parsed.data;
 
         const result = await prisma.$transaction(async (tx) => {
             const user = await tx.user.findUnique({
@@ -22,7 +31,7 @@ export async function POST(req: Request) {
             if (!user) return { status: 404 as const, body: { error: "Usuário não encontrado" } };
 
             const inv = await tx.inventoryItem.findUnique({
-                where: { userId_itemId: { userId: user.id, itemId: body.itemId! } },
+                where: { userId_itemId: { userId: user.id, itemId } },
                 select: {
                     id: true,
                     quantity: true,

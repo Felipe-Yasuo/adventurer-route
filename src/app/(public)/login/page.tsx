@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { loginSchema, registerSchema } from "@/lib/validators/auth";
 
 type Mode = "login" | "register";
 
@@ -135,18 +136,23 @@ export default function LoginPage() {
         setInlineError(null);
         setInlineOk(null);
 
-        const em = email.trim().toLowerCase();
+        const parsed = loginSchema.safeParse({
+            email,
+            password,
+        });
 
-        if (!em || !password) {
-            setInlineError("Preencha email e senha.");
+        if (!parsed.success) {
+            setInlineError(parsed.error.issues[0]?.message ?? "Dados inválidos.");
             return;
         }
+
+        const { email: normalizedEmail, password: validatedPassword } = parsed.data;
 
         setBusy(true);
         try {
             const res = await signIn("credentials", {
-                email: em,
-                password,
+                email: normalizedEmail,
+                password: validatedPassword,
                 redirect: false,
                 callbackUrl: "/dashboard",
             });
@@ -172,25 +178,33 @@ export default function LoginPage() {
         setInlineError(null);
         setInlineOk(null);
 
-        const nm = name.trim();
-        const em = email.trim().toLowerCase();
+        const parsed = registerSchema.safeParse({
+            name,
+            email,
+            password,
+        });
 
-        if (!em || !password) {
-            setInlineError("Email e senha são obrigatórios.");
+        if (!parsed.success) {
+            setInlineError(parsed.error.issues[0]?.message ?? "Dados inválidos.");
             return;
         }
 
-        if (password.length < 8) {
-            setInlineError("A senha deve ter pelo menos 8 caracteres.");
-            return;
-        }
+        const {
+            name: normalizedName,
+            email: normalizedEmail,
+            password: validatedPassword,
+        } = parsed.data;
 
         setBusy(true);
         try {
             const res = await fetch("/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: nm || undefined, email: em, password }),
+                body: JSON.stringify({
+                    name: normalizedName || undefined,
+                    email: normalizedEmail,
+                    password: validatedPassword,
+                }),
             });
 
             const json = await res.json().catch(() => null);
@@ -201,8 +215,8 @@ export default function LoginPage() {
             }
 
             const loginRes = await signIn("credentials", {
-                email: em,
-                password,
+                email: normalizedEmail,
+                password: validatedPassword,
                 redirect: false,
                 callbackUrl: "/dashboard",
             });

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/requireUser";
-import { Difficulty } from "@prisma/client";
+import { updateTaskSchema } from "@/lib/validators/task";
+import { getFirstZodError } from "@/lib/validators/get-first-zod-error";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -12,30 +13,46 @@ export async function PATCH(req: Request, { params }: Ctx) {
 
         const { id } = await params;
 
-        const body = (await req.json()) as Partial<{
-            title: string;
-            difficulty: Difficulty;
-            dueDate: string | null;
-            completed: boolean;
-        }>;
+        const body = await req.json();
+        const parsed = updateTaskSchema.safeParse(body);
 
+        if (!parsed.success) {
+            return NextResponse.json(
+              { error: getFirstZodError(parsed.error) },
+              { status: 400 }
+            );
+          }
+
+        const bodyData = parsed.data;
         const data: Record<string, unknown> = {};
 
-        if (typeof body.title === "string") {
-            const t = body.title.trim();
-            if (!t) return NextResponse.json({ error: "title inválido" }, { status: 400 });
-            data.title = t;
+        if (typeof bodyData.title === "string") {
+            data.title = bodyData.title;
         }
 
-        if (body.difficulty) data.difficulty = body.difficulty;
-        if ("dueDate" in body) data.dueDate = body.dueDate ? new Date(body.dueDate) : null;
-
-        if (typeof body.completed === "boolean") {
-            data.completed = body.completed;
-            data.completedAt = body.completed ? new Date() : null;
+        if (bodyData.difficulty) {
+            data.difficulty = bodyData.difficulty;
         }
 
-        // ✅ update protegido por userId
+        if ("dueDate" in bodyData) {
+            if (bodyData.dueDate) {
+                const parsedDate = new Date(bodyData.dueDate);
+
+                if (Number.isNaN(parsedDate.getTime())) {
+                    return NextResponse.json({ error: "dueDate inválida" }, { status: 400 });
+                }
+
+                data.dueDate = parsedDate;
+            } else {
+                data.dueDate = null;
+            }
+        }
+
+        if (typeof bodyData.completed === "boolean") {
+            data.completed = bodyData.completed;
+            data.completedAt = bodyData.completed ? new Date() : null;
+        }
+
         const updated = await prisma.task.updateMany({
             where: { id, userId: user.id },
             data,
@@ -47,6 +64,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
 
         const fresh = await prisma.task.findUnique({ where: { id } });
         if (!fresh) return NextResponse.json({ error: "Task não encontrada" }, { status: 404 });
+
         return NextResponse.json(fresh);
     } catch (err) {
         console.error(err);
@@ -61,7 +79,6 @@ export async function DELETE(_: Request, { params }: Ctx) {
 
         const { id } = await params;
 
-        // ✅ delete protegido por userId
         const deleted = await prisma.task.deleteMany({
             where: { id, userId: user.id },
         });
