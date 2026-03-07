@@ -3,22 +3,108 @@
 import { useEffect, useMemo, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import GlassCard from "@/app/(panel)/dashboard/_components/GlassCard";
 
 type Mode = "login" | "register";
 
 function humanizeError(code: string | null) {
     if (!code) return null;
 
-    if (code === "EmailJaCadastrado")
+    if (code === "EmailJaCadastrado") {
         return "Esse email já possui conta criada no site. Entre com email e senha.";
+    }
 
     if (code === "CredentialsSignin") return "Email ou senha inválidos.";
-    if (code === "OAuthCreateAccount") return "Não foi possível criar a conta com Google.";
-    if (code === "OAuthAccountNotLinked")
+    if (code === "OAuthCreateAccount") {
+        return "Não foi possível criar a conta com Google.";
+    }
+    if (code === "OAuthAccountNotLinked") {
         return "Esse email já existe com outro método. Entre com o método original.";
+    }
 
     return "Não foi possível entrar. Tente novamente.";
+}
+
+function InputField({
+    label,
+    type = "text",
+    value,
+    onChange,
+    placeholder,
+    autoComplete,
+}: {
+    label: string;
+    type?: string;
+    value: string;
+    onChange: (value: string) => void;
+    placeholder?: string;
+    autoComplete?: string;
+}) {
+    return (
+        <div>
+            <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-white/65">
+                {label}
+            </label>
+
+            <input
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                type={type}
+                autoComplete={autoComplete}
+                placeholder={placeholder}
+                className="
+          w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3
+          text-sm text-white placeholder:text-white/35 outline-none transition
+          focus:border-[rgba(212,160,23,0.45)]
+          focus:bg-black/35
+          focus:shadow-[0_0_0_4px_rgba(212,160,23,0.08)]
+        "
+            />
+        </div>
+    );
+}
+
+function MessageBox({
+    children,
+    variant,
+}: {
+    children: React.ReactNode;
+    variant: "error" | "success";
+}) {
+    const styles =
+        variant === "error"
+            ? "border-[rgba(178,59,59,0.28)] bg-[rgba(178,59,59,0.14)] text-white/85"
+            : "border-[rgba(47,143,91,0.28)] bg-[rgba(47,143,91,0.14)] text-white/85";
+
+    return (
+        <div className={`rounded-2xl border px-4 py-3 text-sm ${styles}`}>
+            {children}
+        </div>
+    );
+}
+
+function TabButton({
+    active,
+    children,
+    onClick,
+}: {
+    active: boolean;
+    children: React.ReactNode;
+    onClick: () => void;
+}) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className={[
+                "rounded-xl px-4 py-2 text-sm font-semibold transition",
+                active
+                    ? "bg-[rgba(242,228,198,0.95)] text-[color:var(--color-ink)] shadow-[0_6px_14px_rgba(0,0,0,0.22)]"
+                    : "text-white/65 hover:bg-white/5 hover:text-white/85",
+            ].join(" ")}
+        >
+            {children}
+        </button>
+    );
 }
 
 export default function LoginPage() {
@@ -32,7 +118,6 @@ export default function LoginPage() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
     const [name, setName] = useState("");
 
     const [busy, setBusy] = useState(false);
@@ -51,6 +136,7 @@ export default function LoginPage() {
         setInlineOk(null);
 
         const em = email.trim().toLowerCase();
+
         if (!em || !password) {
             setInlineError("Preencha email e senha.");
             return;
@@ -93,6 +179,7 @@ export default function LoginPage() {
             setInlineError("Email e senha são obrigatórios.");
             return;
         }
+
         if (password.length < 8) {
             setInlineError("A senha deve ter pelo menos 8 caracteres.");
             return;
@@ -121,7 +208,7 @@ export default function LoginPage() {
             });
 
             if (loginRes?.error) {
-                setInlineOk("Conta criada! Agora faça login.");
+                setInlineOk("Conta criada com sucesso! Agora faça login.");
                 setMode("login");
                 return;
             }
@@ -133,158 +220,240 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="min-h-[calc(100vh-80px)] grid place-items-center p-6">
-            <div className="w-full max-w-md">
-                <GlassCard>
-                    <h1 className="text-lg font-semibold text-cloudWhite">
-                        {mode === "login" ? "Entrar" : "Criar conta"}
-                    </h1>
+        <main
+            className="
+        relative min-h-screen overflow-hidden
+        bg-[radial-gradient(circle_at_top,rgba(212,160,23,0.10),transparent_28%),linear-gradient(to_bottom,rgba(10,7,6,0.72),rgba(10,7,6,0.88))]
+      "
+        >
+            <div className="absolute inset-0 bg-black/20" />
 
-                    <p className="mt-1 text-sm text-white/60">
-                        {mode === "login"
-                            ? "Entre para acessar seu painel."
-                            : "Crie sua conta para salvar seu progresso."}
-                    </p>
+            <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-4 py-10 sm:px-6">
+                <div className="grid w-full items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+                    <section className="hidden lg:block">
+                        <div className="max-w-xl">
+                            <div className="inline-flex rounded-full border border-[rgba(212,160,23,0.22)] bg-[rgba(212,160,23,0.10)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[rgba(242,228,198,0.9)]">
+                                Adventurer Route
+                            </div>
 
-                    {(errorMsg || inlineError) && (
-                        <div className="mt-4 rounded-xl border border-white/10 bg-rose/10 p-3 text-sm text-white/80">
-                            {inlineError ?? errorMsg}
+                            <h1 className="mt-6 text-5xl font-bold leading-[1.05] text-[rgba(242,228,198,0.98)]">
+                                Transforme suas tarefas em uma jornada.
+                            </h1>
+
+                            <p className="mt-5 max-w-lg text-base leading-7 text-white/68">
+                                Organize suas missões, evolua seu personagem, complete quests e
+                                acompanhe seu progresso em um painel gamificado inspirado em RPG.
+                            </p>
+
+                            <div className="mt-8 grid max-w-lg grid-cols-1 gap-4 sm:grid-cols-3">
+                                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                    <div className="text-xl">⚔️</div>
+                                    <div className="mt-2 text-sm font-semibold text-[rgba(242,228,198,0.96)]">
+                                        Tasks
+                                    </div>
+                                    <div className="mt-1 text-xs leading-5 text-white/58">
+                                        Crie e conclua missões do dia.
+                                    </div>
+                                </div>
+
+                                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                    <div className="text-xl">🧭</div>
+                                    <div className="mt-2 text-sm font-semibold text-[rgba(242,228,198,0.96)]">
+                                        Quests
+                                    </div>
+                                    <div className="mt-1 text-xs leading-5 text-white/58">
+                                        Ganhe recompensas extras.
+                                    </div>
+                                </div>
+
+                                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                    <div className="text-xl">🏆</div>
+                                    <div className="mt-2 text-sm font-semibold text-[rgba(242,228,198,0.96)]">
+                                        Progresso
+                                    </div>
+                                    <div className="mt-1 text-xs leading-5 text-white/58">
+                                        Suba de nível e evolua.
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    )}
+                    </section>
 
-                    {inlineOk && (
-                        <div className="mt-4 rounded-xl border border-white/10 bg-forest/10 p-3 text-sm text-white/80">
-                            {inlineOk}
-                        </div>
-                    )}
-
-
-                    <div className="mt-6">
-                        <button
-                            onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-                            disabled={busy || status === "loading"}
-                            className="w-full rounded-xl bg-cloudWhite text-twilight py-2 text-sm font-semibold hover:opacity-90 disabled:opacity-70"
+                    <section className="mx-auto w-full max-w-md">
+                        <div
+                            className="
+                rounded-[28px] border border-white/10
+                bg-[linear-gradient(to_bottom,rgba(22,16,13,0.88),rgba(14,10,8,0.92))]
+                p-6 shadow-[0_24px_60px_rgba(0,0,0,0.45)]
+                backdrop-blur-md sm:p-8
+              "
                         >
-                            Continuar com Google
-                        </button>
-                    </div>
-
-                    <div className="my-5 flex items-center gap-3">
-                        <div className="h-px flex-1 bg-white/10" />
-                        <span className="text-xs text-white/40">ou</span>
-                        <div className="h-px flex-1 bg-white/10" />
-                    </div>
-
-                    {mode === "login" ? (
-                        <form onSubmit={handleLoginCredentials} className="space-y-3">
-                            <div>
-                                <label className="text-xs text-white/70">Email</label>
-                                <input
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    type="email"
-                                    autoComplete="email"
-                                    className="mt-1 w-full rounded-xl bg-black/20 border border-white/10 px-3 py-2 text-sm outline-none focus:border-blueSoft/60"
-                                    placeholder="seuemail@gmail.com"
+                            <div className="mb-6 flex flex-col items-center text-center">
+                                <img
+                                    src="/ui/logo/adventurer-route.png"
+                                    alt="Adventurer Route"
+                                    className="h-20 w-auto object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.45)]"
                                 />
+
+                                <h2 className="mt-4 text-2xl font-bold tracking-wide text-[rgba(242,228,198,0.98)]">
+                                    {mode === "login" ? "Entrar na jornada" : "Criar sua conta"}
+                                </h2>
+
+                                <p className="mt-2 text-sm leading-6 text-white/62">
+                                    {mode === "login"
+                                        ? "Acesse seu painel e continue sua aventura."
+                                        : "Comece agora e salve sua progressão no mundo do Adventurer Route."}
+                                </p>
                             </div>
 
-                            <div>
-                                <label className="text-xs text-white/70">Senha</label>
-                                <input
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    type="password"
-                                    autoComplete="current-password"
-                                    className="mt-1 w-full rounded-xl bg-black/20 border border-white/10 px-3 py-2 text-sm outline-none focus:border-blueSoft/60"
-                                    placeholder="••••••••"
-                                />
+                            <div className="mb-6 flex rounded-2xl border border-white/10 bg-black/20 p-1">
+                                <TabButton
+                                    active={mode === "login"}
+                                    onClick={() => {
+                                        setInlineError(null);
+                                        setInlineOk(null);
+                                        setMode("login");
+                                    }}
+                                >
+                                    Entrar
+                                </TabButton>
+
+                                <TabButton
+                                    active={mode === "register"}
+                                    onClick={() => {
+                                        setInlineError(null);
+                                        setInlineOk(null);
+                                        setMode("register");
+                                    }}
+                                >
+                                    Criar conta
+                                </TabButton>
                             </div>
+
+                            {(errorMsg || inlineError) && (
+                                <div className="mb-4">
+                                    <MessageBox variant="error">
+                                        {inlineError ?? errorMsg}
+                                    </MessageBox>
+                                </div>
+                            )}
+
+                            {inlineOk && (
+                                <div className="mb-4">
+                                    <MessageBox variant="success">{inlineOk}</MessageBox>
+                                </div>
+                            )}
 
                             <button
-                                type="submit"
-                                disabled={busy}
-                                className="w-full rounded-xl bg-blueSoft/80 text-twilight py-2 text-sm font-semibold hover:opacity-90 disabled:opacity-70"
+                                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+                                disabled={busy || status === "loading"}
+                                className="
+                  flex w-full items-center justify-center gap-3 rounded-2xl
+                  border border-white/10 bg-[rgba(242,228,198,0.96)] px-4 py-3
+                  text-sm font-semibold text-[color:var(--color-ink)]
+                  transition hover:translate-y-[-1px] hover:bg-white
+                  disabled:cursor-not-allowed disabled:opacity-70
+                "
                             >
-                                {busy ? "Entrando..." : "Entrar"}
+                                <span className="text-base">🌐</span>
+                                Continuar com Google
                             </button>
 
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setInlineError(null);
-                                    setInlineOk(null);
-                                    setMode("register");
-                                }}
-                                className="w-full text-xs text-blueSoft hover:underline"
-                            >
-                                Não tem conta? Criar agora
-                            </button>
-                        </form>
-                    ) : (
-                        <form onSubmit={handleRegister} className="space-y-3">
-                            <div>
-                                <label className="text-xs text-white/70">Nome (opcional)</label>
-                                <input
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    autoComplete="name"
-                                    className="mt-1 w-full rounded-xl bg-black/20 border border-white/10 px-3 py-2 text-sm outline-none focus:border-blueSoft/60"
-                                    placeholder="Seu nome"
-                                />
+                            <div className="my-5 flex items-center gap-3">
+                                <div className="h-px flex-1 bg-white/10" />
+                                <span className="text-xs uppercase tracking-[0.2em] text-white/35">
+                                    ou
+                                </span>
+                                <div className="h-px flex-1 bg-white/10" />
                             </div>
 
-                            <div>
-                                <label className="text-xs text-white/70">Email</label>
-                                <input
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    type="email"
-                                    autoComplete="email"
-                                    className="mt-1 w-full rounded-xl bg-black/20 border border-white/10 px-3 py-2 text-sm outline-none focus:border-blueSoft/60"
-                                    placeholder="seuemail@gmail.com"
-                                />
-                            </div>
+                            {mode === "login" ? (
+                                <form onSubmit={handleLoginCredentials} className="space-y-4">
+                                    <InputField
+                                        label="Email"
+                                        type="email"
+                                        value={email}
+                                        onChange={setEmail}
+                                        autoComplete="email"
+                                        placeholder="seuemail@gmail.com"
+                                    />
 
-                            <div>
-                                <label className="text-xs text-white/70">Senha</label>
-                                <input
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    type="password"
-                                    autoComplete="new-password"
-                                    className="mt-1 w-full rounded-xl bg-black/20 border border-white/10 px-3 py-2 text-sm outline-none focus:border-blueSoft/60"
-                                    placeholder="mínimo 8 caracteres"
-                                />
-                            </div>
+                                    <InputField
+                                        label="Senha"
+                                        type="password"
+                                        value={password}
+                                        onChange={setPassword}
+                                        autoComplete="current-password"
+                                        placeholder="••••••••"
+                                    />
 
-                            <button
-                                type="submit"
-                                disabled={busy}
-                                className="w-full rounded-xl bg-forest/70 text-cloudWhite py-2 text-sm font-semibold hover:opacity-90 disabled:opacity-70"
-                            >
-                                {busy ? "Criando..." : "Criar conta"}
-                            </button>
+                                    <button
+                                        type="submit"
+                                        disabled={busy}
+                                        className="
+                      w-full rounded-2xl border border-[rgba(212,160,23,0.34)]
+                      bg-[rgba(212,160,23,0.18)] px-4 py-3 text-sm font-semibold
+                      text-[rgba(242,228,198,0.98)] transition
+                      hover:bg-[rgba(212,160,23,0.28)]
+                      disabled:cursor-not-allowed disabled:opacity-60
+                    "
+                                    >
+                                        {busy ? "Entrando..." : "Entrar"}
+                                    </button>
+                                </form>
+                            ) : (
+                                <form onSubmit={handleRegister} className="space-y-4">
+                                    <InputField
+                                        label="Nome"
+                                        value={name}
+                                        onChange={setName}
+                                        autoComplete="name"
+                                        placeholder="Seu nome (opcional)"
+                                    />
 
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setInlineError(null);
-                                    setInlineOk(null);
-                                    setMode("login");
-                                }}
-                                className="w-full text-xs text-blueSoft hover:underline"
-                            >
-                                Já tenho conta — voltar para entrar
-                            </button>
-                        </form>
-                    )}
+                                    <InputField
+                                        label="Email"
+                                        type="email"
+                                        value={email}
+                                        onChange={setEmail}
+                                        autoComplete="email"
+                                        placeholder="seuemail@gmail.com"
+                                    />
 
-                    {status === "loading" ? (
-                        <p className="mt-4 text-xs text-white/50">Verificando sessão...</p>
-                    ) : null}
-                </GlassCard>
+                                    <InputField
+                                        label="Senha"
+                                        type="password"
+                                        value={password}
+                                        onChange={setPassword}
+                                        autoComplete="new-password"
+                                        placeholder="mínimo 8 caracteres"
+                                    />
+
+                                    <button
+                                        type="submit"
+                                        disabled={busy}
+                                        className="
+                      w-full rounded-2xl border border-[rgba(47,143,91,0.32)]
+                      bg-[rgba(47,143,91,0.20)] px-4 py-3 text-sm font-semibold
+                      text-[rgba(242,228,198,0.98)] transition
+                      hover:bg-[rgba(47,143,91,0.30)]
+                      disabled:cursor-not-allowed disabled:opacity-60
+                    "
+                                    >
+                                        {busy ? "Criando..." : "Criar conta"}
+                                    </button>
+                                </form>
+                            )}
+
+                            {status === "loading" && (
+                                <p className="mt-4 text-center text-xs text-white/45">
+                                    Verificando sessão...
+                                </p>
+                            )}
+                        </div>
+                    </section>
+                </div>
             </div>
-        </div>
+        </main>
     );
 }

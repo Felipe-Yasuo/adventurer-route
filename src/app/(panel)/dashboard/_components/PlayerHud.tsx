@@ -6,7 +6,6 @@ type PlayerHudProps = {
 
 export default function PlayerHud({
     level,
-    xp,
     image,
 }: PlayerHudProps) {
     return (
