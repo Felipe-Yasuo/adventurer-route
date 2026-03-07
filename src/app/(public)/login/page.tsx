@@ -52,13 +52,13 @@ function InputField({
                 type={type}
                 autoComplete={autoComplete}
                 placeholder={placeholder}
-                className="
-          w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3
-          text-sm text-white placeholder:text-white/35 outline-none transition
-          focus:border-[rgba(212,160,23,0.45)]
-          focus:bg-black/35
-          focus:shadow-[0_0_0_4px_rgba(212,160,23,0.08)]
-        "
+                className={[
+                    "w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3",
+                    "text-sm text-white placeholder:text-white/35 outline-none transition",
+                    "focus:border-[rgba(212,160,23,0.45)]",
+                    "focus:bg-black/35",
+                    "focus:shadow-[0_0_0_4px_rgba(212,160,23,0.08)]",
+                ].join(" ")}
             />
         </div>
     );
