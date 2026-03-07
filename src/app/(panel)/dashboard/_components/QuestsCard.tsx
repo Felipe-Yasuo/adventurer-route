@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import GlassCard from "./GlassCard";
 import { useToast } from "./toast";
 import type { QuestApi } from "../_types";
-import { useMe } from "./me-store"; // ✅ NOVO
+import { useMe } from "./me-store";
 import QuestFrame from "./QuestFrame";
 
 type Tab = "DAILY" | "WEEKLY";
@@ -198,56 +198,58 @@ export default function QuestsCard({
                                         done && !claimed ? "ring-1 ring-[rgba(75,111,184,0.25)]" : "",
                                     ].join(" ")}
                                 >
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div className="min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <p className="text-sm font-bold truncate">{q.title}</p>
+                                    <div className="space-y-3">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-base font-bold leading-tight text-[color:var(--color-ink)] break-words">
+                                                    {q.title}
+                                                </p>
+                                            </div>
 
-                                                <span
-                                                    className={[
-                                                        "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold border",
-                                                        claimed
-                                                            ? "bg-[rgba(47,143,91,0.18)] border-[rgba(47,143,91,0.25)]"
-                                                            : done
-                                                                ? "bg-[rgba(75,111,184,0.16)] border-[rgba(75,111,184,0.25)]"
-                                                                : "bg-[rgba(0,0,0,0.05)] border-black/10",
-                                                    ].join(" ")}
-                                                >
-                                                    {claimed ? "resgatada" : done ? "✅ completa" : "ativa"}
+                                            <span
+                                                className={[
+                                                    "shrink-0 inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold border",
+                                                    claimed
+                                                        ? "bg-[rgba(47,143,91,0.18)] border-[rgba(47,143,91,0.25)]"
+                                                        : done
+                                                            ? "bg-[rgba(75,111,184,0.16)] border-[rgba(75,111,184,0.25)]"
+                                                            : "bg-[rgba(0,0,0,0.05)] border-black/10",
+                                                ].join(" ")}
+                                            >
+                                                {claimed ? "resgatada" : done ? "✅ completa" : "ativa"}
+                                            </span>
+                                        </div>
+
+                                        <p className="text-sm leading-relaxed text-[color:var(--color-ink)]/72">
+                                            {q.description}
+                                        </p>
+
+                                        <div>
+                                            <div className="flex items-center justify-between text-sm text-[color:var(--color-ink)]/72">
+                                                <span>Progresso</span>
+                                                <span className="font-semibold">
+                                                    {Math.min(q.progress, q.target)}/{q.target}
                                                 </span>
                                             </div>
 
-                                            <p className="mt-1 text-xs text-[color:var(--color-ink)]/70">
-                                                {q.description}
-                                            </p>
-
-                                            <div className="mt-3">
-                                                <div className="flex items-center justify-between text-xs text-[color:var(--color-ink)]/70">
-                                                    <span>Progresso</span>
-                                                    <span className="font-semibold">
-                                                        {Math.min(q.progress, q.target)}/{q.target}
-                                                    </span>
-                                                </div>
-
-                                                <div className="mt-2 h-2 rounded-full bg-black/10 overflow-hidden">
-                                                    <div
-                                                        className="h-full bg-[rgba(47,143,91,0.75)] transition-all"
-                                                        style={{ width: `${p}%` }}
-                                                    />
-                                                </div>
-
-                                                <div className="mt-2 text-[11px] text-[color:var(--color-ink)]/60">
-                                                    Recompensa: +{q.rewardXp} XP • +{q.rewardGold} GOLD
-                                                </div>
+                                            <div className="mt-2 h-3 overflow-hidden rounded-full bg-black/10">
+                                                <div
+                                                    className="h-full bg-[rgba(47,143,91,0.75)] transition-all"
+                                                    style={{ width: `${p}%` }}
+                                                />
                                             </div>
                                         </div>
 
-                                        <div className="shrink-0">
+                                        <div className="text-sm leading-relaxed text-[color:var(--color-ink)]/65">
+                                            Recompensa: +{q.rewardXp} XP • +{q.rewardGold} GOLD
+                                        </div>
+
+                                        <div className="pt-1">
                                             <button
                                                 onClick={() => handleClaim(q)}
                                                 disabled={!done || claimed}
                                                 className={[
-                                                    "rounded-xl px-3 py-2 text-xs font-semibold border transition",
+                                                    "w-full rounded-xl px-3 py-3 text-sm font-semibold border transition",
                                                     !done || claimed
                                                         ? "bg-[rgba(0,0,0,0.05)] border-black/10 text-[color:var(--color-ink)]/35 cursor-not-allowed"
                                                         : "bg-[rgba(212,160,23,0.20)] border-[rgba(212,160,23,0.35)] text-[color:var(--color-ink)] hover:bg-[rgba(212,160,23,0.28)]",
