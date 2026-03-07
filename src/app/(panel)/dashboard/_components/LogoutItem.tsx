@@ -6,13 +6,13 @@ export default function LogoutItem() {
     return (
         <div className="mt-3 px-3 pb-3">
             <div
-                className="
-          rounded-2xl border border-black/10
-          bg-[rgba(242,228,198,0.65)]
-          p-3 shadow-[0_6px_10px_rgba(0,0,0,0.06)]
-        "
+                className={[
+                    "rounded-2xl border border-black/10",
+                    "bg-[rgba(242,228,198,0.65)]",
+                    "p-3 shadow-[0_6px_10px_rgba(0,0,0,0.06)]",
+                ].join(" ")}
             >
-                <div className="mb-2 hidden md:block text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--color-ink)]/55">
+                <div className="mb-2 hidden text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--color-ink)]/55 md:block">
                     Conta
                 </div>
 
