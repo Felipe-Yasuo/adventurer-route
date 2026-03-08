@@ -55,11 +55,13 @@ export async function checkAndUnlockAchievements(
     }),
   ]);
 
-  const unlockedSet = new Set(unlockedRows.map((r) => r.achievementId));
+  const unlockedSet = new Set(
+    unlockedRows.map((r: (typeof unlockedRows)[number]) => r.achievementId)
+  );
 
-  const eligible = allAchievements.filter((a) => {
+  const eligible = allAchievements.filter((a: (typeof allAchievements)[number]) => {
     if (unlockedSet.has(a.id)) return false;
-
+  
     switch (a.type) {
       case "TASKS_COMPLETED_TOTAL":
         return tasksCompletedTotal >= a.target;
@@ -79,7 +81,10 @@ export async function checkAndUnlockAchievements(
   }
 
   await tx.userAchievement.createMany({
-    data: eligible.map((a) => ({ userId, achievementId: a.id })),
+    data: eligible.map((a: (typeof eligible)[number]) => ({
+      userId,
+      achievementId: a.id,
+    })),
     skipDuplicates: true,
   });
 
@@ -97,7 +102,7 @@ export async function checkAndUnlockAchievements(
   }
 
   return {
-    unlocked: eligible.map((a) => ({
+    unlocked: eligible.map((a: (typeof eligible)[number]) => ({
       code: a.code,
       title: a.title,
       rewardGold: a.rewardGold,
