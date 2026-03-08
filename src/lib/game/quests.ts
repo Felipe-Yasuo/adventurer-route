@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { applyXpAndLevelUp } from "@/lib/game/progression";
-import type { Difficulty } from "@prisma/client";
+
+
+type Difficulty = "EASY" | "MEDIUM" | "HARD";
 
 type TaskForQuest = {
   difficulty: Difficulty;
