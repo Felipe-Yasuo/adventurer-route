@@ -2,14 +2,17 @@
   "name": "adventurer-route",
   "version": "0.1.0",
   "private": true,
+
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "prisma": {
-      "seed": "ts-node prisma/seed.ts"
-    }
+    "build": "prisma generate && prisma migrate deploy && next build",
+    "start": "next start"
   },
+
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
     "@prisma/adapter-pg": "^7.4.1",
@@ -25,6 +28,7 @@
     "react-dom": "19.2.3",
     "zod": "^4.3.6"
   },
+
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
