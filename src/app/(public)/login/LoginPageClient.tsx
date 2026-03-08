@@ -227,7 +227,7 @@ export default function LoginPageClient({
                 return;
             }
 
-            router.push(loginRes?.url ?? "/dashboard");
+            router.push("/dashboard");
         } finally {
             setBusy(false);
         }
