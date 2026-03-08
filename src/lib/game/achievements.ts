@@ -88,8 +88,15 @@ export async function checkAndUnlockAchievements(
     skipDuplicates: true,
   });
 
-  const totalRewardGold = eligible.reduce((sum, a) => sum + a.rewardGold, 0);
-  const totalRewardXp = eligible.reduce((sum, a) => sum + a.rewardXp, 0);
+  const totalRewardGold = eligible.reduce(
+    (sum: number, a: (typeof eligible)[number]) => sum + a.rewardGold,
+    0
+  );
+  
+  const totalRewardXp = eligible.reduce(
+    (sum: number, a: (typeof eligible)[number]) => sum + a.rewardXp,
+    0
+  );
 
   if (totalRewardGold > 0 || totalRewardXp > 0) {
     await tx.user.update({
