@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-
 import { requireUser } from "@/lib/requireUser";
 
 export async function GET() {
   try {
     const user = await requireUser();
-    if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    if (!user) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
 
     const achievements = await prisma.achievement.findMany({
       orderBy: { createdAt: "asc" },
@@ -26,7 +27,7 @@ export async function GET() {
       },
     });
 
-    const mapped = achievements.map((a) => ({
+    const mapped = achievements.map((a: (typeof achievements)[number]) => ({
       id: a.id,
       code: a.code,
       title: a.title,
@@ -42,6 +43,9 @@ export async function GET() {
     return NextResponse.json(mapped);
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Erro ao listar conquistas" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Erro ao listar conquistas" },
+      { status: 500 }
+    );
   }
 }

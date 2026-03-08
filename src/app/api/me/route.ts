@@ -15,8 +15,6 @@ export async function GET() {
             return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
         }
 
-        console.log("ME ROUTE requireUser id:", u.id);
-        console.log("ME ROUTE requireUser email:", u.email);
 
         const beforeUser = await prisma.user.findUnique({
             where: { id: u.id },
@@ -26,7 +24,6 @@ export async function GET() {
             },
         });
 
-        console.log("ANTES das penalidades image:", beforeUser?.image);
 
         const weekStart = startOfWeekKey(TZ);
 
@@ -48,7 +45,6 @@ export async function GET() {
             },
         });
 
-        console.log("DEPOIS das penalidades image:", afterPenaltyUser?.image);
 
         const user = await prisma.user.findUnique({
             where: { id: u.id },
@@ -72,8 +68,7 @@ export async function GET() {
             return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
         }
 
-        console.log("ME ROUTE prisma user id:", user.id);
-        console.log("ME ROUTE prisma user image:", user.image);
+
 
         return NextResponse.json(
             {
