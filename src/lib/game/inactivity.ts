@@ -1,6 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { dateKeyInTz, diffDaysByDateKey, todayKey } from "@/lib/game/time";
 
+type InactivityTransactionClient = {
+    user: typeof prisma.user;
+  };
+
+
 const TZ = "America/Sao_Paulo";
 const INACTIVITY_DAMAGE = 3;
 
@@ -8,7 +13,7 @@ export async function applyInactivityPenalty(userId: string) {
     const now = new Date();
     const today = todayKey(TZ);
 
-    return prisma.$transaction(async (tx) => {
+    return prisma.$transaction(async (tx: InactivityTransactionClient) => {
         const user = await tx.user.findUnique({
             where: { id: userId },
             select: {
