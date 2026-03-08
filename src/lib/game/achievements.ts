@@ -1,4 +1,10 @@
-import type { Prisma } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+
+type AchievementsTransactionClient = {
+  user: typeof prisma.user;
+  achievement: typeof prisma.achievement;
+  userAchievement: typeof prisma.userAchievement;
+};
 
 export type UnlockResult = {
   unlocked: Array<{
@@ -11,17 +17,23 @@ export type UnlockResult = {
   totalRewardXp: number;
 };
 
-
 export async function checkAndUnlockAchievements(
-  tx: Prisma.TransactionClient,
+  tx: AchievementsTransactionClient,
   userId: string
 ): Promise<UnlockResult> {
   const user = await tx.user.findUnique({
     where: { id: userId },
-    select: { level: true, gold: true, streakCount: true, tasksCompletedTotal: true },
+    select: {
+      level: true,
+      gold: true,
+      streakCount: true,
+      tasksCompletedTotal: true,
+    },
   });
 
-  if (!user) return { unlocked: [], totalRewardGold: 0, totalRewardXp: 0 };
+  if (!user) {
+    return { unlocked: [], totalRewardGold: 0, totalRewardXp: 0 };
+  }
 
   const tasksCompletedTotal = user.tasksCompletedTotal;
 
