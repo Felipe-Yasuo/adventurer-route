@@ -9,7 +9,13 @@ import { requireUser } from "@/lib/requireUser";
 
 const TZ = "America/Sao_Paulo";
 
-type CompleteTaskTransactionClient = Parameters<typeof onTaskCompletedUpdateQuests>[0];
+type QuestsTx = Parameters<typeof onTaskCompletedUpdateQuests>[0];
+type AchievementsTx = Parameters<typeof checkAndUnlockAchievements>[0];
+
+type CompleteTaskTransactionClient = QuestsTx &
+  AchievementsTx & {
+    task: typeof prisma.task;
+  };
 
 export async function PATCH(
   _: Request,
