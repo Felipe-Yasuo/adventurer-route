@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/requireUser";
 import { buyItemSchema } from "@/lib/validators/shop";
 import { getFirstZodError } from "@/lib/validators/get-first-zod-error";
+import { Prisma } from "@prisma/client";
 
 export async function POST(req: Request) {
     try {
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
         const itemId = data.itemId;
         const quantity = Math.max(1, Number(data.quantity ?? 1));
 
-        const result = await prisma.$transaction(async (tx) => {
+        const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
             const dbUser = await tx.user.findUnique({
                 where: { id: user.id },
                 select: { id: true, gold: true },

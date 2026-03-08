@@ -6,6 +6,7 @@ import { dateKeyInTz, diffDaysByDateKey } from "@/lib/game/time";
 import { checkAndUnlockAchievements } from "@/lib/game/achievements";
 import { onTaskCompletedUpdateQuests } from "@/lib/game/quests";
 import { requireUser } from "@/lib/requireUser";
+import { Prisma } from "@prisma/client";
 
 const TZ = "America/Sao_Paulo";
 
@@ -18,7 +19,7 @@ export async function PATCH(
     if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     const { id: taskId } = await params;
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
 
       const task = await tx.task.findFirst({
         where: { id: taskId, userId: user.id },

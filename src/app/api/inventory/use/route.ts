@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { clampHeal } from "@/lib/game/heal";
 import { requireUser } from "@/lib/requireUser";
@@ -15,14 +16,14 @@ export async function POST(req: Request) {
 
         if (!parsed.success) {
             return NextResponse.json(
-              { error: getFirstZodError(parsed.error) },
-              { status: 400 }
+                { error: getFirstZodError(parsed.error) },
+                { status: 400 }
             );
-          }
+        }
 
         const { itemId } = parsed.data;
 
-        const result = await prisma.$transaction(async (tx) => {
+        const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
             const user = await tx.user.findUnique({
                 where: { id: me.id },
                 select: { id: true, life: true, maxLife: true },
