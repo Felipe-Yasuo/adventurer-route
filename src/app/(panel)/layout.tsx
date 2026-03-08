@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import PanelProviders from "./providers";
-import Sidebar from "@/app/(panel)/dashboard/_components/Sidebar";
+import Sidebar from "@/features/shared/components/Sidebar";
 
 export default async function PanelLayout({
   children,

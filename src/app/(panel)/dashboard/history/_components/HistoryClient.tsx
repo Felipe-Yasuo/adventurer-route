@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import DayReadOnlyList from "@/app/(panel)/dashboard/_components/DayReadOnlyList";
+import DayReadOnlyList from "@/features/tasks/components/DayReadOnlyList";
 import type { TaskApi, TaskUI } from "@/app/(panel)/dashboard/_types";
 import { mapTaskApiToUI } from "@/app/(panel)/dashboard/_utils/map";
 

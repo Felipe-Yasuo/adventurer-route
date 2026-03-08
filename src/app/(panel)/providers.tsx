@@ -1,7 +1,7 @@
 "use client";
 
-import { ToastProvider } from "./dashboard/_components/toast";
-import { MeProvider } from "./dashboard/_components/me-store";
+import { ToastProvider } from "@/features/shared/components/toast";
+import { MeProvider } from "@/features/shared/components/me-store";
 
 export default function PanelProviders({ children }: { children: React.ReactNode }) {
   return (

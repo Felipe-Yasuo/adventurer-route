@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import TopHud from "./TopHud";
-import KanbanBoard from "./KanbanBoard";
-import NewTaskCard from "./NewTaskCard";
-import QuestsCard from "./QuestsCard";
+import TopHud from "@/features/shared/components/TopHud";
+import KanbanBoard from "@/features/tasks/components/KanbanBoard";
+import NewTaskCard from "@/features/tasks/components/NewTaskCard";
+import QuestsCard from "@/features/quests/components/QuestsCard";
 
 import type { TaskUI, TaskApi, DifficultyFilter, QuestApi } from "../_types";
 import { mapTaskApiToUI } from "../_utils/map";
 
-import { useMe } from "@/app/(panel)/dashboard/_components/me-store";
+import { useMe } from "@/features/shared/components/me-store";
 
 function todayKeyLocal() {
   const d = new Date();
