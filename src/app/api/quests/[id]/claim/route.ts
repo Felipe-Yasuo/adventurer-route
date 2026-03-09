@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/requireUser";
+import { requireUser } from "@/lib/auth/require-user";
 import { claimQuest } from "@/server/services/quests/claim-quest";
 
 export async function POST(

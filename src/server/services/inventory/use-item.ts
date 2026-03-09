@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { clampHeal } from "@/server/game/items/heal";
 
 export type UseItemResult =

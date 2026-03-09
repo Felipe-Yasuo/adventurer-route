@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { rewardsByDifficulty } from "@/server/game/progression/rules";
 import { applyXpAndLevelUp } from "@/server/game/progression/apply-xp-and-level-up";
 import { dateKeyInTz, diffDaysByDateKey } from "@/server/game/time/time";

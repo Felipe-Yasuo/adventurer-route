@@ -1,6 +1,2 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-
-export function getSession() {
-    return getServerSession(authOptions);
-}
+// Re-exportador — use @/lib/auth/get-session diretamente
+export * from "@/lib/auth/get-session";

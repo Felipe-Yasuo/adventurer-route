@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/requireUser";
+import { requireUser } from "@/lib/auth/require-user";
 import { completeTask } from "@/server/services/tasks/complete-task";
 
 export async function PATCH(

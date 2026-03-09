@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { cloudinary } from "@/lib/cloudinary";
-import { requireUser } from "@/lib/requireUser";
+import { requireUser } from "@/lib/auth/require-user";
 
 function uploadBufferToCloudinary(
     buffer: Buffer,

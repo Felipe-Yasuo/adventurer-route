@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { applyXpAndLevelUp } from "@/server/game/progression/apply-xp-and-level-up";
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD";

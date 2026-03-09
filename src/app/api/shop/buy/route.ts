@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/requireUser";
+import { requireUser } from "@/lib/auth/require-user";
 import { buyItemSchema } from "@/features/shop/schemas/shop.schema";
 import { getFirstZodError } from "@/lib/http/get-first-zod-error";
 import { buyItem } from "@/server/services/shop/buy-item";

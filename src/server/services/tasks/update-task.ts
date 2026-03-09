@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import type { Difficulty, TaskApi } from "@/features/tasks/types";
 
 export type UpdateTaskInput = {

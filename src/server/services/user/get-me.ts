@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { applyOverduePenalty } from "@/server/game/penalties/overdue";
 import { applyInactivityPenalty } from "@/server/game/penalties/inactivity";
 import { startOfWeekKey } from "@/server/game/time/time";
