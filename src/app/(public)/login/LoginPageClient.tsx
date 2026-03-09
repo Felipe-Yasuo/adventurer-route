@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { loginSchema, registerSchema } from "@/lib/validators/auth";
+import { loginSchema, registerSchema } from "@/features/auth/schemas/auth.schema";
 
 type Mode = "login" | "register";
 

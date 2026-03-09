@@ -1,5 +1,5 @@
-import type { TaskUI } from "@/app/(panel)/dashboard/_types";
-import { dateStatus } from "@/app/(panel)/dashboard/_utils/date";
+import type { TaskUI } from "@/features/tasks/types";
+import { dateStatus } from "@/features/tasks/utils/date";
 
 function difficultyBadge(difficulty: TaskUI["difficulty"]) {
   const base =

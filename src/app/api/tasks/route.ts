@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { todayKey } from "@/lib/game/time";
 import { requireUser } from "@/lib/requireUser";
-import { createTaskSchema } from "@/lib/validators/task";
-import { getFirstZodError } from "@/lib/validators/get-first-zod-error";
+import { createTaskSchema } from "@/features/tasks/schemas/task.schema";
+import { getFirstZodError } from "@/lib/http/get-first-zod-error";
 
 const TZ = "America/Sao_Paulo";
 

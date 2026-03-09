@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import GlassCard from "@/components/ui/GlassCard";
 import { useToast } from "@/features/shared/components/toast";
-import type { QuestApi } from "@/app/(panel)/dashboard/_types";
+import type { QuestApi } from "@/features/tasks/types";
 import { useMe } from "@/features/shared/components/me-store";
 import QuestFrame from "@/features/quests/components/QuestFrame";
 

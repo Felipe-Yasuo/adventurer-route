@@ -1,10 +1,2 @@
-import { z } from "zod";
-
-export const buyItemSchema = z.object({
-  itemId: z.string().min(1, "itemId é obrigatório."),
-  quantity: z.number().int().min(1, "A quantidade mínima é 1.").optional(),
-});
-
-export const useItemSchema = z.object({
-  itemId: z.string().min(1, "itemId é obrigatório."),
-});
+// Re-exporta do novo local canônico em src/features/shop/schemas/shop.schema
+export { buyItemSchema, useItemSchema } from "@/features/shop/schemas/shop.schema";

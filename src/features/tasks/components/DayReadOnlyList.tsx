@@ -1,4 +1,4 @@
-import type { TaskUI } from "@/app/(panel)/dashboard/_types";
+import type { TaskUI } from "@/features/tasks/types";
 
 function badge(difficulty: TaskUI["difficulty"]) {
     const base =

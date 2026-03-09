@@ -4,9 +4,9 @@ import { useMemo, useState } from "react";
 import TaskCard from "@/features/tasks/components/TaskCard";
 import TaskModal from "@/features/tasks/components/TaskModal";
 import TasksFrame from "@/features/tasks/components/TaskFrame";
-import type { TaskUI } from "@/app/(panel)/dashboard/_types";
-import { TaskApi, CompleteResponse } from "@/app/(panel)/dashboard/_types";
-import { isOverdue } from "@/app/(panel)/dashboard/_utils/date";
+import type { TaskUI } from "@/features/tasks/types";
+import type { TaskApi, CompleteResponse } from "@/features/tasks/types";
+import { isOverdue } from "@/features/tasks/utils/date";
 import { useToast } from "@/features/shared/components/toast";
 import { useMe } from "@/features/shared/components/me-store";
 

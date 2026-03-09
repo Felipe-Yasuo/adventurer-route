@@ -1,5 +1,2 @@
-import type { ZodError } from "zod";
-
-export function getFirstZodError(error: ZodError) {
-  return error.issues[0]?.message ?? "Dados inválidos.";
-}
+// Re-exporta do novo local canônico em src/lib/http/get-first-zod-error
+export { getFirstZodError } from "@/lib/http/get-first-zod-error";

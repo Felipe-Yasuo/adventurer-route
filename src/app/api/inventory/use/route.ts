@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { clampHeal } from "@/lib/game/heal";
 import { requireUser } from "@/lib/requireUser";
-import { useItemSchema } from "@/lib/validators/shop";
-import { getFirstZodError } from "@/lib/validators/get-first-zod-error";
+import { useItemSchema } from "@/features/shop/schemas/shop.schema";
+import { getFirstZodError } from "@/lib/http/get-first-zod-error";
 
 type InventoryTransactionClient = {
   user: typeof prisma.user;

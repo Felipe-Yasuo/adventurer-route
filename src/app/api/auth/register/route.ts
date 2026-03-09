@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { seedGlobalGameData, seedUserDefaults } from "@/lib/game/seed";
-import { registerSchema } from "@/lib/validators/auth";
+import { registerSchema } from "@/features/auth/schemas/auth.schema";
 import { ZodError } from "zod";
 
 export async function POST(req: Request) {

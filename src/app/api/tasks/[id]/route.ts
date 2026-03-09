@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/requireUser";
-import { updateTaskSchema } from "@/lib/validators/task";
-import { getFirstZodError } from "@/lib/validators/get-first-zod-error";
+import { updateTaskSchema } from "@/features/tasks/schemas/task.schema";
+import { getFirstZodError } from "@/lib/http/get-first-zod-error";
 
 type Ctx = { params: Promise<{ id: string }> };
 
