@@ -1,4 +1,4 @@
-import HistoryClient from "./_components/HistoryClient";
+import HistoryClient from "@/features/history/components/HistoryClient";
 
 export default function HistoryPage() {
     return <HistoryClient />;
