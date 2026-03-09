@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import { applyXpAndLevelUp } from "@/server/game/progression/apply-xp-and-level-up";
+import type { QuestClaimResult, QuestApiRecord } from "@/server/types";
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD";
 
@@ -27,12 +28,7 @@ export type QuestTemplate = {
   rewardGold: number;
 };
 
-export type QuestClaimResult = {
-  quest: any;
-  rewards: { xp: number; gold: number };
-  leveledUp: number;
-  user: any;
-};
+export type { QuestClaimResult, QuestApiRecord };
 
 const TZ = "America/Sao_Paulo";
 
@@ -285,6 +281,7 @@ export async function claimQuest(userId: string, questId: string): Promise<Quest
     });
 
     const updatedQuest = await tx.quest.findUnique({ where: { id: questId } });
+    if (!updatedQuest) throw new Error("Quest não encontrada após atualização");
 
     return {
       quest: updatedQuest,
