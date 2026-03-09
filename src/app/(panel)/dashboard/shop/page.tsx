@@ -1,5 +1,5 @@
-import ShopClient from "@/features/shop/components/ShopClient";
+import ShopFeature from "@/features/shop/components/ShopFeature";
 
 export default function ShopPage() {
-    return <ShopClient />;
+    return <ShopFeature />;
 }

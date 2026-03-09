@@ -1,5 +1,5 @@
-import AdventureClient from "@/features/adventure/components/AdventureClient";
+import AdventureFeature from "@/features/adventure/components/AdventureFeature";
 
 export default function AdventurePage() {
-    return <AdventureClient />;
+    return <AdventureFeature />;
 }

@@ -1,5 +1,5 @@
-import DashboardClient from "@/features/dashboard/components/DashboardClient";
+import DashboardFeature from "@/features/dashboard/components/DashboardFeature";
 
 export default function DashboardPage() {
-    return <DashboardClient />;
+    return <DashboardFeature />;
 }

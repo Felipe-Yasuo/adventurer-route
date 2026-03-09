@@ -1,5 +1,5 @@
-import ProfileClient from "@/features/profile/components/ProfileClient";
+import ProfileFeature from "@/features/profile/components/ProfileFeature";
 
 export default function ProfilePage() {
-    return <ProfileClient />;
+    return <ProfileFeature />;
 }
