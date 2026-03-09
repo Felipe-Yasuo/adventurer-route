@@ -1,21 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { AchievementApi, AchievementFilter } from "@/features/achievements/types";
 
-type AchievementApi = {
-    id: string;
-    code: string;
-    title: string;
-    description: string | null;
-    type: string;
-    target: number;
-    rewardGold: number;
-    rewardXp: number;
-    unlocked: boolean;
-    unlockedAt: string | null;
-};
-
-type Filter = "ALL" | "UNLOCKED" | "LOCKED";
 
 async function fetchJson<T>(url: string): Promise<T> {
     const res = await fetch(url, { cache: "no-store" });
@@ -176,7 +163,7 @@ export default function AchievementsClient() {
     const [error, setError] = useState<string | null>(null);
 
     const [all, setAll] = useState<AchievementApi[]>([]);
-    const [filter, setFilter] = useState<Filter>("ALL");
+    const [filter, setFilter] = useState<AchievementFilter>("ALL");
 
     async function loadAll() {
         setLoading(true);
