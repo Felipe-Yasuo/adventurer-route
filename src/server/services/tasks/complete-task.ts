@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { rewardsByDifficulty } from "@/lib/game/rules";
-import { applyXpAndLevelUp } from "@/lib/game/progression";
-import { dateKeyInTz, diffDaysByDateKey } from "@/lib/game/time";
-import { checkAndUnlockAchievements } from "@/lib/game/achievements";
-import { onTaskCompletedUpdateQuests } from "@/lib/game/quests";
+import { rewardsByDifficulty } from "@/server/game/progression/rules";
+import { applyXpAndLevelUp } from "@/server/game/progression/apply-xp-and-level-up";
+import { dateKeyInTz, diffDaysByDateKey } from "@/server/game/time/time";
+import { checkAndUnlockAchievements } from "@/server/game/achievements/achievements";
+import { onTaskCompletedUpdateQuests } from "@/server/game/quests/quests";
 import type { TaskApi } from "@/features/tasks/types";
 
 const TZ = "America/Sao_Paulo";

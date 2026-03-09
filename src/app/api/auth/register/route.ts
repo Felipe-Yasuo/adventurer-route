@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { seedGlobalGameData, seedUserDefaults } from "@/lib/game/seed";
+import { seedGlobalGameData, seedUserDefaults } from "@/server/game/seed/seed";
 import { registerSchema } from "@/features/auth/schemas/auth.schema";
 import { ZodError } from "zod";
 

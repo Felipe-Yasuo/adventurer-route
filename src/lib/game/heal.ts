@@ -1,4 +1,2 @@
-export function clampHeal(life: number, maxLife: number, healValue: number) {
-    const newLife = Math.min(maxLife, life + healValue);
-    return { newLife, healed: newLife - life };
-}
+// Re-exportador — use @/server/game/items/heal diretamente
+export * from "@/server/game/items/heal";

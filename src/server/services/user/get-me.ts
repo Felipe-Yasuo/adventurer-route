@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import { applyOverduePenalty } from "@/lib/game/overdue";
-import { applyInactivityPenalty } from "@/lib/game/inactivity";
-import { startOfWeekKey } from "@/lib/game/time";
+import { applyOverduePenalty } from "@/server/game/penalties/overdue";
+import { applyInactivityPenalty } from "@/server/game/penalties/inactivity";
+import { startOfWeekKey } from "@/server/game/time/time";
 
 const TZ = "America/Sao_Paulo";
 

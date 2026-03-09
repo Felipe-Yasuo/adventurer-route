@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { clampHeal } from "@/lib/game/heal";
+import { clampHeal } from "@/server/game/items/heal";
 
 export type UseItemResult =
   | {
