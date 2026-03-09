@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import type { TaskApi } from "@/app/(panel)/dashboard/_types";
+import type { TaskApi } from "@/features/tasks/types";
 import NewTaskFrame from "@/features/tasks/components/NewTaskFrame";
+import { Button } from "@/components/ui/Button";
+import { Input, Select } from "@/components/ui/Input";
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD";
 
@@ -81,41 +83,38 @@ export default function NewTaskCard({
           </p>
         </div>
 
-        <input
+        <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Título da tarefa"
-          className="w-full rounded-xl border border-black/10 bg-[rgba(255,255,255,0.38)] px-4 py-3 text-sm text-[color:var(--color-ink)] outline-none transition placeholder:text-[color:var(--color-ink)]/40 focus:border-[rgba(212,160,23,0.45)] focus:bg-[rgba(255,255,255,0.5)]"
         />
 
         <div className="grid grid-cols-2 gap-3">
-          <select
+          <Select
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-            className="w-full rounded-xl border border-black/10 bg-[rgba(255,255,255,0.38)] px-4 py-3 text-sm text-[color:var(--color-ink)] outline-none transition focus:border-[rgba(212,160,23,0.45)] focus:bg-[rgba(255,255,255,0.5)]"
           >
             <option value="EASY">Easy</option>
             <option value="MEDIUM">Medium</option>
             <option value="HARD">Hard</option>
-          </select>
+          </Select>
 
-          <input
+          <Input
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="w-full rounded-xl border border-black/10 bg-[rgba(255,255,255,0.38)] px-4 py-3 text-sm text-[color:var(--color-ink)] outline-none transition focus:border-[rgba(212,160,23,0.45)] focus:bg-[rgba(255,255,255,0.5)]"
           />
         </div>
 
-        <button
+        <Button
+          variant="primary"
+          className="w-full py-3"
           onClick={handleCreate}
           disabled={creating}
-          className="w-full rounded-xl border border-[rgba(212,160,23,0.4)] bg-[rgba(212,160,23,0.18)] py-3 text-sm font-semibold text-[color:var(--color-ink)] transition hover:bg-[rgba(212,160,23,0.28)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {creating ? "Criando..." : "Adicionar"}
-        </button>
+        </Button>
       </div>
     </NewTaskFrame>
   );
 }
-

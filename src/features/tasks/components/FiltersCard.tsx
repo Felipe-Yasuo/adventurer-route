@@ -1,6 +1,6 @@
 "use client";
 
-import GlassCard from "@/features/shared/components/GlassCard";
+import GlassCard from "@/components/ui/GlassCard";
 
 type Difficulty = "ALL" | "EASY" | "MEDIUM" | "HARD";
 

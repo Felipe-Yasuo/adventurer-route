@@ -1,5 +1,5 @@
 import React from "react";
-import UiFrame from "@/features/shared/components/UiFrame";
+import UiFrame from "@/components/ui/UiFrame";
 
 export default function TasksFrame({
     children,

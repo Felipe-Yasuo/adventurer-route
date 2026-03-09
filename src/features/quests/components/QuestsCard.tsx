@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import GlassCard from "@/features/shared/components/GlassCard";
+import GlassCard from "@/components/ui/GlassCard";
 import { useToast } from "@/features/shared/components/toast";
 import type { QuestApi } from "@/app/(panel)/dashboard/_types";
 import { useMe } from "@/features/shared/components/me-store";
