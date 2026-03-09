@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
-import { todayKey } from "@/lib/game/time";
+import { todayKey } from "@/server/game/time/time";
+
 import type { Difficulty, TaskApi } from "@/features/tasks/types";
 
 const TZ = "America/Sao_Paulo";
