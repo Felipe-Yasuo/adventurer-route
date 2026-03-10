@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useToast } from "@/features/shared/components/toast";
 import type { QuestApi } from "@/features/tasks/types";
 import { useMe } from "@/features/shared/components/me-store";
@@ -33,11 +33,11 @@ async function claimQuestApi(id: string) {
 
 export default function QuestsCard({
     quests,
-    onNeedReload,
+    setQuests,
     onLevelUp,
 }: {
     quests: QuestApi[];
-    onNeedReload: () => Promise<void>;
+    setQuests: React.Dispatch<React.SetStateAction<QuestApi[]>>;
     onLevelUp: () => void;
 }) {
     const toast = useToast();
@@ -98,7 +98,12 @@ export default function QuestsCard({
                 });
             }
 
-            await onNeedReload();
+            // Atualiza a quest localmente sem refetch
+            setQuests((prev) =>
+                prev.map((item) =>
+                    item.id === q.id ? { ...item, status: "CLAIMED" as const } : item
+                )
+            );
         } catch (e: any) {
             toast.push({
                 type: "error",

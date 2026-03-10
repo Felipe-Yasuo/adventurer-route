@@ -139,7 +139,7 @@ export default function DashboardClient() {
 
         <QuestsCard
           quests={quests}
-          onNeedReload={loadAll}
+          setQuests={setQuests}
           onLevelUp={() => setLevelUpPulse((v) => v + 1)}
         />
       </aside>

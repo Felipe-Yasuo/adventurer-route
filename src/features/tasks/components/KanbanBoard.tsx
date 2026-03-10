@@ -225,31 +225,9 @@ export default function KanbanBoard({
         setMe((prev) => (prev ? { ...prev, ...u } : u));
       }
 
-      const xp = result.rewards?.xp ?? 0;
-      const gold = result.rewards?.gold ?? 0;
-
-      const qc = (result as any).questsCompleted ?? [];
-      if (qc.length > 0) {
-        const shown = qc.slice(0, 2).map((q: any) => `✅ ${q.title}`).join(" • ");
-        const more = qc.length > 2 ? ` +${qc.length - 2}` : "";
-
-        toast.push({
-          type: "success",
-          title: "Quest completa! 🧭",
-          message: `${shown}${more}`,
-          durationMs: 3800,
-        });
-      }
-
       setTasks((prev) =>
         prev.map((t) => (t.id === task.id ? { ...t, completed: true } : t))
       );
-
-      toast.push({
-        type: "success",
-        title: "Tarefa concluída!",
-        message: `+${xp} XP • +${gold} GOLD`,
-      });
 
       const leveledUp = result.leveledUp ?? 0;
       if (leveledUp > 0) {
