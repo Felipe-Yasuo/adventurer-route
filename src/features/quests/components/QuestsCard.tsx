@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import GlassCard from "@/components/ui/GlassCard";
 import { useToast } from "@/features/shared/components/toast";
 import type { QuestApi } from "@/features/tasks/types";
 import { useMe } from "@/features/shared/components/me-store";
@@ -14,15 +13,6 @@ function pct(progress: number, target: number) {
     return Math.max(0, Math.min(100, (progress / target) * 100));
 }
 
-function statusBadge(q: QuestApi) {
-    const base =
-        "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold border border-white/10";
-
-    if (q.status === "CLAIMED") return `${base} bg-forest/20 text-cloudWhite`;
-    if (q.progress >= q.target)
-        return `${base} bg-blueSoft/30 text-cloudWhite ring-1 ring-blueSoft/40`;
-    return `${base} bg-white/5 text-white/70`;
-}
 
 async function claimQuestApi(id: string) {
     const res = await fetch(`/api/quests/${id}/claim`, { method: "POST" });
@@ -40,29 +30,6 @@ async function claimQuestApi(id: string) {
     };
 }
 
-function TabButton({
-    active,
-    children,
-    onClick,
-}: {
-    active: boolean;
-    children: React.ReactNode;
-    onClick: () => void;
-}) {
-    return (
-        <button
-            onClick={onClick}
-            className={[
-                "rounded-xl border px-3 py-2 text-xs font-semibold transition",
-                active
-                    ? "bg-cloudWhite text-twilight border-black/10"
-                    : "bg-black/20 text-white/70 border-white/10 hover:bg-black/30",
-            ].join(" ")}
-        >
-            {children}
-        </button>
-    );
-}
 
 export default function QuestsCard({
     quests,

@@ -91,11 +91,6 @@ export default function TopHud({
     return () => window.clearTimeout(t);
   }, [levelUpPulse]);
 
-  const lifePct =
-    user.maxLife > 0
-      ? Math.max(0, Math.min(100, (user.life / user.maxLife) * 100))
-      : 0;
-
   return (
     <header
       className={[

@@ -159,7 +159,6 @@ export default function ProfileClient() {
             if (!res.ok) throw new Error(json?.error ?? "Falha ao salvar avatar");
 
             const newImage = json?.user?.image as string | null;
-            console.log("UPLOAD respondeu com image:", newImage);
 
             setMe((prev) => (prev ? { ...prev, image: newImage } : prev));
 
