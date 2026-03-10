@@ -21,6 +21,9 @@ function damageByDifficulty(difficulty: Difficulty) {
 export async function applyOverduePenalty(userId: string) {
   const now = new Date();
 
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+
   return prisma.$transaction(async (tx: OverdueTransactionClient) => {
     const overdue = await tx.task.findMany({
       where: {
@@ -28,6 +31,7 @@ export async function applyOverduePenalty(userId: string) {
         completed: false,
         dueDate: { not: null, lt: now },
         overdueProcessedAt: null,
+        createdAt: { lt: startOfToday },
       },
       select: { id: true, difficulty: true },
     });

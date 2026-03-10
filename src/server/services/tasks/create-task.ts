@@ -5,9 +5,9 @@ import type { Difficulty, TaskApi } from "@/features/tasks/types";
 
 const TZ = "America/Sao_Paulo";
 
-function todayNoon() {
+function todayEndOfDay() {
   const d = new Date();
-  d.setHours(12, 0, 0, 0);
+  d.setHours(23, 59, 59, 999);
   return d;
 }
 
@@ -30,7 +30,7 @@ export async function createTask(
   const resolvedDayKey = (dayKey ?? todayKey(TZ)).trim();
 
   const resolvedDueDate =
-    dueDate && dueDate.trim().length > 0 ? new Date(dueDate) : todayNoon();
+    dueDate && dueDate.trim().length > 0 ? new Date(dueDate) : todayEndOfDay();
 
   if (Number.isNaN(resolvedDueDate.getTime())) {
     return { ok: false, status: 400, error: "dueDate inválida" };
