@@ -128,11 +128,13 @@ export default function KanbanBoard({
   tasks,
   setTasks,
   onNeedReload,
+  onQuestsReload,
   onLevelUp,
 }: {
   tasks: TaskUI[];
   setTasks: React.Dispatch<React.SetStateAction<TaskUI[]>>;
   onNeedReload: () => Promise<void>;
+  onQuestsReload: () => Promise<void>;
   onLevelUp: () => void;
 }) {
   const [selected, setSelected] = useState<TaskUI | null>(null);
@@ -273,7 +275,7 @@ export default function KanbanBoard({
         });
       }
 
-      await onNeedReload();
+      await onQuestsReload();
     } catch (e: any) {
       toast.push({
         type: "error",

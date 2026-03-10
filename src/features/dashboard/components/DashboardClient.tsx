@@ -155,6 +155,7 @@ export default function DashboardClient() {
           tasks={todayTasksFiltered}
           setTasks={setTasksToday}
           onNeedReload={loadAll}
+          onQuestsReload={loadQuests}
           onLevelUp={() => setLevelUpPulse((v) => v + 1)}
         />
       </section>
