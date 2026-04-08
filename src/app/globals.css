@@ -1,32 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  --color-ink: #2b241b;
+  --color-ink: #211b08;
   --color-wood: #4a2f1d;
   --color-woodDark: #2f1a10;
   --color-parchment: #f2e4c6;
 
-  --color-parchmentSoft: #e8d8b7;
+  --color-parchmentSoft: #efe1c3;
 
   --color-gold: #d4a017;
+  --color-goldDark: #795900;
   --color-success: #2f8f5b;
   --color-danger: #b23b3b;
   --color-info: #4b6fb8;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-serif: var(--font-fantasy), "Newsreader", Georgia, serif;
+  --font-sans: var(--font-ui), "Manrope", system-ui, sans-serif;
 }
 
 html,
 body {
   min-height: 100%;
-  background-image: url("/ui/background/background.png");
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
   color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+button {
+  cursor: pointer;
 }

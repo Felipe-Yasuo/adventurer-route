@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-import { Cinzel, Inter } from "next/font/google";
+import { Newsreader, Manrope } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 
-export const cinzel = Cinzel({
+export const newsreader = Newsreader({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
+  style: ["normal", "italic"],
   variable: "--font-fantasy",
 });
 
-export const inter = Inter({
+export const manrope = Manrope({
   subsets: ["latin"],
   variable: "--font-ui",
 });
@@ -26,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${cinzel.variable} ${inter.variable}`}>
+      <body className={`${newsreader.variable} ${manrope.variable}`}>
         <Providers>{children}</Providers>
       </body>
     </html>
