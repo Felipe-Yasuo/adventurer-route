@@ -22,6 +22,7 @@ html,
 body {
   min-height: 100%;
   color: var(--color-ink);
+  background-color: var(--color-parchment);
   font-family: var(--font-sans);
 }
 
