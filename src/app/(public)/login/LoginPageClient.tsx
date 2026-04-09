@@ -4,471 +4,467 @@ import { useEffect, useMemo, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-import { loginSchema, registerSchema } from "@/features/auth/schemas/auth.schema";
+import {
+  loginSchema,
+  registerSchema,
+} from "@/features/auth/schemas/auth.schema";
 
 type Mode = "login" | "register";
 
 function humanizeError(code: string | null) {
-    if (!code) return null;
+  if (!code) return null;
 
-    if (code === "EmailJaCadastrado") {
-        return "Esse email já possui conta criada no site. Entre com email e senha.";
-    }
+  if (code === "EmailJaCadastrado") {
+    return "Esse email já possui conta criada no site. Entre com email e senha.";
+  }
 
-    if (code === "CredentialsSignin") return "Email ou senha inválidos.";
-    if (code === "OAuthCreateAccount") {
-        return "Não foi possível criar a conta com Google.";
-    }
-    if (code === "OAuthAccountNotLinked") {
-        return "Esse email já existe com outro método. Entre com o método original.";
-    }
+  if (code === "CredentialsSignin") return "Email ou senha inválidos.";
+  if (code === "OAuthCreateAccount") {
+    return "Não foi possível criar a conta com Google.";
+  }
+  if (code === "OAuthAccountNotLinked") {
+    return "Esse email já existe com outro método. Entre com o método original.";
+  }
 
-    return "Não foi possível entrar. Tente novamente.";
+  return "Não foi possível entrar. Tente novamente.";
 }
 
-function InputField({
-    label,
-    type = "text",
-    value,
-    onChange,
-    placeholder,
-    autoComplete,
-}: {
-    label: string;
-    type?: string;
-    value: string;
-    onChange: (value: string) => void;
-    placeholder?: string;
-    autoComplete?: string;
-}) {
-    return (
-        <div>
-            <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-white/65">
-                {label}
-            </label>
+/* ── Reusable pieces ── */
 
-            <input
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                type={type}
-                autoComplete={autoComplete}
-                placeholder={placeholder}
-                className={[
-                    "w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3",
-                    "text-sm text-white placeholder:text-white/35 outline-none transition",
-                    "focus:border-[rgba(212,160,23,0.45)]",
-                    "focus:bg-black/35",
-                    "focus:shadow-[0_0_0_4px_rgba(212,160,23,0.08)]",
-                ].join(" ")}
-            />
-        </div>
-    );
+function InputField({
+  label,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  autoComplete,
+}: {
+  label: string;
+  type?: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  autoComplete?: string;
+}) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-parchment)]/50">
+        {label}
+      </label>
+
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        type={type}
+        autoComplete={autoComplete}
+        placeholder={placeholder}
+        className={[
+          "w-full rounded-xl border border-white/[0.07] bg-white/[0.04] px-4 py-3",
+          "text-sm text-[var(--color-parchment)] placeholder:text-white/25 outline-none transition",
+          "focus:border-[var(--color-gold)]/30",
+          "focus:bg-white/[0.06]",
+          "focus:shadow-[0_0_0_3px_rgba(212,160,23,0.06)]",
+        ].join(" ")}
+      />
+    </div>
+  );
 }
 
 function MessageBox({
-    children,
-    variant,
+  children,
+  variant,
 }: {
-    children: React.ReactNode;
-    variant: "error" | "success";
+  children: React.ReactNode;
+  variant: "error" | "success";
 }) {
-    const styles =
-        variant === "error"
-            ? "border-[rgba(178,59,59,0.28)] bg-[rgba(178,59,59,0.14)] text-white/85"
-            : "border-[rgba(47,143,91,0.28)] bg-[rgba(47,143,91,0.14)] text-white/85";
+  const styles =
+    variant === "error"
+      ? "border-[var(--color-danger)]/25 bg-[var(--color-danger)]/10 text-[var(--color-parchment)]/85"
+      : "border-[var(--color-success)]/25 bg-[var(--color-success)]/10 text-[var(--color-parchment)]/85";
 
-    return (
-        <div className={`rounded-2xl border px-4 py-3 text-sm ${styles}`}>
-            {children}
-        </div>
-    );
+  return (
+    <div className={`rounded-xl border px-4 py-3 text-sm ${styles}`}>
+      {children}
+    </div>
+  );
 }
 
 function TabButton({
-    active,
-    children,
-    onClick,
+  active,
+  children,
+  onClick,
 }: {
-    active: boolean;
-    children: React.ReactNode;
-    onClick: () => void;
+  active: boolean;
+  children: React.ReactNode;
+  onClick: () => void;
 }) {
-    return (
-        <button
-            type="button"
-            onClick={onClick}
-            className={[
-                "rounded-xl px-4 py-2 text-sm font-semibold transition",
-                active
-                    ? "bg-[rgba(242,228,198,0.95)] text-[color:var(--color-ink)] shadow-[0_6px_14px_rgba(0,0,0,0.22)]"
-                    : "text-white/65 hover:bg-white/5 hover:text-white/85",
-            ].join(" ")}
-        >
-            {children}
-        </button>
-    );
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={[
+        "flex-1 rounded-lg px-4 py-2 text-sm font-semibold transition",
+        active
+          ? "bg-[var(--color-gold)]/15 text-[var(--color-gold)] shadow-[0_0_12px_rgba(212,160,23,0.08)]"
+          : "text-white/40 hover:text-white/60",
+      ].join(" ")}
+    >
+      {children}
+    </button>
+  );
 }
 
+/* ── Main component ── */
+
 export default function LoginPageClient({
-    initialError,
+  initialError,
 }: {
-    initialError: string | null;
+  initialError: string | null;
 }) {
-    const { status } = useSession();
-    const router = useRouter();
-    const errorMsg = useMemo(() => humanizeError(initialError), [initialError]);
+  const { status } = useSession();
+  const router = useRouter();
+  const errorMsg = useMemo(() => humanizeError(initialError), [initialError]);
 
-    const [mode, setMode] = useState<Mode>("login");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [name, setName] = useState("");
-    const [busy, setBusy] = useState(false);
-    const [inlineError, setInlineError] = useState<string | null>(null);
-    const [inlineOk, setInlineOk] = useState<string | null>(null);
+  const [mode, setMode] = useState<Mode>("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [inlineError, setInlineError] = useState<string | null>(null);
+  const [inlineOk, setInlineOk] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (status === "authenticated") {
-            router.replace("/dashboard");
-        }
-    }, [status, router]);
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/dashboard");
+    }
+  }, [status, router]);
 
-    async function handleLoginCredentials(e: React.FormEvent) {
-        e.preventDefault();
-        setInlineError(null);
-        setInlineOk(null);
+  async function handleLoginCredentials(e: React.FormEvent) {
+    e.preventDefault();
+    setInlineError(null);
+    setInlineOk(null);
 
-        const parsed = loginSchema.safeParse({
-            email,
-            password,
-        });
+    const parsed = loginSchema.safeParse({ email, password });
 
-        if (!parsed.success) {
-            setInlineError(parsed.error.issues[0]?.message ?? "Dados inválidos.");
-            return;
-        }
-
-        const { email: normalizedEmail, password: validatedPassword } = parsed.data;
-
-        setBusy(true);
-        try {
-            const res = await signIn("credentials", {
-                email: normalizedEmail,
-                password: validatedPassword,
-                redirect: false,
-                callbackUrl: "/dashboard",
-            });
-
-            if (!res) {
-                setInlineError("Falha ao entrar. Tente novamente.");
-                return;
-            }
-
-            if (res.error) {
-                setInlineError(humanizeError(res.error) ?? "Email ou senha inválidos.");
-                return;
-            }
-
-            router.push(res.url ?? "/dashboard");
-        } finally {
-            setBusy(false);
-        }
+    if (!parsed.success) {
+      setInlineError(parsed.error.issues[0]?.message ?? "Dados inválidos.");
+      return;
     }
 
-    async function handleRegister(e: React.FormEvent) {
-        e.preventDefault();
-        setInlineError(null);
-        setInlineOk(null);
+    const { email: normalizedEmail, password: validatedPassword } = parsed.data;
 
-        const parsed = registerSchema.safeParse({
-            name,
-            email,
-            password,
-        });
+    setBusy(true);
+    try {
+      const res = await signIn("credentials", {
+        email: normalizedEmail,
+        password: validatedPassword,
+        redirect: false,
+        callbackUrl: "/dashboard",
+      });
 
-        if (!parsed.success) {
-            setInlineError(parsed.error.issues[0]?.message ?? "Dados inválidos.");
-            return;
-        }
+      if (!res) {
+        setInlineError("Falha ao entrar. Tente novamente.");
+        return;
+      }
 
-        const {
-            name: normalizedName,
-            email: normalizedEmail,
-            password: validatedPassword,
-        } = parsed.data;
+      if (res.error) {
+        setInlineError(
+          humanizeError(res.error) ?? "Email ou senha inválidos."
+        );
+        return;
+      }
 
-        setBusy(true);
-        try {
-            const res = await fetch("/api/auth/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    name: normalizedName || undefined,
-                    email: normalizedEmail,
-                    password: validatedPassword,
-                }),
-            });
+      router.push(res.url ?? "/dashboard");
+    } finally {
+      setBusy(false);
+    }
+  }
 
-            const json = await res.json().catch(() => null);
+  async function handleRegister(e: React.FormEvent) {
+    e.preventDefault();
+    setInlineError(null);
+    setInlineOk(null);
 
-            if (!res.ok) {
-                setInlineError(json?.error ?? "Erro ao criar conta.");
-                return;
-            }
+    const parsed = registerSchema.safeParse({ name, email, password });
 
-            const loginRes = await signIn("credentials", {
-                email: normalizedEmail,
-                password: validatedPassword,
-                redirect: false,
-                callbackUrl: "/dashboard",
-            });
+    if (!parsed.success) {
+      setInlineError(parsed.error.issues[0]?.message ?? "Dados inválidos.");
+      return;
+    }
 
-            if (loginRes?.error) {
-                setInlineOk("Conta criada com sucesso! Agora faça login.");
+    const {
+      name: normalizedName,
+      email: normalizedEmail,
+      password: validatedPassword,
+    } = parsed.data;
+
+    setBusy(true);
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: normalizedName || undefined,
+          email: normalizedEmail,
+          password: validatedPassword,
+        }),
+      });
+
+      const json = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        setInlineError(json?.error ?? "Erro ao criar conta.");
+        return;
+      }
+
+      const loginRes = await signIn("credentials", {
+        email: normalizedEmail,
+        password: validatedPassword,
+        redirect: false,
+        callbackUrl: "/dashboard",
+      });
+
+      if (loginRes?.error) {
+        setInlineOk("Conta criada com sucesso! Agora faça login.");
+        setMode("login");
+        return;
+      }
+
+      router.push("/dashboard");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <main className="relative flex min-h-screen bg-[#0a0704]">
+      {/* ─── Left: background image ─── */}
+      <div className="relative hidden w-[55%] lg:block">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: "url('/ui/frames/background-login.png')",
+          }}
+        />
+        {/* Vignette edges */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#0a0704]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0704]/60 via-transparent to-[#0a0704]/40" />
+
+        {/* Branding overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-10">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-gold)]/15 bg-black/30 px-4 py-2 backdrop-blur-md">
+            <div className="h-1.5 w-1.5 rounded-full bg-[var(--color-gold)]" />
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-parchment)]/70">
+              Adventurer Route
+            </span>
+          </div>
+          <h2 className="mt-4 max-w-md font-[family-name:var(--font-serif)] text-3xl font-bold leading-snug text-[var(--color-parchment)]/90">
+            Sua jornada começa aqui.
+          </h2>
+          <p className="mt-2 max-w-sm text-sm leading-relaxed text-[var(--color-parchment)]/45">
+            Organize missões, evolua seu personagem e transforme cada tarefa em
+            uma conquista épica.
+          </p>
+        </div>
+      </div>
+
+      {/* ─── Right: form ─── */}
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 lg:px-16">
+        {/* Mobile-only background */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 lg:hidden"
+          style={{
+            backgroundImage: "url('/ui/frames/background-login.png')",
+          }}
+        />
+        <div className="absolute inset-0 bg-[#0a0704]/80 lg:hidden" />
+
+        <div className="relative z-10 w-full max-w-[400px]">
+          {/* Logo */}
+          <div className="mb-8 flex flex-col items-center lg:items-start">
+            <img
+              src="/ui/logo/adventurer-route.png"
+              alt="Adventurer Route"
+              className="h-16 w-auto object-contain drop-shadow-[0_6px_12px_rgba(0,0,0,0.5)]"
+            />
+
+            <h1 className="mt-5 text-2xl font-bold text-[var(--color-parchment)]">
+              {mode === "login" ? "Bem-vindo de volta" : "Criar sua conta"}
+            </h1>
+
+            <p className="mt-2 text-sm text-[var(--color-parchment)]/40">
+              {mode === "login"
+                ? "Entre para continuar sua aventura."
+                : "Comece sua jornada no Adventurer Route."}
+            </p>
+          </div>
+
+          {/* Tabs */}
+          <div className="mb-6 flex rounded-xl border border-white/[0.06] bg-white/[0.03] p-1">
+            <TabButton
+              active={mode === "login"}
+              onClick={() => {
+                setInlineError(null);
+                setInlineOk(null);
                 setMode("login");
-                return;
-            }
+              }}
+            >
+              Entrar
+            </TabButton>
 
-            router.push("/dashboard");
-        } finally {
-            setBusy(false);
-        }
-    }
+            <TabButton
+              active={mode === "register"}
+              onClick={() => {
+                setInlineError(null);
+                setInlineOk(null);
+                setMode("register");
+              }}
+            >
+              Criar conta
+            </TabButton>
+          </div>
 
-    return (
-        <main
-            className={[
-                "relative min-h-screen overflow-hidden",
-                "bg-[radial-gradient(circle_at_top,rgba(212,160,23,0.10),transparent_28%),linear-gradient(to_bottom,rgba(10,7,6,0.72),rgba(10,7,6,0.88))]",
-            ].join(" ")}
-        >
-            <div className="absolute inset-0 bg-black/20" />
-
-            <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-4 py-10 sm:px-6">
-                <div className="grid w-full items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-                    <section className="hidden lg:block">
-                        <div className="max-w-xl">
-                            <div className="inline-flex rounded-full border border-[rgba(212,160,23,0.22)] bg-[rgba(212,160,23,0.10)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[rgba(242,228,198,0.9)]">
-                                Adventurer Route
-                            </div>
-
-                            <h1 className="mt-6 text-5xl font-bold leading-[1.05] text-[rgba(242,228,198,0.98)]">
-                                Transforme suas tarefas em uma jornada.
-                            </h1>
-
-                            <p className="mt-5 max-w-lg text-base leading-7 text-white/68">
-                                Organize suas missões, evolua seu personagem, complete quests e
-                                acompanhe seu progresso em um painel gamificado inspirado em RPG.
-                            </p>
-
-                            <div className="mt-8 grid max-w-lg grid-cols-1 gap-4 sm:grid-cols-3">
-                                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                    <div className="text-xl">⚔️</div>
-                                    <div className="mt-2 text-sm font-semibold text-[rgba(242,228,198,0.96)]">
-                                        Tasks
-                                    </div>
-                                    <div className="mt-1 text-xs leading-5 text-white/58">
-                                        Crie e conclua missões do dia.
-                                    </div>
-                                </div>
-
-                                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                    <div className="text-xl">🧭</div>
-                                    <div className="mt-2 text-sm font-semibold text-[rgba(242,228,198,0.96)]">
-                                        Quests
-                                    </div>
-                                    <div className="mt-1 text-xs leading-5 text-white/58">
-                                        Ganhe recompensas extras.
-                                    </div>
-                                </div>
-
-                                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                    <div className="text-xl">🏆</div>
-                                    <div className="mt-2 text-sm font-semibold text-[rgba(242,228,198,0.96)]">
-                                        Progresso
-                                    </div>
-                                    <div className="mt-1 text-xs leading-5 text-white/58">
-                                        Suba de nível e evolua.
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section className="mx-auto w-full max-w-md">
-                        <div
-                            className={[
-                                "rounded-[28px] border border-white/10",
-                                "bg-[linear-gradient(to_bottom,rgba(22,16,13,0.88),rgba(14,10,8,0.92))]",
-                                "p-6 shadow-[0_24px_60px_rgba(0,0,0,0.45)]",
-                                "backdrop-blur-md sm:p-8",
-                            ].join(" ")}
-                        >
-                            <div className="mb-6 flex flex-col items-center text-center">
-                                <img
-                                    src="/ui/logo/adventurer-route.png"
-                                    alt="Adventurer Route"
-                                    className="h-20 w-auto object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.45)]"
-                                />
-
-                                <h2 className="mt-4 text-2xl font-bold tracking-wide text-[rgba(242,228,198,0.98)]">
-                                    {mode === "login" ? "Entrar na jornada" : "Criar sua conta"}
-                                </h2>
-
-                                <p className="mt-2 text-sm leading-6 text-white/62">
-                                    {mode === "login"
-                                        ? "Acesse seu painel e continue sua aventura."
-                                        : "Comece agora e salve sua progressão no mundo do Adventurer Route."}
-                                </p>
-                            </div>
-
-                            <div className="mb-6 flex rounded-2xl border border-white/10 bg-black/20 p-1">
-                                <TabButton
-                                    active={mode === "login"}
-                                    onClick={() => {
-                                        setInlineError(null);
-                                        setInlineOk(null);
-                                        setMode("login");
-                                    }}
-                                >
-                                    Entrar
-                                </TabButton>
-
-                                <TabButton
-                                    active={mode === "register"}
-                                    onClick={() => {
-                                        setInlineError(null);
-                                        setInlineOk(null);
-                                        setMode("register");
-                                    }}
-                                >
-                                    Criar conta
-                                </TabButton>
-                            </div>
-
-                            {(errorMsg || inlineError) && (
-                                <div className="mb-4">
-                                    <MessageBox variant="error">
-                                        {inlineError ?? errorMsg}
-                                    </MessageBox>
-                                </div>
-                            )}
-
-                            {inlineOk && (
-                                <div className="mb-4">
-                                    <MessageBox variant="success">{inlineOk}</MessageBox>
-                                </div>
-                            )}
-
-                            <button
-                                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-                                disabled={busy || status === "loading"}
-                                className={[
-                                    "flex w-full items-center justify-center gap-3 rounded-2xl",
-                                    "border border-white/10 bg-[rgba(242,228,198,0.96)] px-4 py-3",
-                                    "text-sm font-semibold text-[color:var(--color-ink)]",
-                                    "transition hover:translate-y-[-1px] hover:bg-white",
-                                    "disabled:cursor-not-allowed disabled:opacity-70",
-                                ].join(" ")}
-                            >
-                                <span className="text-base">🌐</span>
-                                Continuar com Google
-                            </button>
-
-                            <div className="my-5 flex items-center gap-3">
-                                <div className="h-px flex-1 bg-white/10" />
-                                <span className="text-xs uppercase tracking-[0.2em] text-white/35">
-                                    ou
-                                </span>
-                                <div className="h-px flex-1 bg-white/10" />
-                            </div>
-
-                            {mode === "login" ? (
-                                <form onSubmit={handleLoginCredentials} className="space-y-4">
-                                    <InputField
-                                        label="Email"
-                                        type="email"
-                                        value={email}
-                                        onChange={setEmail}
-                                        autoComplete="email"
-                                        placeholder="seuemail@gmail.com"
-                                    />
-
-                                    <InputField
-                                        label="Senha"
-                                        type="password"
-                                        value={password}
-                                        onChange={setPassword}
-                                        autoComplete="current-password"
-                                        placeholder="••••••••"
-                                    />
-
-                                    <button
-                                        type="submit"
-                                        disabled={busy}
-                                        className={[
-                                            "w-full rounded-2xl border border-[rgba(212,160,23,0.34)]",
-                                            "bg-[rgba(212,160,23,0.18)] px-4 py-3 text-sm font-semibold",
-                                            "text-[rgba(242,228,198,0.98)] transition",
-                                            "hover:bg-[rgba(212,160,23,0.28)]",
-                                            "disabled:cursor-not-allowed disabled:opacity-60",
-                                        ].join(" ")}
-                                    >
-                                        {busy ? "Entrando..." : "Entrar"}
-                                    </button>
-                                </form>
-                            ) : (
-                                <form onSubmit={handleRegister} className="space-y-4">
-                                    <InputField
-                                        label="Nome"
-                                        value={name}
-                                        onChange={setName}
-                                        autoComplete="name"
-                                        placeholder="Seu nome (opcional)"
-                                    />
-
-                                    <InputField
-                                        label="Email"
-                                        type="email"
-                                        value={email}
-                                        onChange={setEmail}
-                                        autoComplete="email"
-                                        placeholder="seuemail@gmail.com"
-                                    />
-
-                                    <InputField
-                                        label="Senha"
-                                        type="password"
-                                        value={password}
-                                        onChange={setPassword}
-                                        autoComplete="new-password"
-                                        placeholder="mínimo 8 caracteres"
-                                    />
-
-                                    <button
-                                        type="submit"
-                                        disabled={busy}
-                                        className={[
-                                            "w-full rounded-2xl border border-[rgba(47,143,91,0.32)]",
-                                            "bg-[rgba(47,143,91,0.20)] px-4 py-3 text-sm font-semibold",
-                                            "text-[rgba(242,228,198,0.98)] transition",
-                                            "hover:bg-[rgba(47,143,91,0.30)]",
-                                            "disabled:cursor-not-allowed disabled:opacity-60",
-                                        ].join(" ")}
-                                    >
-                                        {busy ? "Criando..." : "Criar conta"}
-                                    </button>
-                                </form>
-                            )}
-
-                            {status === "loading" && (
-                                <p className="mt-4 text-center text-xs text-white/45">
-                                    Verificando sessão...
-                                </p>
-                            )}
-                        </div>
-                    </section>
-                </div>
+          {/* Messages */}
+          {(errorMsg || inlineError) && (
+            <div className="mb-4">
+              <MessageBox variant="error">
+                {inlineError ?? errorMsg}
+              </MessageBox>
             </div>
-        </main>
-    );
+          )}
+
+          {inlineOk && (
+            <div className="mb-4">
+              <MessageBox variant="success">{inlineOk}</MessageBox>
+            </div>
+          )}
+
+          {/* Google */}
+          <button
+            onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+            disabled={busy || status === "loading"}
+            className={[
+              "flex w-full items-center justify-center gap-3 rounded-xl",
+              "border border-white/[0.08] bg-white/[0.05] px-4 py-3",
+              "text-sm font-semibold text-[var(--color-parchment)]/90",
+              "transition hover:bg-white/[0.08]",
+              "disabled:cursor-not-allowed disabled:opacity-60",
+            ].join(" ")}
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              />
+            </svg>
+            Continuar com Google
+          </button>
+
+          {/* Divider */}
+          <div className="my-5 flex items-center gap-3">
+            <div className="h-px flex-1 bg-white/[0.06]" />
+            <span className="text-[10px] uppercase tracking-[0.2em] text-white/20">
+              ou
+            </span>
+            <div className="h-px flex-1 bg-white/[0.06]" />
+          </div>
+
+          {/* Forms */}
+          {mode === "login" ? (
+            <form onSubmit={handleLoginCredentials} className="space-y-4">
+              <InputField
+                label="Email"
+                type="email"
+                value={email}
+                onChange={setEmail}
+                autoComplete="email"
+                placeholder="seuemail@gmail.com"
+              />
+
+              <InputField
+                label="Senha"
+                type="password"
+                value={password}
+                onChange={setPassword}
+                autoComplete="current-password"
+                placeholder="••••••••"
+              />
+
+              <button
+                type="submit"
+                disabled={busy}
+                className={[
+                  "w-full rounded-xl bg-[var(--color-goldDark)] px-4 py-3",
+                  "text-sm font-semibold text-white transition",
+                  "hover:brightness-110",
+                  "disabled:cursor-not-allowed disabled:opacity-60",
+                ].join(" ")}
+              >
+                {busy ? "Entrando..." : "Entrar"}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleRegister} className="space-y-4">
+              <InputField
+                label="Nome"
+                value={name}
+                onChange={setName}
+                autoComplete="name"
+                placeholder="Seu nome (opcional)"
+              />
+
+              <InputField
+                label="Email"
+                type="email"
+                value={email}
+                onChange={setEmail}
+                autoComplete="email"
+                placeholder="seuemail@gmail.com"
+              />
+
+              <InputField
+                label="Senha"
+                type="password"
+                value={password}
+                onChange={setPassword}
+                autoComplete="new-password"
+                placeholder="mínimo 8 caracteres"
+              />
+
+              <button
+                type="submit"
+                disabled={busy}
+                className={[
+                  "w-full rounded-xl bg-[var(--color-success)] px-4 py-3",
+                  "text-sm font-semibold text-white transition",
+                  "hover:brightness-110",
+                  "disabled:cursor-not-allowed disabled:opacity-60",
+                ].join(" ")}
+              >
+                {busy ? "Criando..." : "Criar conta"}
+              </button>
+            </form>
+          )}
+
+          {status === "loading" && (
+            <p className="mt-4 text-center text-xs text-white/30">
+              Verificando sessão...
+            </p>
+          )}
+        </div>
+      </div>
+    </main>
+  );
 }

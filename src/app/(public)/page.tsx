@@ -3,7 +3,7 @@ import Link from "next/link";
 /* ── Navbar ── */
 function Navbar() {
   return (
-    <nav className="fixed top-0 z-50 w-full">
+    <nav className="fixed top-0 z-50 w-full bg-[var(--color-parchment)]/80 backdrop-blur-md shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         {/* Logo + links */}
         <div className="flex items-center gap-8">
@@ -47,56 +47,6 @@ function Navbar() {
   );
 }
 
-/* ── Hero preview card ── */
-function HeroPreviewCard() {
-  return (
-    <div className="w-full max-w-sm rounded-3xl bg-[var(--color-parchment)]/90 p-5 shadow-[0_20px_50px_rgba(43,36,27,0.18)] backdrop-blur-md">
-      {/* Header */}
-      <div className="flex items-center justify-between rounded-2xl bg-[var(--color-goldDark)] px-4 py-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4 text-white">
-              <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <div>
-            <p className="text-sm font-bold text-white">Explorador Aris</p>
-            <p className="text-[10px] uppercase tracking-widest text-white/60">
-              Nivel 14 Paladino
-            </p>
-          </div>
-        </div>
-        <div className="text-right">
-          <p className="text-xs font-bold text-white">4200 XP</p>
-          <div className="mt-1 h-1.5 w-20 overflow-hidden rounded-full bg-white/20">
-            <div className="h-full w-3/4 rounded-full bg-[var(--color-gold)]" />
-          </div>
-        </div>
-      </div>
-
-      {/* Stats grid */}
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        {[
-          { icon: "M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z", label: "Missoes Ativas", value: "5 tarefas pendentes" },
-          { icon: "M20.25 7.5l-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z", label: "Inventario", value: "12 itens coletados" },
-          { icon: "M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0 1 16.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.04 6.04 0 0 1-2.77.853m0 0a6.04 6.04 0 0 1-2.77-.853", label: "Conquistas", value: "8 medalhas de ouro" },
-          { icon: "M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z", label: "Expedicoes", value: "2 rotas abertas" },
-        ].map(({ icon, label, value }) => (
-          <div
-            key={label}
-            className="rounded-2xl bg-[var(--color-parchmentSoft)]/60 p-3.5"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="mb-2 h-5 w-5 text-[var(--color-goldDark)]">
-              <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
-            </svg>
-            <p className="text-sm font-bold text-[var(--color-ink)]">{label}</p>
-            <p className="text-[11px] text-[var(--color-ink)]/55">{value}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 /* ── Feature card ── */
 function FeatureCard({
@@ -136,19 +86,19 @@ function StepCard({
   description: string;
 }) {
   return (
-    <div className="relative rounded-3xl bg-[var(--color-parchment)]/50 p-6">
+    <div className="relative rounded-3xl bg-white/5 p-6">
       {/* Big watermark number */}
       <span className="absolute -top-2 left-4 font-[family-name:var(--font-serif)] text-7xl font-bold text-[var(--color-gold)]/15 select-none">
         {number}
       </span>
       <div className="relative">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-ink)]/40">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-parchment)]/40">
           {label}
         </p>
-        <h3 className="mt-2 font-[family-name:var(--font-serif)] text-lg font-bold text-[var(--color-ink)]">
+        <h3 className="mt-2 font-[family-name:var(--font-serif)] text-lg font-bold text-[var(--color-parchment)]">
           {title}
         </h3>
-        <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink)]/60">
+        <p className="mt-2 text-sm leading-relaxed text-[var(--color-parchment)]/60">
           {description}
         </p>
       </div>
@@ -169,17 +119,15 @@ export default function HomePage() {
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: "url('/ui/frames/background-landscape.jpg')" }}
         />
+        {/* Lighten overlay so text stands out */}
+        <div className="absolute inset-0 bg-white/40" />
         {/* Gradient fade to parchment */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--color-parchment)]" />
 
         <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col justify-end px-6 pb-24 pt-32 lg:flex-row lg:items-end lg:justify-between lg:pb-32">
           {/* Left: text */}
           <div className="max-w-xl">
-            <div className="inline-flex rounded-full bg-[var(--color-gold)]/20 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--color-ink)]">
-              Produtividade Gamificada
-            </div>
-
-            <h1 className="mt-6 font-[family-name:var(--font-serif)] text-5xl font-bold leading-[1.08] text-[var(--color-ink)] sm:text-6xl">
+            <h1 className="font-[family-name:var(--font-serif)] text-5xl font-bold leading-[1.08] text-[var(--color-ink)] sm:text-6xl">
               Transforme suas tarefas em uma{" "}
               <em className="italic">verdadeira jornada.</em>
             </h1>
@@ -206,10 +154,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Right: preview card */}
-          <div className="mt-10 lg:mt-0">
-            <HeroPreviewCard />
-          </div>
         </div>
       </section>
 
@@ -261,16 +205,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── Divider ─── */}
-      <div className="h-px bg-gradient-to-r from-transparent via-[var(--color-ink)]/10 to-transparent" />
-
       {/* ─── HOW IT WORKS ─── */}
-      <section id="how" className="bg-[var(--color-parchment)] py-24">
+      <section id="how" className="bg-[var(--color-ink)] py-24">
         <div className="mx-auto max-w-7xl px-6">
-          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--color-ink)]/40">
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--color-parchment)]/50">
             O Caminho do Heroi
           </p>
-          <h2 className="mt-2 font-[family-name:var(--font-serif)] text-3xl font-bold italic text-[var(--color-ink)] sm:text-4xl">
+          <h2 className="mt-2 font-[family-name:var(--font-serif)] text-3xl font-bold italic text-[var(--color-parchment)] sm:text-4xl">
             Como funciona sua ascensao
           </h2>
 
