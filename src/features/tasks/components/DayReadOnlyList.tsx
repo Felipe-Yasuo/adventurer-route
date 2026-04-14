@@ -5,14 +5,20 @@ function badge(difficulty: TaskUI["difficulty"]) {
         "inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold border";
 
     if (difficulty === "EASY") {
-        return `${base} bg-[rgba(47,143,91,0.12)] text-[color:var(--color-ink)] border-[rgba(47,143,91,0.18)]`;
+        return `${base} bg-(--color-easy)/15 text-(--color-easy) border-(--color-easy)/40`;
     }
 
     if (difficulty === "MEDIUM") {
-        return `${base} bg-[rgba(75,111,184,0.12)] text-[color:var(--color-ink)] border-[rgba(75,111,184,0.18)]`;
+        return `${base} bg-(--color-medium)/15 text-(--color-medium) border-(--color-medium)/40`;
     }
 
-    return `${base} bg-[rgba(178,59,59,0.12)] text-[color:var(--color-ink)] border-[rgba(178,59,59,0.18)]`;
+    return `${base} bg-(--color-hard)/15 text-(--color-hard) border-(--color-hard)/40`;
+}
+
+function difficultyBorder(difficulty: TaskUI["difficulty"]) {
+    if (difficulty === "EASY") return "border-l-(--color-easy)";
+    if (difficulty === "MEDIUM") return "border-l-(--color-medium)";
+    return "border-l-(--color-hard)";
 }
 
 export default function DayReadOnlyList({
@@ -25,35 +31,38 @@ export default function DayReadOnlyList({
     tasks: TaskUI[];
 }) {
     return (
-        <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.9)] p-5 shadow-[0_10px_18px_rgba(0,0,0,0.12)]">
+        <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-card)">
             <div className="flex items-start justify-between gap-3">
                 <div>
-                    <h3 className="text-lg font-bold text-[color:var(--color-ink)]">
+                    <h3 className="text-lg font-bold text-(--color-ink)">
                         {title}
                     </h3>
-                    <p className="mt-1 text-sm text-[color:var(--color-ink)]/65">
+                    <p className="mt-1 text-sm text-(--color-muted)">
                         Visualização do dia:{" "}
-                        <span className="font-medium text-[color:var(--color-ink)]">
+                        <span className="font-medium text-(--color-ink)">
                             {dayKey}
                         </span>
                     </p>
                 </div>
 
-                <span className="rounded-xl border border-black/10 bg-[rgba(255,255,255,0.28)] px-3 py-1 text-sm font-semibold text-[color:var(--color-ink)]/75">
+                <span className="rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) px-3 py-1 text-sm font-semibold text-(--color-ink)">
                     {tasks.length}
                 </span>
             </div>
 
-            <div className="mt-4 max-h-[420px] space-y-3 overflow-y-auto pr-2">
+            <div className="mt-4 max-h-[420px] space-y-3 overflow-y-auto pr-2 scroll-dark">
                 {tasks.length === 0 ? (
-                    <div className="rounded-2xl border border-black/10 bg-[rgba(255,255,255,0.28)] p-4 text-sm text-[color:var(--color-ink)]/70">
+                    <div className="rounded-2xl border border-(--color-border) bg-(--color-surfaceAlt) p-4 text-sm text-(--color-muted)">
                         Nenhuma task nesse dia.
                     </div>
                 ) : (
                     tasks.map((t) => (
                         <div
                             key={t.id}
-                            className="rounded-2xl border border-black/10 bg-[rgba(255,255,255,0.32)] p-4 shadow-[0_4px_8px_rgba(0,0,0,0.08)]"
+                            className={[
+                                "rounded-xl border border-(--color-border) border-l-4 bg-(--color-surfaceAlt) p-4 shadow-(--shadow-card)",
+                                difficultyBorder(t.difficulty),
+                            ].join(" ")}
                         >
                             <div className="flex items-start justify-between gap-4">
                                 <div className="min-w-0">
@@ -61,8 +70,8 @@ export default function DayReadOnlyList({
                                         className={[
                                             "truncate text-[15px] font-semibold tracking-wide",
                                             t.completed
-                                                ? "text-[color:var(--color-ink)]/55 line-through"
-                                                : "text-[color:var(--color-ink)]",
+                                                ? "text-(--color-muted) line-through"
+                                                : "text-(--color-ink)",
                                         ].join(" ")}
                                     >
                                         {t.title}
@@ -74,11 +83,11 @@ export default function DayReadOnlyList({
                                         </span>
 
                                         {t.dueDate ? (
-                                            <span className="rounded-lg border border-black/10 bg-[rgba(255,255,255,0.22)] px-2.5 py-1 text-xs text-[color:var(--color-ink)]/65">
+                                            <span className="rounded-lg border border-(--color-border) bg-(--color-bg) px-2.5 py-1 text-xs text-(--color-muted)">
                                                 📅 {t.dueDate}
                                             </span>
                                         ) : (
-                                            <span className="rounded-lg border border-black/10 bg-[rgba(255,255,255,0.22)] px-2.5 py-1 text-xs text-[color:var(--color-ink)]/65">
+                                            <span className="rounded-lg border border-(--color-border) bg-(--color-bg) px-2.5 py-1 text-xs text-(--color-muted)">
                                                 sem data
                                             </span>
                                         )}
@@ -90,8 +99,8 @@ export default function DayReadOnlyList({
                                         className={[
                                             "inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold",
                                             t.completed
-                                                ? "border-[rgba(47,143,91,0.2)] bg-[rgba(47,143,91,0.12)] text-[color:var(--color-ink)]"
-                                                : "border-black/10 bg-[rgba(0,0,0,0.04)] text-[color:var(--color-ink)]/70",
+                                                ? "border-(--color-easy)/40 bg-(--color-easy)/15 text-(--color-easy)"
+                                                : "border-(--color-border) bg-(--color-bg) text-(--color-muted)",
                                         ].join(" ")}
                                     >
                                         {t.completed ? "✅ concluída" : "⏳ ativa"}
@@ -106,4 +115,3 @@ export default function DayReadOnlyList({
         </div>
     );
 }
-

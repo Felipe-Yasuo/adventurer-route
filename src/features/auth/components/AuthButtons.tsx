@@ -8,11 +8,10 @@ export function LogoutButton() {
             onClick={() => signOut({ callbackUrl: "/login" })}
             className={[
                 "flex w-full items-center justify-center gap-2 rounded-xl",
-                "border border-[rgba(178,59,59,0.18)]",
-                "bg-[rgba(178,59,59,0.10)]",
-                "px-4 py-2.5 text-sm font-semibold text-[color:var(--color-ink)]",
-                "transition hover:bg-[rgba(178,59,59,0.18)]",
-                "hover:shadow-[0_6px_12px_rgba(0,0,0,0.08)]",
+                "border border-(--color-hard)/40",
+                "bg-(--color-hard)/10",
+                "px-4 py-2.5 text-sm font-semibold text-(--color-ink)",
+                "transition hover:bg-(--color-hard)/20 hover:border-(--color-hard)/60",
                 "active:scale-[0.98]",
             ].join(" ")}
             aria-label="Sair da conta"
@@ -27,4 +26,3 @@ export function LogoutButton() {
         </button>
     );
 }
-

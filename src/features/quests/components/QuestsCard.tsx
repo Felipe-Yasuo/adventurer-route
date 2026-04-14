@@ -41,7 +41,7 @@ export default function QuestsCard({
     onLevelUp: () => void;
 }) {
     const toast = useToast();
-    const { setMe } = useMe(); // ✅ NOVO
+    const { setMe } = useMe();
     const [tab, setTab] = useState<Tab>("DAILY");
 
     const daily = useMemo(() => quests.filter((q) => q.type === "DAILY"), [quests]);
@@ -98,7 +98,6 @@ export default function QuestsCard({
                 });
             }
 
-            // Atualiza a quest localmente sem refetch
             setQuests((prev) =>
                 prev.map((item) =>
                     item.id === q.id ? { ...item, status: "CLAIMED" as const } : item
@@ -118,15 +117,15 @@ export default function QuestsCard({
 
     return (
         <QuestFrame>
-            <div className="text-[color:var(--color-ink)]">
-                <div className="mt-12 grid grid-cols-2 gap-2">
+            <div className="text-(--color-ink)">
+                <div className="mt-6 grid grid-cols-2 gap-2">
                     <button
                         onClick={() => setTab("DAILY")}
                         className={[
                             "rounded-xl border px-4 py-2 text-sm font-semibold transition",
                             tab === "DAILY"
-                                ? "bg-[rgba(242,228,198,0.95)] border-black/15 shadow-sm"
-                                : "bg-[rgba(255,255,255,0.35)] border-black/10 hover:bg-[rgba(255,255,255,0.5)]",
+                                ? "bg-(--color-surfaceAlt) border-(--color-gold)/60 text-(--color-gold)"
+                                : "bg-(--color-bg) border-(--color-border) text-(--color-muted) hover:bg-(--color-surfaceAlt) hover:text-(--color-ink)",
                         ].join(" ")}
                     >
                         Hoje ({daily.length})
@@ -137,8 +136,8 @@ export default function QuestsCard({
                         className={[
                             "rounded-xl border px-3 py-2 text-sm font-semibold transition",
                             tab === "WEEKLY"
-                                ? "bg-[rgba(242,228,198,0.95)] border-black/15 shadow-sm"
-                                : "bg-[rgba(255,255,255,0.35)] border-black/10 hover:bg-[rgba(255,255,255,0.5)]",
+                                ? "bg-(--color-surfaceAlt) border-(--color-gold)/60 text-(--color-gold)"
+                                : "bg-(--color-bg) border-(--color-border) text-(--color-muted) hover:bg-(--color-surfaceAlt) hover:text-(--color-ink)",
                         ].join(" ")}
                     >
                         Semana ({weekly.length})
@@ -147,12 +146,12 @@ export default function QuestsCard({
 
                 <div
                     className={[
-                        "mt-4 space-y-3 pr-2",
-                        enableQuestScroll ? "max-h-[360px] overflow-y-auto" : "overflow-y-hidden",
+                        "mt-4 space-y-3 pr-2 scroll-dark",
+                        enableQuestScroll ? "max-h-90 overflow-y-auto" : "overflow-y-hidden",
                     ].join(" ")}
                 >
                     {shown.length === 0 ? (
-                        <div className="rounded-xl border border-black/10 bg-[rgba(255,255,255,0.35)] p-4 text-sm text-[color:var(--color-ink)]/70">
+                        <div className="rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) p-4 text-sm text-(--color-muted)">
                             Nenhuma quest {tab === "DAILY" ? "de hoje" : "da semana"}.
                         </div>
                     ) : (
@@ -165,15 +164,16 @@ export default function QuestsCard({
                                 <div
                                     key={q.id}
                                     className={[
-                                        "rounded-2xl border p-4",
-                                        "bg-[rgba(242,228,198,0.92)] border-black/10",
-                                        done && !claimed ? "ring-1 ring-[rgba(75,111,184,0.25)]" : "",
+                                        "rounded-2xl border p-4 bg-(--color-surfaceAlt)",
+                                        done && !claimed
+                                            ? "border-(--color-gold)/60"
+                                            : "border-(--color-border)",
                                     ].join(" ")}
                                 >
                                     <div className="space-y-3">
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="min-w-0 flex-1">
-                                                <p className="text-base font-bold leading-tight text-[color:var(--color-ink)] break-words">
+                                                <p className="text-base font-bold leading-tight text-(--color-ink) wrap-break-word">
                                                     {q.title}
                                                 </p>
                                             </div>
@@ -182,38 +182,38 @@ export default function QuestsCard({
                                                 className={[
                                                     "shrink-0 inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold border",
                                                     claimed
-                                                        ? "bg-[rgba(47,143,91,0.18)] border-[rgba(47,143,91,0.25)]"
+                                                        ? "bg-(--color-easy)/15 border-(--color-easy)/40 text-(--color-easy)"
                                                         : done
-                                                            ? "bg-[rgba(75,111,184,0.16)] border-[rgba(75,111,184,0.25)]"
-                                                            : "bg-[rgba(0,0,0,0.05)] border-black/10",
+                                                            ? "bg-(--color-gold)/15 border-(--color-gold)/40 text-(--color-gold)"
+                                                            : "bg-(--color-bg) border-(--color-border) text-(--color-muted)",
                                                 ].join(" ")}
                                             >
                                                 {claimed ? "resgatada" : done ? "✅ completa" : "ativa"}
                                             </span>
                                         </div>
 
-                                        <p className="text-sm leading-relaxed text-[color:var(--color-ink)]/72">
+                                        <p className="text-sm leading-relaxed text-(--color-muted)">
                                             {q.description}
                                         </p>
 
                                         <div>
-                                            <div className="flex items-center justify-between text-sm text-[color:var(--color-ink)]/72">
+                                            <div className="flex items-center justify-between text-sm text-(--color-muted)">
                                                 <span>Progresso</span>
-                                                <span className="font-semibold">
+                                                <span className="font-semibold text-(--color-ink)">
                                                     {Math.min(q.progress, q.target)}/{q.target}
                                                 </span>
                                             </div>
 
-                                            <div className="mt-2 h-3 overflow-hidden rounded-full bg-black/10">
+                                            <div className="mt-2 h-3 overflow-hidden rounded-full bg-(--color-bg) border border-(--color-border)">
                                                 <div
-                                                    className="h-full bg-[rgba(47,143,91,0.75)] transition-all"
+                                                    className="h-full bg-(--color-gold) transition-all"
                                                     style={{ width: `${p}%` }}
                                                 />
                                             </div>
                                         </div>
 
-                                        <div className="text-sm leading-relaxed text-[color:var(--color-ink)]/65">
-                                            Recompensa: +{q.rewardXp} XP • +{q.rewardGold} GOLD
+                                        <div className="text-sm leading-relaxed text-(--color-muted)">
+                                            Recompensa: <span className="text-(--color-gold) font-semibold">+{q.rewardXp} XP • +{q.rewardGold} GOLD</span>
                                         </div>
 
                                         <div className="pt-1">
@@ -223,8 +223,8 @@ export default function QuestsCard({
                                                 className={[
                                                     "w-full rounded-xl px-3 py-3 text-sm font-semibold border transition",
                                                     !done || claimed
-                                                        ? "bg-[rgba(0,0,0,0.05)] border-black/10 text-[color:var(--color-ink)]/35 cursor-not-allowed"
-                                                        : "bg-[rgba(212,160,23,0.20)] border-[rgba(212,160,23,0.35)] text-[color:var(--color-ink)] hover:bg-[rgba(212,160,23,0.28)]",
+                                                        ? "bg-(--color-bg) border-(--color-border) text-(--color-muted) cursor-not-allowed opacity-60"
+                                                        : "bg-(--color-gold) border-(--color-gold) text-(--color-bg) hover:bg-(--color-goldDark) hover:border-(--color-goldDark)",
                                                 ].join(" ")}
                                             >
                                                 {claimed ? "Resgatada" : done ? "Resgatar" : "Em progresso"}
@@ -241,4 +241,3 @@ export default function QuestsCard({
         </QuestFrame>
     );
 }
-

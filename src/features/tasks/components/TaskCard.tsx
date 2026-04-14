@@ -6,14 +6,20 @@ function difficultyBadge(difficulty: TaskUI["difficulty"]) {
     "inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold border";
 
   if (difficulty === "EASY") {
-    return `${base} bg-[rgba(47,143,91,0.12)] text-[color:var(--color-ink)] border-[rgba(47,143,91,0.18)]`;
+    return `${base} bg-(--color-easy)/15 text-(--color-easy) border-(--color-easy)/40`;
   }
 
   if (difficulty === "MEDIUM") {
-    return `${base} bg-[rgba(75,111,184,0.12)] text-[color:var(--color-ink)] border-[rgba(75,111,184,0.18)]`;
+    return `${base} bg-(--color-medium)/15 text-(--color-medium) border-(--color-medium)/40`;
   }
 
-  return `${base} bg-[rgba(178,59,59,0.12)] text-[color:var(--color-ink)] border-[rgba(178,59,59,0.18)]`;
+  return `${base} bg-(--color-hard)/15 text-(--color-hard) border-(--color-hard)/40`;
+}
+
+function difficultyBorder(difficulty: TaskUI["difficulty"]) {
+  if (difficulty === "EASY") return "border-l-(--color-easy)";
+  if (difficulty === "MEDIUM") return "border-l-(--color-medium)";
+  return "border-l-(--color-hard)";
 }
 
 export default function TaskCard({
@@ -32,19 +38,16 @@ export default function TaskCard({
   const status = dateStatus(task.dueDate, task.completed);
 
   const titleClass = task.completed
-    ? "text-[color:var(--color-ink)]/55 line-through"
-    : "text-[color:var(--color-ink)]";
+    ? "text-(--color-muted) line-through"
+    : "text-(--color-ink)";
 
   return (
     <div
       className={[
-        "w-full rounded-2xl border border-black/10 p-5 transition",
-        "shadow-[0_6px_10px_rgba(0,0,0,0.15)]",
-        status === "overdue"
-          ? "bg-[rgba(178,59,59,0.15)] ring-1 ring-[rgba(178,59,59,0.35)]"
-          : status === "today"
-            ? "bg-[rgba(75,111,184,0.15)] ring-1 ring-[rgba(75,111,184,0.35)]"
-            : "bg-[rgba(242,228,198,0.95)] hover:bg-[rgba(242,228,198,1)]",
+        "w-full rounded-xl border border-(--color-border) border-l-4 p-4 transition",
+        "bg-(--color-surfaceAlt) hover:bg-(--color-surface)",
+        "shadow-(--shadow-card)",
+        difficultyBorder(task.difficulty),
       ].join(" ")}
     >
       <div className="flex items-start justify-between gap-4">
@@ -67,30 +70,30 @@ export default function TaskCard({
 
         <div className="flex flex-col items-end gap-2">
           {status === "overdue" && (
-            <span className="mb-1 inline-flex items-center rounded-full border border-[rgba(178,59,59,0.2)] bg-[rgba(178,59,59,0.12)] px-2.5 py-1 text-[11px] font-semibold text-[color:var(--color-ink)]">
+            <span className="mb-1 inline-flex items-center rounded-full border border-(--color-hard)/40 bg-(--color-hard)/15 px-2.5 py-1 text-[11px] font-semibold text-(--color-hard)">
               ⏰ VENCIDA
             </span>
           )}
 
           {status === "today" && (
-            <span className="mb-1 inline-flex items-center rounded-full border border-[rgba(75,111,184,0.2)] bg-[rgba(75,111,184,0.12)] px-2.5 py-1 text-[11px] font-semibold text-[color:var(--color-ink)]">
-              🔔 HOJE
+            <span className="mb-1 inline-flex items-center rounded-full border border-(--color-gold)/50 bg-(--color-gold)/15 px-2.5 py-1 text-[11px] font-semibold text-(--color-gold)">
+              🔥 HOJE
             </span>
           )}
 
           {status === "tomorrow" && (
-            <span className="mb-1 inline-flex items-center rounded-full border border-[rgba(47,143,91,0.2)] bg-[rgba(47,143,91,0.12)] px-2.5 py-1 text-[11px] font-semibold text-[color:var(--color-ink)]">
+            <span className="mb-1 inline-flex items-center rounded-full border border-(--color-easy)/40 bg-(--color-easy)/15 px-2.5 py-1 text-[11px] font-semibold text-(--color-easy)">
               🌅 AMANHÃ
             </span>
           )}
 
-          <div className="text-xs text-[color:var(--color-ink)]/65">
+          <div className="text-xs text-(--color-muted)">
             {task.dueDate ? (
-              <span className="rounded-lg border border-black/10 bg-[rgba(255,255,255,0.28)] px-2.5 py-1">
+              <span className="rounded-lg border border-(--color-border) bg-(--color-bg) px-2.5 py-1">
                 📅 {task.dueDate}
               </span>
             ) : (
-              <span className="rounded-lg border border-black/10 bg-[rgba(255,255,255,0.28)] px-2.5 py-1">
+              <span className="rounded-lg border border-(--color-border) bg-(--color-bg) px-2.5 py-1">
                 sem data
               </span>
             )}
@@ -103,12 +106,12 @@ export default function TaskCard({
                 onComplete();
               }}
               disabled={!!completing}
-              className="rounded-lg border border-[rgba(47,143,91,0.22)] bg-[rgba(47,143,91,0.15)] px-3 py-1.5 text-xs font-semibold text-[color:var(--color-ink)] transition hover:bg-[rgba(47,143,91,0.24)] disabled:opacity-60"
+              className="rounded-lg border border-(--color-easy)/50 bg-(--color-easy)/15 px-3 py-1.5 text-xs font-semibold text-(--color-easy) transition hover:bg-(--color-easy)/25 disabled:opacity-60"
             >
               {completing ? "Concluindo..." : "Concluir"}
             </button>
           ) : (
-            <span className="text-xs font-medium text-[color:var(--color-ink)]/55">
+            <span className="text-xs font-medium text-(--color-muted)">
               ✅ concluída
             </span>
           )}
@@ -118,7 +121,7 @@ export default function TaskCard({
               e.stopPropagation();
               onDelete();
             }}
-            className="rounded-lg border border-black/10 bg-[rgba(255,255,255,0.22)] px-2 py-1 text-xs text-[color:var(--color-ink)]/70 transition hover:bg-[rgba(255,255,255,0.38)]"
+            className="rounded-lg border border-(--color-border) bg-(--color-bg) px-2 py-1 text-xs text-(--color-muted) transition hover:bg-(--color-surface) hover:text-(--color-ink)"
             title="Excluir"
             aria-label="Excluir tarefa"
           >
@@ -129,4 +132,3 @@ export default function TaskCard({
     </div>
   );
 }
-

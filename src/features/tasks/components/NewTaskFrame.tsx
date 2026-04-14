@@ -1,5 +1,4 @@
 import React from "react";
-import UiFrame from "@/components/ui/UiFrame";
 
 export default function NewTaskFrame({
     children,
@@ -9,13 +8,17 @@ export default function NewTaskFrame({
     className?: string;
 }) {
     return (
-        <UiFrame
-            frameSrc="/ui/frames/background-new-task.jpg"
-            className={["w-full", className].join(" ")}
-            paddingClassName="px-10 pt-10 pb-10 sm:px-8 sm:py-8"
+        <div
+            className={[
+                "w-full rounded-2xl",
+                "border border-(--color-border)",
+                "bg-(--color-surface)",
+                "shadow-(--shadow-card)",
+                "px-6 pt-6 pb-6",
+                className,
+            ].join(" ")}
         >
             {children}
-        </UiFrame>
+        </div>
     );
 }
-

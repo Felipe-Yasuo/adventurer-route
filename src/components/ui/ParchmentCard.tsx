@@ -10,7 +10,7 @@ export default function ParchmentCard({
     return (
         <div
             className={[
-                "rounded-2xl bg-[rgba(242,228,198,0.92)] text-(--color-ink)] shadow-lg",
+                "rounded-2xl border border-(--color-border) bg-(--color-surface) text-(--color-ink) shadow-(--shadow-card)",
                 className,
             ].join(" ")}
         >

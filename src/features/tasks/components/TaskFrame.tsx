@@ -1,5 +1,4 @@
 import React from "react";
-import UiFrame from "@/components/ui/UiFrame";
 
 export default function TasksFrame({
     children,
@@ -9,13 +8,18 @@ export default function TasksFrame({
     className?: string;
 }) {
     return (
-        <UiFrame
-            frameSrc="/ui/frames/background-tasks.png"
-            className={["w-full", "min-h-[380px] sm:min-h-[380px] 2xl:h-[760px] flex flex-col drop-shadow-[0_12px_18px_rgba(0,0,0,0.25)]", className].join(" ")}
-            paddingClassName="px-12 pt-12 pb-16 "
+        <div
+            className={[
+                "w-full rounded-2xl",
+                "border border-(--color-border)",
+                "bg-(--color-surface)",
+                "shadow-(--shadow-card)",
+                "min-h-[380px] sm:min-h-[380px] 2xl:h-[760px] flex flex-col",
+                "px-5 pt-5 pb-6",
+                className,
+            ].join(" ")}
         >
             {children}
-        </UiFrame>
+        </div>
     );
 }
-

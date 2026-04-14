@@ -74,11 +74,11 @@ export default function NewTaskCard({
   }
 
   return (
-    <NewTaskFrame className="shadow-[0_12px_18px_rgba(0,0,0,0.18)]">
-      <div className="space-y-4 text-[color:var(--color-ink)]">
+    <NewTaskFrame>
+      <div className="space-y-4 text-(--color-ink)">
         <div>
           <h3 className="text-lg font-bold">Nova tarefa</h3>
-          <p className="mt-1 text-xs text-[color:var(--color-ink)]/60">
+          <p className="mt-1 text-xs text-(--color-muted)">
             Crie uma missão para sua jornada.
           </p>
         </div>

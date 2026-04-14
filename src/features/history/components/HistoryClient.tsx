@@ -61,14 +61,13 @@ export default function HistoryClient() {
 
     return (
         <div className="space-y-6">
-            {/* Cabeçalho */}
-            <section className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.88)] p-6 shadow-[0_8px_14px_rgba(0,0,0,0.12)]">
+            <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-(--shadow-card)">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-[color:var(--color-ink)]">
+                        <h1 className="text-2xl font-bold text-(--color-ink)">
                             Histórico
                         </h1>
-                        <p className="mt-1 text-sm text-[color:var(--color-ink)]/65">
+                        <p className="mt-1 text-sm text-(--color-muted)">
                             Consulte as tarefas de um dia específico.
                         </p>
                     </div>
@@ -76,7 +75,7 @@ export default function HistoryClient() {
                     <div className="w-full max-w-[260px]">
                         <label
                             htmlFor="history-date"
-                            className="mb-2 block text-sm font-medium text-[color:var(--color-ink)]"
+                            className="mb-2 block text-sm font-medium text-(--color-ink)"
                         >
                             Selecionar data
                         </label>
@@ -86,49 +85,47 @@ export default function HistoryClient() {
                             type="date"
                             value={selectedDate}
                             onChange={(e) => setSelectedDate(e.target.value)}
-                            className="w-full rounded-xl border border-black/10 bg-[rgba(255,255,255,0.38)] px-4 py-3 text-sm text-[color:var(--color-ink)] outline-none transition focus:border-[rgba(212,160,23,0.45)] focus:bg-[rgba(255,255,255,0.5)]"
+                            className="w-full rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) px-4 py-3 text-sm text-(--color-ink) outline-none transition focus:border-(--color-gold) focus:bg-(--color-surface)"
                         />
                     </div>
                 </div>
             </section>
 
-            {/* Resumo */}
             <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-4 shadow-[0_6px_10px_rgba(0,0,0,0.1)]">
-                    <div className="text-sm text-[color:var(--color-ink)]/65">Total</div>
-                    <div className="mt-1 text-2xl font-bold text-[color:var(--color-ink)]">
+                <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-(--shadow-card)">
+                    <div className="text-sm text-(--color-muted)">Total</div>
+                    <div className="mt-1 text-2xl font-bold text-(--color-ink)">
                         {total}
                     </div>
                 </div>
 
-                <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-4 shadow-[0_6px_10px_rgba(0,0,0,0.1)]">
-                    <div className="text-sm text-[color:var(--color-ink)]/65">Concluídas</div>
-                    <div className="mt-1 text-2xl font-bold text-[color:var(--color-ink)]">
+                <div className="rounded-2xl border border-(--color-easy)/30 bg-(--color-surface) p-4 shadow-(--shadow-card)">
+                    <div className="text-sm text-(--color-muted)">Concluídas</div>
+                    <div className="mt-1 text-2xl font-bold text-(--color-easy)">
                         {completed}
                     </div>
                 </div>
 
-                <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-4 shadow-[0_6px_10px_rgba(0,0,0,0.1)]">
-                    <div className="text-sm text-[color:var(--color-ink)]/65">Ativas</div>
-                    <div className="mt-1 text-2xl font-bold text-[color:var(--color-ink)]">
+                <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-(--shadow-card)">
+                    <div className="text-sm text-(--color-muted)">Ativas</div>
+                    <div className="mt-1 text-2xl font-bold text-(--color-gold)">
                         {active}
                     </div>
                 </div>
             </section>
 
-            {/* Conteúdo */}
             <section>
                 {loading ? (
-                    <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.88)] p-6 text-[color:var(--color-ink)]/70 shadow-[0_8px_14px_rgba(0,0,0,0.12)]">
+                    <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 text-(--color-muted) shadow-(--shadow-card)">
                         Carregando histórico...
                     </div>
                 ) : error ? (
-                    <div className="rounded-2xl border border-[rgba(178,59,59,0.2)] bg-[rgba(178,59,59,0.08)] p-6 text-[color:var(--color-ink)] shadow-[0_8px_14px_rgba(0,0,0,0.08)]">
-                        <p>Erro: {error}</p>
+                    <div className="rounded-2xl border border-(--color-hard)/40 bg-(--color-surface) p-6 shadow-(--shadow-card)">
+                        <p className="text-(--color-hard)">Erro: {error}</p>
 
                         <button
                             onClick={() => loadHistory(selectedDate)}
-                            className="mt-4 rounded-xl border border-black/10 bg-[rgba(255,255,255,0.38)] px-4 py-2 text-sm font-semibold text-[color:var(--color-ink)] hover:bg-[rgba(255,255,255,0.55)]"
+                            className="mt-4 rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) px-4 py-2 text-sm font-semibold text-(--color-ink) hover:bg-(--color-surface)"
                         >
                             Tentar novamente
                         </button>

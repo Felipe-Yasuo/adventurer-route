@@ -1,5 +1,4 @@
 import React from "react";
-import UiFrame from "@/components/ui/UiFrame";
 
 export default function QuestFrame({
     children,
@@ -11,28 +10,31 @@ export default function QuestFrame({
     title?: string;
 }) {
     return (
-        <UiFrame
-            frameSrc="/ui/frames/background-quest.png"
-            className={["w-full min-h-[500px] sm:min-h-[660px]", className].join(" ")}
-            paddingClassName="px-11 pt-16 pb-14"
+        <div
+            className={[
+                "relative w-full rounded-2xl",
+                "border border-(--color-border)",
+                "bg-(--color-surface)",
+                "shadow-(--shadow-card)",
+                "min-h-[500px] sm:min-h-[660px]",
+                "px-6 pt-14 pb-6",
+                className,
+            ].join(" ")}
         >
-            <div className="pointer-events-none absolute left-1/2 top-5 -translate-x-1/2">
-                <div className="pointer-events-none absolute left-1/2 top-[40px] -translate-x-1/2">
-                    <span
-                        className={[
-                            "text-sm font-extrabold uppercase tracking-wider",
-                            "text-(--color-ink)]",
-                            "drop-shadow-[0_1px_0_rgba(255,255,255,0.55)]",
-                            "skew-x-[-2deg]"
-                        ].join(" ")}
-                    >
-                        {title}
-                    </span>
-                </div>
+            <div className="absolute inset-x-0 top-0 flex justify-center">
+                <span
+                    className={[
+                        "inline-block rounded-b-xl px-6 py-2",
+                        "bg-(--color-surfaceAlt) text-(--color-gold)",
+                        "border border-(--color-border) border-t-0",
+                        "text-sm font-extrabold uppercase tracking-wider",
+                    ].join(" ")}
+                >
+                    {title}
+                </span>
             </div>
 
             {children}
-        </UiFrame>
+        </div>
     );
 }
-

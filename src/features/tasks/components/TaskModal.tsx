@@ -8,7 +8,7 @@ import { Input, Select } from "@/components/ui/Input";
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="text-xs font-semibold tracking-wide text-[color:var(--color-ink)]/75">
+    <label className="text-xs font-semibold tracking-wide text-(--color-muted)">
       {children}
     </label>
   );
@@ -53,13 +53,13 @@ export default function TaskModal({
 
   return (
     <Modal open={open}>
-      <div className="p-6 text-[color:var(--color-ink)]">
+      <div className="p-6 text-(--color-ink)">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-xl font-bold tracking-wide">
               Editar tarefa
             </h2>
-            <p className="mt-1 text-sm text-[color:var(--color-ink)]/65">
+            <p className="mt-1 text-sm text-(--color-muted)">
               Atualize os detalhes da sua missão.
             </p>
           </div>

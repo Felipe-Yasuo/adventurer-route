@@ -1,10 +1,8 @@
 import React from "react";
 
-/** Classes base compartilhadas por input, select e date — padrão do projeto */
 const baseClasses =
-  "w-full rounded-xl border border-black/10 bg-[rgba(255,255,255,0.38)] px-4 py-3 text-sm text-[color:var(--color-ink)] outline-none transition focus:border-[rgba(212,160,23,0.45)] focus:bg-[rgba(255,255,255,0.5)]";
+  "w-full rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) px-4 py-3 text-sm text-(--color-ink) outline-none transition focus:border-(--color-gold) focus:bg-(--color-surface)";
 
-/* ─── Input ─── */
 export type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   className?: string;
 };
@@ -15,7 +13,7 @@ export function Input({ className = "", ...props }: InputProps) {
       {...props}
       className={[
         baseClasses,
-        "placeholder:text-[color:var(--color-ink)]/40",
+        "placeholder:text-(--color-muted)",
         className,
       ]
         .join(" ")
@@ -24,7 +22,6 @@ export function Input({ className = "", ...props }: InputProps) {
   );
 }
 
-/* ─── Select ─── */
 export type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
   className?: string;
 };

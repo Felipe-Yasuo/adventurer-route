@@ -12,23 +12,23 @@ const Item = ({
 }) => (
   <Link
     href={href}
-    className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-black/70 transition hover:bg-black/5"
+    className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-(--color-ink)/80 transition hover:bg-(--color-surface) hover:text-(--color-ink)"
   >
-    <span className="grid h-10 w-10 place-items-center rounded-xl bg-black/5">
-      <img src={iconSrc} alt="" className="h-8 w-8" />
+    <span className="grid h-10 w-10 place-items-center rounded-xl bg-(--color-surface) border border-(--color-border)">
+      <img src={iconSrc} alt="" className="h-6 w-6 object-contain" />
     </span>
-    <span className="hidden md:block">{label}</span>
+    <span>{label}</span>
   </Link>
 );
 
 export default function Sidebar() {
   return (
-    <aside className="h-screen w-16 md:w-52 border-r border-black/10 bg-[rgba(242,228,198,0.82)] flex flex-col">
+    <aside className="h-screen w-52 border-r border-(--color-border) bg-(--color-surfaceAlt) flex flex-col">
       <div className="flex justify-center px-3 pt-4 pb-5">
         <img
           src="/ui/logo/adventurer-route.png"
           alt="Adventurer Route"
-          className="h-20 md:h-30 w-auto object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
+          className="h-20 md:h-30 w-auto object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.6)]"
         />
       </div>
 
@@ -47,4 +47,3 @@ export default function Sidebar() {
     </aside>
   );
 }
-

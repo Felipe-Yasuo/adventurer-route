@@ -38,27 +38,29 @@ function StatCard({
     label,
     value,
     helper,
+    valueColor = "text-(--color-ink)",
 }: {
     icon: string;
     label: string;
     value: string | number;
     helper: string;
+    valueColor?: string;
 }) {
     return (
-        <section className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-5 shadow-[0_10px_18px_rgba(0,0,0,0.1)]">
+        <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-card)">
             <div className="flex items-start gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-black/10 bg-[rgba(255,255,255,0.24)] text-xl shadow-[0_4px_8px_rgba(0,0,0,0.05)]">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) text-xl">
                     {icon}
                 </div>
 
                 <div>
-                    <div className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/58">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-(--color-muted)">
                         {label}
                     </div>
-                    <div className="mt-1 text-2xl font-bold text-[color:var(--color-ink)]">
+                    <div className={["mt-1 text-2xl font-bold", valueColor].join(" ")}>
                         {value}
                     </div>
-                    <div className="mt-2 text-[12px] leading-relaxed text-[color:var(--color-ink)]/52">
+                    <div className="mt-2 text-[12px] leading-relaxed text-(--color-mutedSoft)">
                         {helper}
                     </div>
                 </div>
@@ -71,17 +73,19 @@ function InfoBadge({
     label,
     value,
     icon,
+    valueColor = "text-(--color-ink)",
 }: {
     label: string;
     value: string | number;
     icon: string;
+    valueColor?: string;
 }) {
     return (
-        <div className="rounded-xl border border-black/10 bg-[rgba(255,255,255,0.24)] px-3 py-2 shadow-[0_4px_8px_rgba(0,0,0,0.04)]">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/55">
+        <div className="rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) px-3 py-2">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-(--color-muted)">
                 {icon} {label}
             </div>
-            <div className="mt-1 text-sm font-bold text-[color:var(--color-ink)]">
+            <div className={["mt-1 text-sm font-bold", valueColor].join(" ")}>
                 {value}
             </div>
         </div>
@@ -191,7 +195,7 @@ export default function ProfileClient() {
 
     if (loading) {
         return (
-            <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.9)] p-6 text-[color:var(--color-ink)]/70 shadow-[0_8px_14px_rgba(0,0,0,0.1)]">
+            <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 text-(--color-muted) shadow-(--shadow-card)">
                 Carregando perfil...
             </div>
         );
@@ -199,11 +203,11 @@ export default function ProfileClient() {
 
     if (error) {
         return (
-            <div className="rounded-2xl border border-[rgba(178,59,59,0.2)] bg-[rgba(242,228,198,0.9)] p-6 shadow-[0_8px_14px_rgba(0,0,0,0.08)]">
-                <p className="text-[color:var(--color-ink)]">Erro: {error}</p>
+            <div className="rounded-2xl border border-(--color-hard)/40 bg-(--color-surface) p-6 shadow-(--shadow-card)">
+                <p className="text-(--color-hard)">Erro: {error}</p>
                 <button
                     onClick={load}
-                    className="mt-4 rounded-xl border border-black/10 bg-[rgba(255,255,255,0.28)] px-4 py-2 text-sm font-semibold text-[color:var(--color-ink)] transition hover:bg-[rgba(255,255,255,0.45)]"
+                    className="mt-4 rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) px-4 py-2 text-sm font-semibold text-(--color-ink) transition hover:bg-(--color-surface)"
                 >
                     Tentar novamente
                 </button>
@@ -213,26 +217,26 @@ export default function ProfileClient() {
 
     if (!me) {
         return (
-            <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.9)] p-6 text-[color:var(--color-ink)]/70 shadow-[0_8px_14px_rgba(0,0,0,0.08)]">
+            <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 text-(--color-muted) shadow-(--shadow-card)">
                 Usuário não carregado.
             </div>
         );
     }
     return (
         <div className="space-y-6">
-            <header className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-6 shadow-[0_10px_18px_rgba(0,0,0,0.1)]">
-                <h1 className="text-2xl font-bold tracking-wide text-[color:var(--color-ink)]">
+            <header className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-(--shadow-card)">
+                <h1 className="text-2xl font-bold tracking-wide text-(--color-ink)">
                     🧙 Perfil
                 </h1>
-                <p className="mt-2 text-sm leading-relaxed text-[color:var(--color-ink)]/68">
+                <p className="mt-2 text-sm leading-relaxed text-(--color-muted)">
                     Veja suas informações, acompanhe seus status e personalize seu avatar.
                 </p>
             </header>
 
             <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_1fr]">
-                <section className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-6 shadow-[0_10px_18px_rgba(0,0,0,0.1)]">
+                <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-(--shadow-card)">
                     <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-                        <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-[24px] border border-black/10 bg-[rgba(255,255,255,0.24)] shadow-[0_6px_12px_rgba(0,0,0,0.08)]">
+                        <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-[24px] border border-(--color-border) bg-(--color-surfaceAlt)">
                             {preview ? (
                                 <img
                                     src={preview}
@@ -248,38 +252,38 @@ export default function ProfileClient() {
                                     className="h-full w-full object-cover"
                                 />
                             ) : (
-                                <span className="text-xl font-bold text-[color:var(--color-ink)]">
+                                <span className="text-xl font-bold text-(--color-ink)">
                                     {initials(me.name, me.email)}
                                 </span>
                             )}
                         </div>
 
                         <div className="min-w-0 flex-1">
-                            <h2 className="truncate text-2xl font-bold tracking-wide text-[color:var(--color-ink)]">
+                            <h2 className="truncate text-2xl font-bold tracking-wide text-(--color-ink)">
                                 {me.name ?? "Sem nome"}
                             </h2>
 
-                            <p className="mt-1 truncate text-sm text-[color:var(--color-ink)]/65">
+                            <p className="mt-1 truncate text-sm text-(--color-muted)">
                                 {me.email ?? "Sem email"}
                             </p>
 
                             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                                <InfoBadge label="Level" value={me.level} icon="⚔️" />
+                                <InfoBadge label="Level" value={me.level} icon="⚔️" valueColor="text-(--color-gold)" />
                                 <InfoBadge label="XP" value={me.xp} icon="✨" />
-                                <InfoBadge label="Gold" value={me.gold} icon="🪙" />
-                                <InfoBadge label="Life" value={lifeText} icon="❤️" />
+                                <InfoBadge label="Gold" value={me.gold} icon="🪙" valueColor="text-(--color-gold)" />
+                                <InfoBadge label="Life" value={lifeText} icon="❤️" valueColor="text-(--color-hard)" />
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-6 rounded-2xl border border-black/10 bg-[rgba(255,255,255,0.22)] p-4">
-                        <div className="text-sm font-semibold text-[color:var(--color-ink)]">
+                    <div className="mt-6 rounded-2xl border border-(--color-border) bg-(--color-surfaceAlt) p-4">
+                        <div className="text-sm font-semibold text-(--color-ink)">
                             Atualizar avatar
                         </div>
 
                         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto] md:items-end">
                             <div>
-                                <label className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/60">
+                                <label className="text-xs font-semibold uppercase tracking-wide text-(--color-muted)">
                                     Selecionar imagem
                                 </label>
 
@@ -287,10 +291,10 @@ export default function ProfileClient() {
                                     type="file"
                                     accept="image/png,image/jpeg,image/webp"
                                     onChange={(e) => onPick(e.target.files?.[0] ?? null)}
-                                    className="mt-2 w-full rounded-xl border border-black/10 bg-[rgba(255,255,255,0.32)] px-4 py-3 text-sm text-[color:var(--color-ink)] outline-none transition file:mr-3 file:rounded-lg file:border-0 file:bg-[rgba(212,160,23,0.18)] file:px-3 file:py-2 file:text-sm file:font-semibold file:text-[color:var(--color-ink)] hover:file:bg-[rgba(212,160,23,0.28)]"
+                                    className="mt-2 w-full rounded-xl border border-(--color-border) bg-(--color-bg) px-4 py-3 text-sm text-(--color-ink) outline-none transition file:mr-3 file:rounded-lg file:border-0 file:bg-(--color-gold) file:px-3 file:py-2 file:text-sm file:font-semibold file:text-(--color-bg) hover:file:bg-(--color-goldDark)"
                                 />
 
-                                <p className="mt-2 text-[11px] text-[color:var(--color-ink)]/48">
+                                <p className="mt-2 text-[11px] text-(--color-mutedSoft)">
                                     png, jpg ou webp • até 2MB
                                 </p>
                             </div>
@@ -298,7 +302,7 @@ export default function ProfileClient() {
                             <button
                                 onClick={uploadAvatar}
                                 disabled={!file || savingAvatar}
-                                className="h-[48px] rounded-xl border border-[rgba(212,160,23,0.42)] bg-[rgba(212,160,23,0.18)] px-5 py-3 text-sm font-semibold text-[color:var(--color-ink)] transition hover:bg-[rgba(212,160,23,0.28)] disabled:cursor-not-allowed disabled:opacity-60"
+                                className="h-[48px] rounded-xl border border-(--color-gold) bg-(--color-gold) px-5 py-3 text-sm font-semibold text-(--color-bg) transition hover:bg-(--color-goldDark) hover:border-(--color-goldDark) disabled:cursor-not-allowed disabled:opacity-60"
                             >
                                 {savingAvatar ? "Salvando..." : "Salvar avatar"}
                             </button>
@@ -312,6 +316,7 @@ export default function ProfileClient() {
                         label="Streak"
                         value={me.streakCount}
                         helper="Dias seguidos completando tarefas."
+                        valueColor="text-(--color-hard)"
                     />
 
                     <StatCard
@@ -319,6 +324,7 @@ export default function ProfileClient() {
                         label="Tasks concluídas"
                         value={me.tasksCompletedTotal}
                         helper="Total acumulado de tarefas finalizadas."
+                        valueColor="text-(--color-easy)"
                     />
 
                     <StatCard
@@ -326,6 +332,7 @@ export default function ProfileClient() {
                         label="Level"
                         value={me.level}
                         helper="Seu nível sobe conforme o XP acumulado."
+                        valueColor="text-(--color-gold)"
                     />
 
                     <StatCard
@@ -339,4 +346,3 @@ export default function ProfileClient() {
         </div>
     );
 }
-

@@ -56,11 +56,11 @@ function LifeCard({
     maxLife: number;
 }) {
     return (
-        <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] px-5 py-4 shadow-[0_10px_18px_rgba(0,0,0,0.08)]">
-            <div className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/60">
+        <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) px-5 py-4 shadow-(--shadow-card)">
+            <div className="text-xs font-semibold uppercase tracking-wide text-(--color-muted)">
                 Vida atual
             </div>
-            <div className="mt-2 text-2xl font-bold text-[color:var(--color-ink)]">
+            <div className="mt-2 text-2xl font-bold text-(--color-hard)">
                 ❤️ {life}/{maxLife}
             </div>
         </div>
@@ -79,42 +79,42 @@ function InventoryItemCard({
     onUse: () => void;
 }) {
     return (
-        <section className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-5 shadow-[0_10px_18px_rgba(0,0,0,0.1)] transition hover:translate-y-[-2px] hover:shadow-[0_14px_24px_rgba(0,0,0,0.12)]">
+        <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-card) transition hover:-translate-y-0.5 hover:border-(--color-gold)/40">
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                    <h3 className="truncate text-[16px] font-bold tracking-wide text-[color:var(--color-ink)]">
+                    <h3 className="truncate text-[16px] font-bold tracking-wide text-(--color-ink)">
                         {row.item.name}
                     </h3>
 
-                    <p className="mt-1 text-sm text-[color:var(--color-ink)]/68">
+                    <p className="mt-1 text-sm text-(--color-muted)">
                         Recupera{" "}
-                        <span className="font-semibold text-[color:var(--color-ink)]">
+                        <span className="font-semibold text-(--color-easy)">
                             +{row.item.healValue}
                         </span>{" "}
                         de vida.
                     </p>
                 </div>
 
-                <div className="shrink-0 rounded-xl border border-black/10 bg-[rgba(255,255,255,0.24)] px-3 py-2 text-sm font-bold text-[color:var(--color-ink)] shadow-[0_4px_8px_rgba(0,0,0,0.05)]">
+                <div className="shrink-0 rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) px-3 py-2 text-sm font-bold text-(--color-ink)">
                     x{row.quantity}
                 </div>
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-black/10 bg-[rgba(255,255,255,0.22)] px-4 py-3">
-                    <div className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/55">
+                <div className="rounded-2xl border border-(--color-border) bg-(--color-surfaceAlt) px-4 py-3">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-(--color-muted)">
                         Cura
                     </div>
-                    <div className="mt-2 text-sm font-bold text-[color:var(--color-ink)]">
+                    <div className="mt-2 text-sm font-bold text-(--color-easy)">
                         +{row.item.healValue}
                     </div>
                 </div>
 
-                <div className="rounded-2xl border border-black/10 bg-[rgba(255,255,255,0.22)] px-4 py-3">
-                    <div className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/55">
+                <div className="rounded-2xl border border-(--color-border) bg-(--color-surfaceAlt) px-4 py-3">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-(--color-muted)">
                         Preço
                     </div>
-                    <div className="mt-2 text-sm font-bold text-[color:var(--color-ink)]">
+                    <div className="mt-2 text-sm font-bold text-(--color-gold)">
                         🪙 {row.item.price}
                     </div>
                 </div>
@@ -126,14 +126,14 @@ function InventoryItemCard({
                 className={[
                     "mt-4 w-full rounded-xl border py-3 text-sm font-semibold transition",
                     busy || disabled
-                        ? "cursor-not-allowed border-black/10 bg-[rgba(0,0,0,0.05)] text-[color:var(--color-ink)]/40"
-                        : "border-[rgba(47,143,91,0.25)] bg-[rgba(47,143,91,0.15)] text-[color:var(--color-ink)] hover:bg-[rgba(47,143,91,0.24)]",
+                        ? "cursor-not-allowed border-(--color-border) bg-(--color-bg) text-(--color-muted) opacity-60"
+                        : "border-(--color-easy) bg-(--color-easy) text-(--color-bg) hover:bg-(--color-easy)/85",
                 ].join(" ")}
             >
                 {busy ? "Usando..." : "Usar"}
             </button>
 
-            <div className="mt-3 text-[12px] text-[color:var(--color-ink)]/48">
+            <div className="mt-3 text-[12px] text-(--color-mutedSoft)">
                 Tipo: {row.item.type}
             </div>
         </section>
@@ -220,7 +220,7 @@ export default function InventoryClient() {
 
     if (loading) {
         return (
-            <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.9)] p-6 text-[color:var(--color-ink)]/70 shadow-[0_8px_14px_rgba(0,0,0,0.1)]">
+            <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 text-(--color-muted) shadow-(--shadow-card)">
                 Carregando inventário...
             </div>
         );
@@ -228,11 +228,11 @@ export default function InventoryClient() {
 
     if (error) {
         return (
-            <div className="rounded-2xl border border-[rgba(178,59,59,0.2)] bg-[rgba(242,228,198,0.9)] p-6 shadow-[0_8px_14px_rgba(0,0,0,0.08)]">
-                <p className="text-[color:var(--color-ink)]">Erro: {error}</p>
+            <div className="rounded-2xl border border-(--color-hard)/40 bg-(--color-surface) p-6 shadow-(--shadow-card)">
+                <p className="text-(--color-hard)">Erro: {error}</p>
                 <button
                     onClick={loadAll}
-                    className="mt-4 rounded-xl border border-black/10 bg-[rgba(255,255,255,0.28)] px-4 py-2 text-sm font-semibold text-[color:var(--color-ink)] transition hover:bg-[rgba(255,255,255,0.45)]"
+                    className="mt-4 rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) px-4 py-2 text-sm font-semibold text-(--color-ink) transition hover:bg-(--color-surface)"
                 >
                     Tentar novamente
                 </button>
@@ -243,11 +243,11 @@ export default function InventoryClient() {
     return (
         <div className="space-y-6">
             <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-6 shadow-[0_10px_18px_rgba(0,0,0,0.1)]">
-                    <h1 className="text-2xl font-bold tracking-wide text-[color:var(--color-ink)]">
+                <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-(--shadow-card)">
+                    <h1 className="text-2xl font-bold tracking-wide text-(--color-ink)">
                         🎒 Inventário
                     </h1>
-                    <p className="mt-2 text-sm leading-relaxed text-[color:var(--color-ink)]/68">
+                    <p className="mt-2 text-sm leading-relaxed text-(--color-muted)">
                         Use seus itens para recuperar vida e continuar sua jornada.
                     </p>
                 </div>
@@ -256,7 +256,7 @@ export default function InventoryClient() {
             </header>
 
             {sorted.length === 0 ? (
-                <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-5 text-[color:var(--color-ink)]/68 shadow-[0_8px_14px_rgba(0,0,0,0.08)]">
+                <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5 text-(--color-muted) shadow-(--shadow-card)">
                     Seu inventário está vazio. Compre itens na Loja.
                 </div>
             ) : (
@@ -280,4 +280,3 @@ export default function InventoryClient() {
         </div>
     );
 }
-

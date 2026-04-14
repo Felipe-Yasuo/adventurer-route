@@ -87,22 +87,22 @@ function Column({
         <h3 className="text-base font-bold text-(--color-ink)">
           {title}
         </h3>
-        <span className="text-sm text-(--color-ink)/60">
+        <span className="text-sm text-(--color-muted)">
           {tasks.length}
         </span>
       </div>
 
 
-      <TasksFrame className="h-[560px] flex flex-col shadow-[0_12px_18px_rgba(0,0,0,0.25)]">
+      <TasksFrame className="h-[560px] flex flex-col">
         <div
           className={[
-            "space-y-4 pr-2 pt-2",
+            "space-y-3 pr-2 pt-2 scroll-dark",
             "max-h-[660px]",
             enableScroll ? "overflow-y-auto" : "overflow-y-hidden",
           ].join(" ")}
         >
           {tasks.length === 0 ? (
-            <div className="rounded-xl border border-black/10 bg-[rgba(242,228,198,0.85)] p-4 text-sm text-(--color-ink)/70">
+            <div className="rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) p-4 text-sm text-(--color-muted)">
               Nenhuma tarefa encontrada com esses filtros.
             </div>
           ) : (

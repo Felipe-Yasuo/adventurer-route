@@ -10,8 +10,7 @@ export default function PlayerHud({
 }: PlayerHudProps) {
     return (
         <div className="flex items-center gap-4">
-
-            <div className="relative h-[92px] w-[220px] shrink-0">
+            <div className="relative h-32 w-64 shrink-0 bot bottom-5">
                 <img
                     src="/ui/frames/background-avatar.png"
                     alt=""
@@ -19,7 +18,7 @@ export default function PlayerHud({
                     draggable={false}
                 />
 
-                <div className="absolute left-[28px] top-[11px] flex h-[68px] w-[68px] items-center justify-center overflow-hidden rounded-full">
+                <div className="absolute left-7.5 top-5 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full">
                     {image ? (
                         <img
                             src={image}
@@ -27,15 +26,16 @@ export default function PlayerHud({
                             className="h-full w-full object-cover"
                         />
                     ) : (
-                        <div className="h-full w-full rounded-full bg-[rgba(255,255,255,0.25)]" />
+                        <div className="h-full w-full rounded-full bg-(--color-bg)" />
                     )}
                 </div>
 
-                <div className="absolute left-[108px] top-[26px] right-[14px] text-[color:var(--color-ink)]">
-                    <div className="text-lg font-bold leading-none">Level: {level}</div>
+                <div className="absolute left-28 right-6 top-13 -translate-y-1/2 text-center">
+                    <div className="text-lg font-bold leading-none text-(--color-gold) drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
+                        Level: {level}
+                    </div>
                 </div>
             </div>
         </div>
     );
 }
-

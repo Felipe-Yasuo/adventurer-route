@@ -24,37 +24,44 @@ function uid() {
 
 function typeStyles(type: ToastType) {
   const base =
-    "rounded-2xl border p-4 shadow-[0_10px_22px_rgba(0,0,0,0.18)] backdrop-blur-sm text-[color:var(--color-ink)] bg-[rgba(242,228,198,0.96)]";
+    "rounded-2xl border p-4 shadow-(--shadow-cardStrong) backdrop-blur-sm text-(--color-ink) bg-(--color-surface)";
 
   if (type === "success") {
-    return `${base} border-[rgba(47,143,91,0.22)]`;
+    return `${base} border-(--color-easy)/50`;
   }
 
   if (type === "warning") {
-    return `${base} border-[rgba(212,160,23,0.3)]`;
+    return `${base} border-(--color-gold)/50`;
   }
 
   if (type === "error") {
-    return `${base} border-[rgba(178,59,59,0.24)]`;
+    return `${base} border-(--color-hard)/50`;
   }
 
-  return `${base} border-[rgba(75,111,184,0.24)]`;
+  return `${base} border-(--color-info)/50`;
 }
 
 function accentStyles(type: ToastType) {
   if (type === "success") {
-    return "bg-[rgba(47,143,91,0.14)] text-[color:var(--color-ink)]";
+    return "bg-(--color-easy)/20 text-(--color-easy) border border-(--color-easy)/40";
   }
 
   if (type === "warning") {
-    return "bg-[rgba(212,160,23,0.16)] text-[color:var(--color-ink)]";
+    return "bg-(--color-gold)/20 text-(--color-gold) border border-(--color-gold)/40";
   }
 
   if (type === "error") {
-    return "bg-[rgba(178,59,59,0.14)] text-[color:var(--color-ink)]";
+    return "bg-(--color-hard)/20 text-(--color-hard) border border-(--color-hard)/40";
   }
 
-  return "bg-[rgba(75,111,184,0.14)] text-[color:var(--color-ink)]";
+  return "bg-(--color-info)/20 text-(--color-info) border border-(--color-info)/40";
+}
+
+function titleColor(type: ToastType) {
+  if (type === "success") return "text-(--color-easy)";
+  if (type === "warning") return "text-(--color-gold)";
+  if (type === "error") return "text-(--color-hard)";
+  return "text-(--color-info)";
 }
 
 function iconByType(type: ToastType) {
@@ -104,7 +111,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <div className="flex items-start gap-3">
               <div
                 className={[
-                  "mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl shadow-[0_4px_8px_rgba(0,0,0,0.08)]",
+                  "mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl",
                   accentStyles(t.type),
                 ].join(" ")}
               >
@@ -112,12 +119,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               </div>
 
               <div className="min-w-0 flex-1">
-                <div className="text-sm font-bold tracking-wide text-[color:var(--color-ink)]">
+                <div className={["text-sm font-bold tracking-wide", titleColor(t.type)].join(" ")}>
                   {t.title}
                 </div>
 
                 {t.message ? (
-                  <div className="mt-1 text-xs leading-relaxed text-[color:var(--color-ink)]/70">
+                  <div className="mt-1 text-xs leading-relaxed text-(--color-muted)">
                     {t.message}
                   </div>
                 ) : null}
@@ -125,7 +132,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
               <button
                 onClick={() => setToasts((p) => p.filter((x) => x.id !== t.id))}
-                className="ml-auto rounded-lg border border-black/10 bg-[rgba(255,255,255,0.28)] px-2 py-1 text-xs font-semibold text-[color:var(--color-ink)]/70 transition hover:bg-[rgba(255,255,255,0.46)]"
+                className="ml-auto rounded-lg border border-(--color-border) bg-(--color-surfaceAlt) px-2 py-1 text-xs font-semibold text-(--color-muted) transition hover:bg-(--color-bg) hover:text-(--color-ink)"
                 aria-label="Fechar notificação"
                 title="Fechar"
               >

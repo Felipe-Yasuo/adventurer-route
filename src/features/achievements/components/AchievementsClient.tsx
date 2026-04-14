@@ -35,14 +35,14 @@ function StatusBadge({ status }: { status: "UNLOCKED" | "LOCKED" }) {
 
     if (status === "UNLOCKED") {
         return (
-            <span className={`${base} border-[rgba(47,143,91,0.2)] bg-[rgba(47,143,91,0.12)] text-[color:var(--color-ink)]`}>
+            <span className={`${base} border-(--color-easy)/40 bg-(--color-easy)/15 text-(--color-easy)`}>
                 ✅ desbloqueada
             </span>
         );
     }
 
     return (
-        <span className={`${base} border-black/10 bg-[rgba(0,0,0,0.04)] text-[color:var(--color-ink)]/75`}>
+        <span className={`${base} border-(--color-border) bg-(--color-bg) text-(--color-muted)`}>
             🔒 bloqueada
         </span>
     );
@@ -63,8 +63,8 @@ function FilterButton({
             className={[
                 "rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
                 active
-                    ? "border-[rgba(212,160,23,0.35)] bg-[rgba(212,160,23,0.18)] text-[color:var(--color-ink)]"
-                    : "border-black/10 bg-[rgba(255,255,255,0.24)] text-[color:var(--color-ink)]/75 hover:bg-[rgba(255,255,255,0.38)]",
+                    ? "border-(--color-gold)/60 bg-(--color-gold)/15 text-(--color-gold)"
+                    : "border-(--color-border) bg-(--color-surfaceAlt) text-(--color-muted) hover:bg-(--color-surface) hover:text-(--color-ink)",
             ].join(" ")}
         >
             {children}
@@ -82,15 +82,15 @@ function SummaryCard({
     icon: string;
 }) {
     return (
-        <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-4 shadow-[0_8px_14px_rgba(0,0,0,0.08)]">
+        <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-(--shadow-card)">
             <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-black/10 bg-[rgba(255,255,255,0.22)] text-xl">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) text-xl">
                     {icon}
                 </div>
 
                 <div>
-                    <div className="text-sm text-[color:var(--color-ink)]/65">{label}</div>
-                    <div className="text-xl font-bold text-[color:var(--color-ink)]">{value}</div>
+                    <div className="text-sm text-(--color-muted)">{label}</div>
+                    <div className="text-xl font-bold text-(--color-ink)">{value}</div>
                 </div>
             </div>
         </div>
@@ -99,16 +99,24 @@ function SummaryCard({
 
 function AchievementCard({ a }: { a: AchievementApi }) {
     const status = statusFrom(a);
+    const unlocked = status === "UNLOCKED";
 
     return (
-        <section className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-5 shadow-[0_10px_18px_rgba(0,0,0,0.1)] transition hover:translate-y-[-2px] hover:shadow-[0_14px_24px_rgba(0,0,0,0.12)]">
+        <section
+            className={[
+                "rounded-2xl border p-5 shadow-(--shadow-card) transition hover:-translate-y-0.5",
+                unlocked
+                    ? "border-(--color-easy)/40 bg-(--color-surface) hover:border-(--color-easy)/60"
+                    : "border-(--color-border) bg-(--color-surface) hover:border-(--color-gold)/40",
+            ].join(" ")}
+        >
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                    <h3 className="truncate text-[16px] font-bold tracking-wide text-[color:var(--color-ink)]">
+                    <h3 className="truncate text-[16px] font-bold tracking-wide text-(--color-ink)">
                         {a.title}
                     </h3>
 
-                    <p className="mt-1 text-sm leading-relaxed text-[color:var(--color-ink)]/68">
+                    <p className="mt-1 text-sm leading-relaxed text-(--color-muted)">
                         {a.description ?? "Sem descrição"}
                     </p>
                 </div>
@@ -119,30 +127,30 @@ function AchievementCard({ a }: { a: AchievementApi }) {
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-black/10 bg-[rgba(255,255,255,0.24)] px-4 py-3">
-                    <div className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/55">
+                <div className="rounded-2xl border border-(--color-border) bg-(--color-surfaceAlt) px-4 py-3">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-(--color-muted)">
                         Recompensa
                     </div>
-                    <div className="mt-2 text-sm font-semibold text-[color:var(--color-ink)]">
+                    <div className="mt-2 text-sm font-semibold text-(--color-gold)">
                         +{a.rewardXp} XP • +{a.rewardGold} GOLD
                     </div>
                 </div>
 
-                <div className="rounded-2xl border border-black/10 bg-[rgba(255,255,255,0.24)] px-4 py-3">
-                    <div className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-ink)]/55">
+                <div className="rounded-2xl border border-(--color-border) bg-(--color-surfaceAlt) px-4 py-3">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-(--color-muted)">
                         Meta
                     </div>
-                    <div className="mt-2 text-sm font-semibold text-[color:var(--color-ink)]">
+                    <div className="mt-2 text-sm font-semibold text-(--color-ink)">
                         {a.target}
                     </div>
                 </div>
             </div>
 
-            <div className="mt-4 text-xs text-[color:var(--color-ink)]/58">
-                {status === "UNLOCKED" ? (
+            <div className="mt-4 text-xs text-(--color-muted)">
+                {unlocked ? (
                     <>
                         Desbloqueada em:{" "}
-                        <span className="font-medium text-[color:var(--color-ink)]/75">
+                        <span className="font-medium text-(--color-ink)">
                             {a.unlockedAt ? formatPtBrDateTime(a.unlockedAt) : "—"}
                         </span>
                     </>
@@ -151,7 +159,7 @@ function AchievementCard({ a }: { a: AchievementApi }) {
                 )}
             </div>
 
-            <div className="mt-2 text-[11px] text-[color:var(--color-ink)]/42">
+            <div className="mt-2 text-[11px] text-(--color-mutedSoft)">
                 Código: {a.code} • Tipo: {a.type}
             </div>
         </section>
@@ -221,7 +229,7 @@ export default function AchievementsClient() {
 
     if (loading) {
         return (
-            <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.9)] p-6 text-[color:var(--color-ink)]/70 shadow-[0_8px_14px_rgba(0,0,0,0.1)]">
+            <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 text-(--color-muted) shadow-(--shadow-card)">
                 Carregando conquistas...
             </div>
         );
@@ -229,12 +237,12 @@ export default function AchievementsClient() {
 
     if (error) {
         return (
-            <div className="rounded-2xl border border-[rgba(178,59,59,0.2)] bg-[rgba(242,228,198,0.9)] p-6 shadow-[0_8px_14px_rgba(0,0,0,0.08)]">
-                <p className="text-[color:var(--color-ink)]">Erro: {error}</p>
+            <div className="rounded-2xl border border-(--color-hard)/40 bg-(--color-surface) p-6 shadow-(--shadow-card)">
+                <p className="text-(--color-hard)">Erro: {error}</p>
 
                 <button
                     onClick={loadAll}
-                    className="mt-4 rounded-xl border border-black/10 bg-[rgba(255,255,255,0.28)] px-4 py-2 text-sm font-semibold text-[color:var(--color-ink)] transition hover:bg-[rgba(255,255,255,0.45)]"
+                    className="mt-4 rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) px-4 py-2 text-sm font-semibold text-(--color-ink) transition hover:bg-(--color-surface)"
                 >
                     Tentar novamente
                 </button>
@@ -244,11 +252,11 @@ export default function AchievementsClient() {
 
     return (
         <div className="space-y-6">
-            <header className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-6 shadow-[0_10px_18px_rgba(0,0,0,0.1)]">
-                <h1 className="text-2xl font-bold tracking-wide text-[color:var(--color-ink)]">
+            <header className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-(--shadow-card)">
+                <h1 className="text-2xl font-bold tracking-wide text-(--color-ink)">
                     🏆 Conquistas
                 </h1>
-                <p className="mt-2 text-sm leading-relaxed text-[color:var(--color-ink)]/68">
+                <p className="mt-2 text-sm leading-relaxed text-(--color-muted)">
                     Veja o que você já desbloqueou e o que ainda falta na sua jornada.
                 </p>
             </header>
@@ -259,7 +267,7 @@ export default function AchievementsClient() {
                 <SummaryCard label="Bloqueadas" value={counts.locked} icon="🔒" />
             </section>
 
-            <section className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-4 shadow-[0_8px_14px_rgba(0,0,0,0.08)]">
+            <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 shadow-(--shadow-card)">
                 <div className="flex flex-wrap gap-2">
                     <FilterButton active={filter === "ALL"} onClick={() => setFilter("ALL")}>
                         Todas ({counts.total})
@@ -279,7 +287,7 @@ export default function AchievementsClient() {
             </section>
 
             {sorted.length === 0 ? (
-                <div className="rounded-2xl border border-black/10 bg-[rgba(242,228,198,0.92)] p-5 text-[color:var(--color-ink)]/68 shadow-[0_8px_14px_rgba(0,0,0,0.08)]">
+                <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5 text-(--color-muted) shadow-(--shadow-card)">
                     Nenhuma conquista neste filtro.
                 </div>
             ) : (
@@ -292,4 +300,3 @@ export default function AchievementsClient() {
         </div>
     );
 }
-

@@ -24,24 +24,14 @@ function LifeStat({
   maxLife: number;
 }) {
   return (
-    <div
-      className="
-      flex items-center gap-3
-      rounded-2xl
-      border border-black/10
-      bg-[rgba(242,228,198,0.92)]
-      px-4 py-3
-      shadow-[0_6px_10px_rgba(0,0,0,0.15)]
-      text-[color:var(--color-ink)]
-    "
-    >
+    <div className="flex items-center gap-3 rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-3 shadow-(--shadow-card) text-(--color-ink)">
       <span className="text-2xl">❤️</span>
 
       <div className="leading-tight">
         <div className="text-base font-bold">
           {life}/{maxLife}
         </div>
-        <div className="text-xs opacity-70">Life</div>
+        <div className="text-xs text-(--color-muted)">Life</div>
       </div>
     </div>
   );
@@ -58,21 +48,12 @@ function HudStat({
   label: string;
 }) {
   return (
-    <div
-      className="
-      flex items-center gap-3
-      rounded-2xl
-      border border-black/10
-      bg-[rgba(242,228,198,0.92)]
-      px-4 py-3
-      shadow-[0_6px_10px_rgba(0,0,0,0.15)]
-    "
-    >
+    <div className="flex items-center gap-3 rounded-2xl border border-(--color-border) bg-(--color-surface) px-4 py-3 shadow-(--shadow-card)">
       <img src={iconSrc} className="h-9 w-9 object-contain" />
 
-      <div className="leading-tight text-[color:var(--color-ink)]">
+      <div className="leading-tight text-(--color-ink)">
         <div className="text-base font-bold">{value}</div>
-        <div className="text-xs opacity-70">{label}</div>
+        <div className="text-xs text-(--color-muted)">{label}</div>
       </div>
     </div>
   );
@@ -96,7 +77,7 @@ export default function TopHud({
       className={[
         "flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between xl:gap-6",
         glow
-          ? "rounded-2xl p-2 -m-2 ring-2 ring-[rgba(212,160,23,0.35)] shadow-[0_0_30px_rgba(212,160,23,0.22)]"
+          ? "rounded-2xl p-2 -m-2 ring-2 ring-(--color-gold)/40 shadow-[0_0_30px_rgba(212,175,55,0.35)]"
           : "",
       ].join(" ")}
     >
@@ -131,4 +112,3 @@ export default function TopHud({
     </header>
   );
 }
-

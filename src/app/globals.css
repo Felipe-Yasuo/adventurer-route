@@ -1,18 +1,49 @@
 @import "tailwindcss";
 
 :root {
-  --color-ink: #211b08;
-  --color-wood: #4a2f1d;
-  --color-woodDark: #2f1a10;
-  --color-parchment: #f2e4c6;
+  /* Base surfaces */
+  --color-bg: #1a1a1a;
+  --color-surface: #2a2a2a;
+  --color-surfaceAlt: #252525;
+  --color-surfaceSoft: #222222;
+  --color-border: #3a3a3a;
+  --color-borderStrong: #4a4a4a;
 
-  --color-parchmentSoft: #efe1c3;
+  /* Text */
+  --color-ink: #e0d6c3;
+  --color-parchment: #d4c9a8;
+  --color-parchmentSoft: #c9bda0;
+  --color-muted: #8a8070;
+  --color-mutedSoft: #6a6358;
 
-  --color-gold: #d4a017;
-  --color-goldDark: #795900;
-  --color-success: #2f8f5b;
-  --color-danger: #b23b3b;
+  /* Accents */
+  --color-gold: #d4af37;
+  --color-goldDark: #c8a84e;
+  --color-goldSoft: rgba(212, 175, 55, 0.18);
+
+  /* Difficulty / semantic */
+  --color-easy: #4a7c59;
+  --color-easySoft: rgba(74, 124, 89, 0.18);
+  --color-medium: #c8a84e;
+  --color-mediumSoft: rgba(200, 168, 78, 0.18);
+  --color-hard: #c44a3f;
+  --color-hardDark: #a83232;
+  --color-hardSoft: rgba(196, 74, 63, 0.18);
+
+  --color-success: #4a7c59;
+  --color-danger: #c44a3f;
   --color-info: #4b6fb8;
+
+  /* Legacy aliases (kept so existing classes still resolve while migrating) */
+  --color-wood: #3a3a3a;
+  --color-woodDark: #252525;
+
+  /* Background texture */
+  --bg-texture: url("/ui/background/background-texture.png");
+
+  /* Shadows */
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-cardStrong: 0 10px 24px rgba(0, 0, 0, 0.55);
 
   --font-serif: var(--font-fantasy), "Newsreader", Georgia, serif;
   --font-sans: var(--font-ui), "Manrope", system-ui, sans-serif;
@@ -22,10 +53,28 @@ html,
 body {
   min-height: 100%;
   color: var(--color-ink);
-  background-color: var(--color-parchment);
+  background-color: var(--color-bg);
+  background-image: var(--bg-texture);
+  background-repeat: repeat;
+  background-attachment: fixed;
   font-family: var(--font-sans);
 }
 
 button {
   cursor: pointer;
+}
+
+/* Utility: scrollbar styling in dark theme */
+.scroll-dark::-webkit-scrollbar {
+  width: 6px;
+}
+.scroll-dark::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-dark::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 9999px;
+}
+.scroll-dark::-webkit-scrollbar-thumb:hover {
+  background: var(--color-borderStrong);
 }
