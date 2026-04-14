@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import PlayerHud from "@/features/profile/components/PlayerHud";
 
 type TopHudProps = {
@@ -61,26 +60,9 @@ function HudStat({
 export default function TopHud({
   user,
   completedTotal,
-  levelUpPulse,
 }: TopHudProps) {
-  const [glow, setGlow] = useState(false);
-
-  useEffect(() => {
-    if (!levelUpPulse) return;
-    setGlow(true);
-    const t = window.setTimeout(() => setGlow(false), 1200);
-    return () => window.clearTimeout(t);
-  }, [levelUpPulse]);
-
   return (
-    <header
-      className={[
-        "flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between xl:gap-6",
-        glow
-          ? "rounded-2xl p-2 -m-2 ring-2 ring-(--color-gold)/40 shadow-[0_0_30px_rgba(212,175,55,0.35)]"
-          : "",
-      ].join(" ")}
-    >
+    <header className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between xl:gap-6">
       <PlayerHud
         level={user.level}
         xp={user.xp}

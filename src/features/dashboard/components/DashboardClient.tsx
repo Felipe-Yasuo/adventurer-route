@@ -144,7 +144,7 @@ export default function DashboardClient() {
         />
       </aside>
 
-      <section className="space-y-4">
+      <section className="space-y-2">
         <TopHud
           user={me}
           completedTotal={completedTotal}

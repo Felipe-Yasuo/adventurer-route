@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import TaskCard from "@/features/tasks/components/TaskCard";
 import TaskModal from "@/features/tasks/components/TaskModal";
 import TasksFrame from "@/features/tasks/components/TaskFrame";
@@ -9,6 +10,8 @@ import type { TaskApi, CompleteResponse } from "@/features/tasks/types";
 import { isOverdue } from "@/features/tasks/utils/date";
 import { useToast } from "@/features/shared/components/toast";
 import { useMe } from "@/features/shared/components/me-store";
+import StaggerContainer, { StaggerItem } from "@/components/animations/StaggerContainer";
+import type { FloatingTextItem } from "@/components/animations/FloatingText";
 
 function mapApiToUI(t: TaskApi): TaskUI {
   return {
@@ -71,6 +74,8 @@ function Column({
   onCompleteTask,
   onDeleteTask,
   completingId,
+  checkmarkId,
+  floatingByTask,
 }: {
   title: string;
   tasks: TaskUI[];
@@ -78,26 +83,27 @@ function Column({
   onCompleteTask: (t: TaskUI) => void;
   onDeleteTask: (t: TaskUI) => void;
   completingId: string | null;
+  checkmarkId: string | null;
+  floatingByTask: Record<string, FloatingTextItem[]>;
 }) {
   const enableScroll = tasks.length > 2;
 
   return (
     <div className="space-y-2 ">
       <div className="flex items-center justify-between px-3">
-        <h3 className="text-base font-bold text-(--color-ink)">
+        <h3 className="text-2xl font-bold tracking-wide text-(--color-ink)">
           {title}
         </h3>
-        <span className="text-sm text-(--color-muted)">
+        <span className="text-xl font-semibold text-(--color-muted)">
           {tasks.length}
         </span>
       </div>
 
 
-      <TasksFrame className="h-[560px] flex flex-col">
+      <TasksFrame className="h-125 flex flex-col">
         <div
           className={[
-            "space-y-3 pr-2 pt-2 scroll-dark",
-            "max-h-[660px]",
+            "flex-1 min-h-0 pr-2 pt-2 scroll-dark",
             enableScroll ? "overflow-y-auto" : "overflow-y-hidden",
           ].join(" ")}
         >
@@ -106,16 +112,23 @@ function Column({
               Nenhuma tarefa encontrada com esses filtros.
             </div>
           ) : (
-            tasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onOpen={() => onOpenTask(task)}
-                onComplete={() => onCompleteTask(task)}
-                onDelete={() => onDeleteTask(task)}
-                completing={completingId === task.id}
-              />
-            ))
+            <StaggerContainer className="space-y-3">
+              <AnimatePresence initial={false}>
+                {tasks.map((task) => (
+                  <StaggerItem key={task.id}>
+                    <TaskCard
+                      task={task}
+                      onOpen={() => onOpenTask(task)}
+                      onComplete={() => onCompleteTask(task)}
+                      onDelete={() => onDeleteTask(task)}
+                      completing={completingId === task.id}
+                      showCheckmark={checkmarkId === task.id}
+                      floatingItems={floatingByTask[task.id]}
+                    />
+                  </StaggerItem>
+                ))}
+              </AnimatePresence>
+            </StaggerContainer>
           )}
         </div>
       </TasksFrame>
@@ -140,6 +153,8 @@ export default function KanbanBoard({
   const [selected, setSelected] = useState<TaskUI | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
   const [completingId, setCompletingId] = useState<string | null>(null);
+  const [checkmarkId, setCheckmarkId] = useState<string | null>(null);
+  const [floatingByTask, setFloatingByTask] = useState<Record<string, FloatingTextItem[]>>({});
 
   const toast = useToast();
 
@@ -214,16 +229,50 @@ export default function KanbanBoard({
     }
   }
 
+  function pushFloatingForTask(taskId: string, items: FloatingTextItem[]) {
+    setFloatingByTask((prev) => ({ ...prev, [taskId]: items }));
+    window.setTimeout(() => {
+      setFloatingByTask((prev) => {
+        const next = { ...prev };
+        delete next[taskId];
+        return next;
+      });
+    }, 3200);
+  }
+
   async function handleComplete(task: TaskUI) {
     if (task.completed) return;
     setCompletingId(task.id);
+    setCheckmarkId(task.id);
 
     try {
-      const result = await completeTask(task.id);
+      const [result] = await Promise.all([
+        completeTask(task.id),
+        new Promise<void>((r) => window.setTimeout(r, 600)),
+      ]);
+
+      setCheckmarkId(null);
+
       if ((result as any).user) {
         const u = (result as any).user;
         setMe((prev) => (prev ? { ...prev, ...u } : u));
       }
+
+      const xp = result.rewards?.xp ?? 0;
+      const gold = result.rewards?.gold ?? 0;
+
+      const items: FloatingTextItem[] = [];
+      if (xp > 0) items.push({ id: `${task.id}-xp-${Date.now()}`, text: `+${xp} XP`, color: "var(--color-gold)" });
+      if (gold > 0) items.push({ id: `${task.id}-gold-${Date.now()}`, text: `+${gold} GOLD`, color: "var(--color-gold)" });
+      if (items.length > 0) pushFloatingForTask(task.id, items);
+
+      await new Promise<void>((r) => window.setTimeout(r, 1400));
+
+      setFloatingByTask((prev) => {
+        const next = { ...prev };
+        delete next[task.id];
+        return next;
+      });
 
       setTasks((prev) =>
         prev.map((t) => (t.id === task.id ? { ...t, completed: true } : t))
@@ -255,6 +304,7 @@ export default function KanbanBoard({
 
       await onQuestsReload();
     } catch (e: any) {
+      setCheckmarkId(null);
       toast.push({
         type: "error",
         title: "Erro ao concluir",
@@ -276,6 +326,8 @@ export default function KanbanBoard({
           onCompleteTask={handleComplete}
           onDeleteTask={handleDelete}
           completingId={completingId}
+          checkmarkId={checkmarkId}
+          floatingByTask={floatingByTask}
         />
 
         <Column
@@ -285,6 +337,8 @@ export default function KanbanBoard({
           onCompleteTask={handleComplete}
           onDeleteTask={handleDelete}
           completingId={completingId}
+          checkmarkId={checkmarkId}
+          floatingByTask={floatingByTask}
         />
       </div>
 
@@ -298,4 +352,3 @@ export default function KanbanBoard({
     </>
   );
 }
-

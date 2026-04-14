@@ -14,7 +14,7 @@ export default function TasksFrame({
                 "border border-(--color-border)",
                 "bg-(--color-surface)",
                 "shadow-(--shadow-card)",
-                "min-h-[380px] sm:min-h-[380px] 2xl:h-[760px] flex flex-col",
+                "min-h-95 sm:min-h-95 2xl:h-160 flex flex-col",
                 "px-5 pt-5 pb-6",
                 className,
             ].join(" ")}

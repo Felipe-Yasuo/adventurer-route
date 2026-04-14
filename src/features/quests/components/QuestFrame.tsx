@@ -16,7 +16,7 @@ export default function QuestFrame({
                 "border border-(--color-border)",
                 "bg-(--color-surface)",
                 "shadow-(--shadow-card)",
-                "min-h-[500px] sm:min-h-[660px]",
+                "min-h-95 sm:min-h-125",
                 "px-6 pt-14 pb-6",
                 className,
             ].join(" ")}

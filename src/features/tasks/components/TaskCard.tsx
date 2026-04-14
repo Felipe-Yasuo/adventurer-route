@@ -1,5 +1,10 @@
+"use client";
+
+import { AnimatePresence, motion } from "framer-motion";
 import type { TaskUI } from "@/features/tasks/types";
 import { dateStatus } from "@/features/tasks/utils/date";
+import AnimatedCheckmark from "@/components/animations/AnimatedCheckmark";
+import FloatingText, { type FloatingTextItem } from "@/components/animations/FloatingText";
 
 function difficultyBadge(difficulty: TaskUI["difficulty"]) {
   const base =
@@ -28,12 +33,16 @@ export default function TaskCard({
   onComplete,
   onDelete,
   completing,
+  showCheckmark,
+  floatingItems,
 }: {
   task: TaskUI;
   onOpen: () => void;
   onComplete: () => void;
   onDelete: () => void;
   completing?: boolean;
+  showCheckmark?: boolean;
+  floatingItems?: FloatingTextItem[];
 }) {
   const status = dateStatus(task.dueDate, task.completed);
 
@@ -42,14 +51,44 @@ export default function TaskCard({
     : "text-(--color-ink)";
 
   return (
-    <div
+    <motion.div
+      layout
+      layoutId={`task-${task.id}`}
+      initial={{ opacity: 0, x: -16 }}
+      animate={{
+        opacity: 1,
+        x: 0,
+        scale: completing ? 0.96 : 1,
+      }}
+      exit={{ opacity: 0, scale: 0.92 }}
+      transition={{ duration: 0.28, ease: "easeOut" }}
+      style={{ willChange: "transform, opacity" }}
       className={[
-        "w-full rounded-xl border border-(--color-border) border-l-4 p-4 transition",
+        "relative w-full rounded-xl border border-(--color-border) border-l-4 p-4 transition-colors",
         "bg-(--color-surfaceAlt) hover:bg-(--color-surface)",
         "shadow-(--shadow-card)",
         difficultyBorder(task.difficulty),
       ].join(" ")}
     >
+      <AnimatePresence>
+        {showCheckmark ? (
+          <motion.div
+            key="check"
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.25 }}
+            className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-(--color-bg)/40 backdrop-blur-[1px]"
+          >
+            <AnimatedCheckmark size={72} />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      {floatingItems && floatingItems.length > 0 ? (
+        <FloatingText items={floatingItems} />
+      ) : null}
+
       <div className="flex items-start justify-between gap-4">
         <button onClick={onOpen} className="min-w-0 flex-1 text-left">
           <p
@@ -129,6 +168,6 @@ export default function TaskCard({
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
