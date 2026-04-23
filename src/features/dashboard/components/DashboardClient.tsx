@@ -123,8 +123,20 @@ export default function DashboardClient() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[340px_minmax(0,1fr)] 2xl:grid-cols-[380px_minmax(0,1fr)]">
-      <aside className="space-y-4">
+    <div className="relative isolate flex flex-col gap-4 lg:grid lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-x-4 lg:gap-y-2 2xl:grid-cols-[380px_minmax(0,1fr)]">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-(image:--bg-texture) bg-repeat opacity-[0.01]"
+      />
+      <div className="order-1 lg:order-0 lg:col-start-2 lg:row-start-1">
+        <TopHud
+          user={me}
+          completedTotal={completedTotal}
+          levelUpPulse={levelUpPulse}
+        />
+      </div>
+
+      <aside className="order-2 space-y-4 lg:order-0 lg:col-start-1 lg:row-start-1 lg:row-span-2">
         <NewTaskCard
           onCreated={async (created) => {
             const ui = mapTaskApiToUI(created);
@@ -144,13 +156,7 @@ export default function DashboardClient() {
         />
       </aside>
 
-      <section className="space-y-2">
-        <TopHud
-          user={me}
-          completedTotal={completedTotal}
-          levelUpPulse={levelUpPulse}
-        />
-
+      <div className="order-3 lg:order-0 lg:col-start-2 lg:row-start-2">
         <KanbanBoard
           tasks={todayTasksFiltered}
           setTasks={setTasksToday}
@@ -158,7 +164,7 @@ export default function DashboardClient() {
           onQuestsReload={loadQuests}
           onLevelUp={() => setLevelUpPulse((v) => v + 1)}
         />
-      </section>
+      </div>
     </div>
   );
 }

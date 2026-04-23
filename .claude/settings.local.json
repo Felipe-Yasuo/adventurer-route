@@ -3,7 +3,11 @@
     "allow": [
       "Bash(npx next:*)",
       "Bash(npm install:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npx skills *)",
+      "Read(//c/Users/Yasuo/.claude/skills/**)",
+      "Read(//c/Users/Yasuo/.agents/skills/agent-browser/**)",
+      "Bash(agent-browser skills *)"
     ]
   }
 }

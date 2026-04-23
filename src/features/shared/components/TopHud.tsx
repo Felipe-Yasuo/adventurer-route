@@ -62,14 +62,14 @@ export default function TopHud({
   completedTotal,
 }: TopHudProps) {
   return (
-    <header className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between xl:gap-6">
+    <header className="flex flex-col gap-0 xl:flex-row xl:items-start xl:justify-between xl:gap-6">
       <PlayerHud
         level={user.level}
         xp={user.xp}
         image={user.image ?? null}
       />
 
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between xl:gap-6">
+      <div className="-mt-4 flex flex-col gap-4 xl:mt-0 xl:flex-row xl:items-start xl:justify-between xl:gap-6">
         <div className="flex flex-wrap items-center gap-3 xl:justify-end">
           <HudStat
             iconSrc="/ui/stats/streak.png"

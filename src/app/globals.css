@@ -54,9 +54,6 @@ body {
   min-height: 100%;
   color: var(--color-ink);
   background-color: var(--color-bg);
-  background-image: var(--bg-texture);
-  background-repeat: repeat;
-  background-attachment: fixed;
   font-family: var(--font-sans);
 }
 
@@ -68,13 +65,16 @@ button {
 .scroll-dark::-webkit-scrollbar {
   width: 6px;
 }
+
 .scroll-dark::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .scroll-dark::-webkit-scrollbar-thumb {
   background: var(--color-border);
   border-radius: 9999px;
 }
+
 .scroll-dark::-webkit-scrollbar-thumb:hover {
   background: var(--color-borderStrong);
 }
@@ -85,6 +85,7 @@ button {
     opacity: 0;
     transform: translateY(-6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -93,18 +94,21 @@ button {
 
 /* Pulsating gold glow for claimable quests */
 @keyframes quest-glow-pulse {
+
   0%,
   100% {
     box-shadow:
       0 0 0 0 rgba(212, 175, 55, 0.55),
       0 0 14px 2px rgba(212, 175, 55, 0.35);
   }
+
   50% {
     box-shadow:
       0 0 0 6px rgba(212, 175, 55, 0),
       0 0 22px 4px rgba(212, 175, 55, 0.55);
   }
 }
+
 .quest-claim-glow {
   animation: quest-glow-pulse 1.8s ease-in-out infinite;
   will-change: box-shadow;
@@ -115,19 +119,23 @@ button {
   0% {
     background-color: rgba(212, 175, 55, 0);
   }
+
   35% {
     background-color: rgba(212, 175, 55, 0.28);
   }
+
   100% {
     background-color: rgba(212, 175, 55, 0);
   }
 }
+
 .gold-flash {
   animation: gold-flash 0.7s ease-out;
   will-change: background-color;
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .quest-claim-glow,
   .gold-flash {
     animation: none !important;

@@ -16,11 +16,11 @@ export default function PanelShell({ children }: { children: React.ReactNode }) 
     const close = useCallback(() => setOpen(false), []);
 
     return (
-        <div className="min-h-screen lg:grid lg:grid-cols-[210px_1fr]">
-            {/* Hamburger button — visible only below lg */}
+        <div className="min-h-screen md:grid md:grid-cols-[210px_1fr]">
+            {/* Hamburger button — visible only below md (sm) */}
             <button
                 onClick={toggle}
-                className="fixed top-3 left-3 z-50 grid h-10 w-10 place-items-center rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-card) lg:hidden"
+                className="fixed top-3 left-3 z-50 grid h-10 w-10 place-items-center rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-card) md:hidden"
                 aria-label="Menu"
             >
                 <svg
@@ -42,23 +42,23 @@ export default function PanelShell({ children }: { children: React.ReactNode }) 
             {/* Overlay backdrop — mobile only */}
             {open && (
                 <div
-                    className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+                    className="fixed inset-0 z-30 bg-black/40 md:hidden"
                     onClick={close}
                 />
             )}
 
-            {/* Sidebar: fixed drawer on mobile, static grid column on lg+ */}
+            {/* Sidebar: fixed drawer on sm, static grid column on md+ */}
             <aside
                 className={[
                     "fixed top-0 left-0 z-40 h-screen transition-transform duration-200 ease-in-out",
-                    "lg:sticky lg:z-auto lg:translate-x-0",
+                    "md:sticky md:z-auto md:translate-x-0",
                     open ? "translate-x-0" : "-translate-x-full",
                 ].join(" ")}
             >
                 <Sidebar />
             </aside>
 
-            <main className="min-w-0 p-3 pt-16 lg:p-4 lg:pt-4 xl:p-5 xl:pt-5">
+            <main className="min-w-0 p-3 pt-16 md:p-4 md:pt-4 xl:p-5 xl:pt-5">
                 {children}
             </main>
         </div>
