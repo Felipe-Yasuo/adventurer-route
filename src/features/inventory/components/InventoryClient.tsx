@@ -1,8 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useToast } from "@/features/shared/components/toast";
 import { useMe } from "@/features/shared/components/me-store";
+import {
+    visualForItemType,
+    RARITY_STYLES,
+} from "@/features/shop/utils/itemAssets";
 
 type InventoryRow = {
     id: string;
@@ -48,20 +53,50 @@ async function useItemApi(itemId: string) {
     };
 }
 
-function LifeCard({
-    life,
-    maxLife,
-}: {
-    life: number;
-    maxLife: number;
-}) {
+function LifeBanner({ life, maxLife }: { life: number; maxLife: number }) {
+    const pct = maxLife > 0 ? Math.min(100, (life / maxLife) * 100) : 0;
+    const full = life >= maxLife && maxLife > 0;
+    const low = pct <= 30 && life > 0;
+
+    const fillClass = low
+        ? "bg-linear-to-r from-red-600 to-red-400"
+        : "bg-linear-to-r from-(--color-hard) via-red-500 to-red-400";
+
     return (
-        <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) px-5 py-4 shadow-(--shadow-card)">
-            <div className="text-xs font-semibold uppercase tracking-wide text-(--color-muted)">
-                Vida atual
-            </div>
-            <div className="mt-2 text-2xl font-bold text-(--color-hard)">
-                ❤️ {life}/{maxLife}
+        <div className="inline-flex min-w-65 items-center gap-3 rounded-2xl border border-(--color-border) bg-(--color-bg)/80 px-4 py-3 shadow-[0_0_18px_-6px_rgba(230,60,60,0.4)]">
+            <img
+                src="/ui/stats/vida.png"
+                alt=""
+                className={[
+                    "h-12 w-12 shrink-0 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.55)]",
+                    low ? "animate-pulse" : "",
+                ].join(" ")}
+            />
+            <div className="flex-1 leading-tight">
+                <div className="flex items-baseline justify-between gap-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-(--color-muted)">
+                        Sua vitalidade
+                    </span>
+                    <span className="text-sm font-bold text-(--color-ink)">
+                        {life}/{maxLife}
+                    </span>
+                </div>
+                <div className="mt-2 h-2.5 overflow-hidden rounded-full border border-black/50 bg-black/60 shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]">
+                    <div
+                        className={[
+                            "h-full rounded-full transition-[width] duration-500 ease-out shadow-[0_0_6px_rgba(230,60,60,0.55)]",
+                            fillClass,
+                        ].join(" ")}
+                        style={{ width: `${pct}%` }}
+                    />
+                </div>
+                <div className="mt-1 text-[10px] italic text-(--color-muted)">
+                    {full
+                        ? "Em pleno vigor."
+                        : low
+                        ? "Você sangra — beba algo, depressa."
+                        : "Mantenha-se preparado."}
+                </div>
             </div>
         </div>
     );
@@ -70,72 +105,96 @@ function LifeCard({
 function InventoryItemCard({
     row,
     busy,
-    disabled,
+    reason,
     onUse,
 }: {
     row: InventoryRow;
     busy: boolean;
-    disabled: boolean;
+    reason: "ok" | "full" | "empty";
     onUse: () => void;
 }) {
+    const visual = visualForItemType(row.item.type);
+    const rarity = RARITY_STYLES[visual.rarity];
+    const disabled = reason !== "ok";
+
     return (
-        <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-card) transition hover:-translate-y-0.5 hover:border-(--color-gold)/40">
-            <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                    <h3 className="truncate text-[16px] font-bold tracking-wide text-(--color-ink)">
-                        {row.item.name}
-                    </h3>
-
-                    <p className="mt-1 text-sm text-(--color-muted)">
-                        Recupera{" "}
-                        <span className="font-semibold text-(--color-easy)">
-                            +{row.item.healValue}
-                        </span>{" "}
-                        de vida.
-                    </p>
-                </div>
-
-                <div className="shrink-0 rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) px-3 py-2 text-sm font-bold text-(--color-ink)">
-                    x{row.quantity}
+        <section
+            className={[
+                "group relative flex flex-col rounded-2xl border-2 bg-(--color-surface) p-5 transition",
+                rarity.ring,
+                rarity.glow,
+                disabled ? "opacity-80" : "hover:-translate-y-1 hover:border-(--color-gold)/70",
+            ].join(" ")}
+        >
+            <div className="flex items-start justify-between gap-2">
+                <span
+                    className={[
+                        "inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em]",
+                        rarity.chip,
+                    ].join(" ")}
+                >
+                    {rarity.label}
+                </span>
+                <div className="inline-flex items-center rounded-lg border border-(--color-gold)/40 bg-(--color-gold)/10 px-2.5 py-1 text-xs font-bold text-(--color-gold)">
+                    × {row.quantity}
                 </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-(--color-border) bg-(--color-surfaceAlt) px-4 py-3">
-                    <div className="text-xs font-semibold uppercase tracking-wide text-(--color-muted)">
-                        Cura
-                    </div>
-                    <div className="mt-2 text-sm font-bold text-(--color-easy)">
-                        +{row.item.healValue}
-                    </div>
-                </div>
+            <div className="relative mt-3 flex items-center justify-center">
+                <div
+                    className="absolute inset-0 m-auto h-28 w-28 rounded-full bg-(--color-gold)/10 blur-2xl opacity-0 transition duration-500 group-hover:opacity-100"
+                    aria-hidden
+                />
+                <img
+                    src={visual.icon}
+                    alt=""
+                    className={[
+                        "relative h-32 w-32 object-contain drop-shadow-[0_8px_14px_rgba(0,0,0,0.55)] transition duration-300",
+                        disabled ? "saturate-50 opacity-80" : "group-hover:scale-105 group-hover:-translate-y-1",
+                    ].join(" ")}
+                />
+            </div>
 
-                <div className="rounded-2xl border border-(--color-border) bg-(--color-surfaceAlt) px-4 py-3">
-                    <div className="text-xs font-semibold uppercase tracking-wide text-(--color-muted)">
-                        Preço
-                    </div>
-                    <div className="mt-2 text-sm font-bold text-(--color-gold)">
-                        🪙 {row.item.price}
-                    </div>
-                </div>
+            <div className="mt-3 text-center">
+                <h3 className="font-serif text-lg italic text-(--color-ink)">
+                    {row.item.name}
+                </h3>
+                <p className="mt-1 text-xs italic leading-relaxed text-(--color-muted)">
+                    “{visual.flavor}”
+                </p>
+            </div>
+
+            <div className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-(--color-easy)/30 bg-(--color-easy)/10 px-3 py-2 text-sm">
+                <img
+                    src="/ui/stats/vida.png"
+                    alt=""
+                    className="h-5 w-5 object-contain"
+                />
+                <span className="font-semibold text-(--color-easy)">
+                    +{row.item.healValue}
+                </span>
+                <span className="text-(--color-muted)">de vida</span>
             </div>
 
             <button
                 onClick={onUse}
                 disabled={busy || disabled}
                 className={[
-                    "mt-4 w-full rounded-xl border py-3 text-sm font-semibold transition",
-                    busy || disabled
-                        ? "cursor-not-allowed border-(--color-border) bg-(--color-bg) text-(--color-muted) opacity-60"
-                        : "border-(--color-easy) bg-(--color-easy) text-(--color-bg) hover:bg-(--color-easy)/85",
+                    "mt-4 w-full rounded-xl border-2 py-3 text-sm font-bold tracking-wide transition",
+                    !disabled
+                        ? "border-(--color-easy) bg-(--color-easy) text-(--color-bg) hover:brightness-110"
+                        : "border-(--color-border) bg-(--color-surfaceAlt) text-(--color-muted) cursor-not-allowed",
                 ].join(" ")}
+                aria-label={`Usar ${row.item.name}`}
             >
-                {busy ? "Usando..." : "Usar"}
+                {busy
+                    ? "Bebendo..."
+                    : reason === "full"
+                    ? "Vida em pleno vigor"
+                    : reason === "empty"
+                    ? "Sem unidades"
+                    : "✦ Beber poção"}
             </button>
-
-            <div className="mt-3 text-[12px] text-(--color-mutedSoft)">
-                Tipo: {row.item.type}
-            </div>
         </section>
     );
 }
@@ -172,6 +231,7 @@ export default function InventoryClient() {
 
     const life = me?.life ?? 0;
     const maxLife = me?.maxLife ?? 0;
+    const atFull = maxLife > 0 && life >= maxLife;
 
     const sorted = useMemo(() => {
         return [...rows].sort((a, b) => {
@@ -181,6 +241,11 @@ export default function InventoryClient() {
             return a.item.name.localeCompare(b.item.name);
         });
     }, [rows]);
+
+    const totalItems = useMemo(
+        () => rows.reduce((acc, r) => acc + r.quantity, 0),
+        [rows]
+    );
 
     async function handleUse(row: InventoryRow) {
         if (row.quantity <= 0) return;
@@ -202,9 +267,10 @@ export default function InventoryClient() {
 
             toast.push({
                 type: "success",
-                title: "Item usado! ❤️",
+                title: "Vigor restaurado!",
                 message: `+${result.healed} vida • ${result.usedItem.name} (restam ${result.remaining})`,
                 durationMs: 3600,
+                iconSrc: "/ui/stats/vida.png",
             });
         } catch (e: any) {
             toast.push({
@@ -221,7 +287,7 @@ export default function InventoryClient() {
     if (loading) {
         return (
             <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 text-(--color-muted) shadow-(--shadow-card)">
-                Carregando inventário...
+                Abrindo sua mochila...
             </div>
         );
     }
@@ -242,35 +308,70 @@ export default function InventoryClient() {
 
     return (
         <div className="space-y-6">
-            <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-(--shadow-card)">
-                    <h1 className="text-2xl font-bold tracking-wide text-(--color-ink)">
-                        🎒 Inventário
-                    </h1>
-                    <p className="mt-2 text-sm leading-relaxed text-(--color-muted)">
-                        Use seus itens para recuperar vida e continuar sua jornada.
-                    </p>
-                </div>
+            <header className="relative overflow-hidden rounded-2xl border border-(--color-border) bg-linear-to-br from-(--color-surface) via-(--color-surfaceAlt) to-(--color-surface) p-6 shadow-(--shadow-card)">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div className="flex items-center gap-4">
+                        <img
+                            src="/ui/icons/inventario.png"
+                            alt=""
+                            className="h-16 w-16 object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.55)]"
+                        />
+                        <div>
+                            <div className="flex items-center gap-2 text-(--color-gold)">
+                                <span className="text-xs" aria-hidden>◆</span>
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.22em]">
+                                    Mochila do Aventureiro
+                                </span>
+                                <span className="text-xs" aria-hidden>◆</span>
+                            </div>
+                            <h1 className="mt-1 font-serif text-3xl italic text-(--color-ink)">
+                                {totalItems === 0
+                                    ? "Bolsa silenciosa."
+                                    : `${totalItems} ${totalItems === 1 ? "tesouro" : "tesouros"} a seu dispor.`}
+                            </h1>
+                            <p className="mt-1 max-w-md text-sm text-(--color-muted)">
+                                Cada frasco é um segundo fôlego. Use com sabedoria — a próxima batalha não avisa.
+                            </p>
+                        </div>
+                    </div>
 
-                <LifeCard life={life} maxLife={maxLife} />
+                    <LifeBanner life={life} maxLife={maxLife} />
+                </div>
             </header>
 
             {sorted.length === 0 ? (
-                <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5 text-(--color-muted) shadow-(--shadow-card)">
-                    Seu inventário está vazio. Compre itens na Loja.
+                <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-(--color-border) bg-(--color-surfaceAlt)/40 p-12 text-center">
+                    <img
+                        src="/ui/icons/inventario.png"
+                        alt=""
+                        className="h-24 w-24 object-contain opacity-70"
+                    />
+                    <div className="font-serif text-lg italic text-(--color-ink)/85">
+                        Sua mochila está vazia.
+                    </div>
+                    <div className="max-w-sm text-xs text-(--color-muted)">
+                        Todo herói começa com as mãos vazias. Passe pelo Mercado da Guilda e abasteça-se antes da próxima jornada.
+                    </div>
+                    <Link
+                        href="/dashboard/shop"
+                        className="mt-2 inline-flex items-center gap-2 rounded-xl border-2 border-(--color-gold) bg-(--color-gold) px-5 py-2.5 text-sm font-bold text-(--color-bg) transition hover:bg-(--color-goldDark) hover:border-(--color-goldDark)"
+                    >
+                        ✦ Visitar o Mercado
+                    </Link>
                 </div>
             ) : (
                 <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                     {sorted.map((row) => {
                         const busy = busyItemId === row.item.id;
-                        const disabled = row.quantity <= 0 || (me ? me.life >= me.maxLife : false);
+                        const reason: "ok" | "full" | "empty" =
+                            row.quantity <= 0 ? "empty" : atFull ? "full" : "ok";
 
                         return (
                             <InventoryItemCard
                                 key={row.id}
                                 row={row}
                                 busy={busy}
-                                disabled={disabled}
+                                reason={reason}
                                 onUse={() => handleUse(row)}
                             />
                         );

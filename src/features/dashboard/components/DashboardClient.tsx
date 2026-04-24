@@ -123,7 +123,7 @@ export default function DashboardClient() {
   }
 
   return (
-    <div className="relative isolate flex flex-col gap-4 lg:grid lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-x-4 lg:gap-y-2 2xl:grid-cols-[380px_minmax(0,1fr)]">
+    <div className="relative isolate flex flex-col gap-4 lg:grid lg:grid-cols-[340px_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:gap-x-4 lg:gap-y-4 2xl:grid-cols-[380px_minmax(0,1fr)]">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 bg-(image:--bg-texture) bg-repeat opacity-[0.01]"

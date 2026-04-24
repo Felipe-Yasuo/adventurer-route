@@ -25,7 +25,13 @@
       "Bash(agent-browser viewport *)",
       "Bash(agent-browser --help)",
       "Bash(agent-browser emulate *)",
-      "Bash(agent-browser set *)"
+      "Bash(agent-browser set *)",
+      "Bash(npm run *)",
+      "Bash(agent-browser close *)",
+      "PowerShell(Stop-Process -Id 10228 -Force)",
+      "Read(//tmp/claude/c--Users-Yasuo-Desktop-portfolio-adventurer-route/71738c2b-967c-4675-a267-ac7896c06e52/tasks/**)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000)",
+      "PowerShell(Stop-Process -Force)"
     ]
   }
 }
