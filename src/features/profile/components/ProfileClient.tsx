@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { useMe } from "@/features/shared/components/me-store";
 import { useToast } from "@/features/shared/components/toast";
-import Image from "next/image";
+import { xpToNextLevel } from "@/server/game/progression/rules";
 
 type MeApi = {
     id: string;
@@ -34,61 +35,92 @@ function initials(name?: string | null, email?: string | null) {
 }
 
 function StatCard({
-    icon,
+    iconSrc,
     label,
     value,
     helper,
-    valueColor = "text-(--color-ink)",
+    tone = "default",
 }: {
-    icon: string;
+    iconSrc: string;
     label: string;
     value: string | number;
     helper: string;
-    valueColor?: string;
+    tone?: "default" | "fire" | "gold" | "easy" | "xp" | "danger";
 }) {
-    return (
-        <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-card)">
-            <div className="flex items-start gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) text-xl">
-                    {icon}
-                </div>
+    const toneBorder =
+        tone === "fire"
+            ? "border-orange-500/50"
+            : tone === "gold"
+            ? "border-(--color-gold)/50"
+            : tone === "easy"
+            ? "border-(--color-easy)/45"
+            : tone === "xp"
+            ? "border-purple-500/50"
+            : tone === "danger"
+            ? "border-(--color-hard)/45"
+            : "border-(--color-border)";
 
-                <div>
-                    <div className="text-xs font-semibold uppercase tracking-wide text-(--color-muted)">
-                        {label}
-                    </div>
-                    <div className={["mt-1 text-2xl font-bold", valueColor].join(" ")}>
-                        {value}
-                    </div>
-                    <div className="mt-2 text-[12px] leading-relaxed text-(--color-mutedSoft)">
-                        {helper}
-                    </div>
+    const toneGlow =
+        tone === "fire"
+            ? "shadow-[0_0_22px_-8px_rgba(249,115,22,0.55)]"
+            : tone === "gold"
+            ? "shadow-[0_0_22px_-8px_rgba(212,175,55,0.55)]"
+            : tone === "easy"
+            ? "shadow-[0_0_22px_-10px_rgba(34,197,94,0.5)]"
+            : tone === "xp"
+            ? "shadow-[0_0_22px_-8px_rgba(168,85,247,0.55)]"
+            : tone === "danger"
+            ? "shadow-[0_0_22px_-10px_rgba(230,60,60,0.5)]"
+            : "shadow-(--shadow-card)";
+
+    const valueColor =
+        tone === "fire"
+            ? "text-orange-400"
+            : tone === "gold"
+            ? "text-(--color-gold)"
+            : tone === "easy"
+            ? "text-(--color-easy)"
+            : tone === "xp"
+            ? "text-purple-300"
+            : tone === "danger"
+            ? "text-(--color-hard)"
+            : "text-(--color-ink)";
+
+    const iconGlow =
+        tone === "fire"
+            ? "drop-shadow-[0_0_10px_rgba(249,115,22,0.55)]"
+            : tone === "gold"
+            ? "drop-shadow-[0_0_10px_rgba(212,175,55,0.55)]"
+            : tone === "xp"
+            ? "drop-shadow-[0_0_10px_rgba(168,85,247,0.6)]"
+            : "drop-shadow-[0_3px_6px_rgba(0,0,0,0.5)]";
+
+    return (
+        <section
+            className={[
+                "flex items-start gap-4 rounded-2xl border-2 bg-(--color-surface) p-5 transition",
+                toneBorder,
+                toneGlow,
+            ].join(" ")}
+        >
+            <img
+                src={iconSrc}
+                alt=""
+                className={["h-14 w-14 shrink-0 object-contain", iconGlow].join(" ")}
+            />
+
+            <div className="min-w-0 flex-1">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-(--color-muted)">
+                    {label}
+                </div>
+                <div className={["mt-1 font-serif text-3xl italic leading-none", valueColor].join(" ")}>
+                    {value}
+                </div>
+                <div className="mt-2 text-[11px] leading-relaxed text-(--color-mutedSoft)">
+                    {helper}
                 </div>
             </div>
         </section>
-    );
-}
-
-function InfoBadge({
-    label,
-    value,
-    icon,
-    valueColor = "text-(--color-ink)",
-}: {
-    label: string;
-    value: string | number;
-    icon: string;
-    valueColor?: string;
-}) {
-    return (
-        <div className="rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) px-3 py-2">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-(--color-muted)">
-                {icon} {label}
-            </div>
-            <div className={["mt-1 text-sm font-bold", valueColor].join(" ")}>
-                {value}
-            </div>
-        </div>
     );
 }
 
@@ -168,8 +200,8 @@ export default function ProfileClient() {
 
             toast.push({
                 type: "success",
-                title: "Avatar atualizado! 🖼️",
-                message: "Seu novo avatar já está no perfil.",
+                title: "Emblema atualizado!",
+                message: "Seu novo retrato já foi gravado no pergaminho.",
                 durationMs: 3200,
             });
 
@@ -189,14 +221,21 @@ export default function ProfileClient() {
         }
     }
 
-    const lifeText = useMemo(() => {
-        return `${me?.life ?? 0}/${me?.maxLife ?? 0}`;
-    }, [me?.life, me?.maxLife]);
+    const xpNeeded = useMemo(() => (me ? xpToNextLevel(me.level) : 100), [me]);
+    const xpPct = useMemo(() => {
+        if (!me) return 0;
+        return Math.max(0, Math.min(100, (me.xp / xpNeeded) * 100));
+    }, [me, xpNeeded]);
+
+    const lifePct = useMemo(() => {
+        if (!me || me.maxLife <= 0) return 0;
+        return Math.max(0, Math.min(100, (me.life / me.maxLife) * 100));
+    }, [me]);
 
     if (loading) {
         return (
             <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 text-(--color-muted) shadow-(--shadow-card)">
-                Carregando perfil...
+                Abrindo o pergaminho de identidade...
             </div>
         );
     }
@@ -222,44 +261,76 @@ export default function ProfileClient() {
             </div>
         );
     }
+
     return (
         <div className="space-y-6">
-            <header className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-(--shadow-card)">
-                <h1 className="text-2xl font-bold tracking-wide text-(--color-ink)">
-                    🧙 Perfil
-                </h1>
-                <p className="mt-2 text-sm leading-relaxed text-(--color-muted)">
-                    Veja suas informações, acompanhe seus status e personalize seu avatar.
-                </p>
+            <header className="relative overflow-hidden rounded-2xl border border-(--color-border) bg-linear-to-br from-(--color-surface) via-(--color-surfaceAlt) to-(--color-surface) p-6 shadow-(--shadow-card)">
+                <div className="flex items-center gap-4">
+                    <img
+                        src="/ui/icons/profile.png"
+                        alt=""
+                        className="h-16 w-16 object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.55)]"
+                    />
+                    <div>
+                        <div className="flex items-center gap-2 text-(--color-gold)">
+                            <span className="text-xs" aria-hidden>◆</span>
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.22em]">
+                                Pergaminho de Identidade
+                            </span>
+                            <span className="text-xs" aria-hidden>◆</span>
+                        </div>
+                        <h1 className="mt-1 font-serif text-3xl italic text-(--color-ink)">
+                            Seu brasão.
+                        </h1>
+                        <p className="mt-1 max-w-xl text-sm text-(--color-muted)">
+                            Onde sua história ganha rosto — acompanhe seus feitos, forje seu emblema e deixe sua marca na guilda.
+                        </p>
+                    </div>
+                </div>
             </header>
 
             <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.1fr_1fr]">
-                <section className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 shadow-(--shadow-card)">
-                    <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-                        <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-[24px] border border-(--color-border) bg-(--color-surfaceAlt)">
-                            {preview ? (
-                                <img
-                                    src={preview}
-                                    alt="Preview avatar"
-                                    className="h-full w-full object-cover"
-                                />
-                            ) : me.image ? (
-                                <Image
-                                    src={me.image}
-                                    alt="Avatar"
-                                    width={96}
-                                    height={96}
-                                    className="h-full w-full object-cover"
-                                />
-                            ) : (
-                                <span className="text-xl font-bold text-(--color-ink)">
-                                    {initials(me.name, me.email)}
-                                </span>
-                            )}
+                <section className="relative overflow-hidden rounded-2xl border-2 border-(--color-gold)/40 bg-linear-to-br from-(--color-surface) via-(--color-surfaceAlt) to-(--color-surface) p-6 shadow-[0_0_28px_-10px_rgba(212,175,55,0.55)]">
+                    <div
+                        aria-hidden
+                        className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-(--color-gold)/10 blur-3xl"
+                    />
+
+                    <div className="relative flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
+                        <div className="relative shrink-0">
+                            <div
+                                aria-hidden
+                                className="absolute -inset-2 rounded-full bg-(--color-gold)/15 blur-xl"
+                            />
+                            <div className="relative grid h-28 w-28 place-items-center overflow-hidden rounded-full border-4 border-(--color-gold)/60 bg-(--color-bg) shadow-[0_4px_18px_rgba(0,0,0,0.6)]">
+                                {preview ? (
+                                    <img
+                                        src={preview}
+                                        alt="Prévia"
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : me.image ? (
+                                    <Image
+                                        src={me.image}
+                                        alt="Avatar"
+                                        width={112}
+                                        height={112}
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="font-serif text-3xl italic text-(--color-gold)">
+                                        {initials(me.name, me.email)}
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
                         <div className="min-w-0 flex-1">
-                            <h2 className="truncate text-2xl font-bold tracking-wide text-(--color-ink)">
+                            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-(--color-gold)">
+                                Aventureiro · Nível {me.level}
+                            </div>
+
+                            <h2 className="mt-1 truncate font-serif text-3xl italic text-(--color-ink)">
                                 {me.name ?? "Sem nome"}
                             </h2>
 
@@ -267,24 +338,48 @@ export default function ProfileClient() {
                                 {me.email ?? "Sem email"}
                             </p>
 
-                            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                                <InfoBadge label="Level" value={me.level} icon="⚔️" valueColor="text-(--color-gold)" />
-                                <InfoBadge label="XP" value={me.xp} icon="✨" />
-                                <InfoBadge label="Gold" value={me.gold} icon="🪙" valueColor="text-(--color-gold)" />
-                                <InfoBadge label="Life" value={lifeText} icon="❤️" valueColor="text-(--color-hard)" />
+                            <div className="mt-4">
+                                <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.2em]">
+                                    <span className="text-(--color-muted)">Experiência</span>
+                                    <span className="text-(--color-ink)">
+                                        {me.xp}/{xpNeeded}
+                                    </span>
+                                </div>
+                                <div className="mt-2 h-3 overflow-hidden rounded-full border border-black/60 bg-black/70 shadow-[inset_0_1px_2px_rgba(0,0,0,0.7)]">
+                                    <div
+                                        className="h-full rounded-full bg-linear-to-r from-(--color-gold)/70 via-(--color-gold) to-amber-300 shadow-[0_0_10px_rgba(212,175,55,0.7)] transition-[width] duration-500 ease-out"
+                                        style={{ width: `${xpPct}%` }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mt-3">
+                                <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.2em]">
+                                    <span className="text-(--color-muted)">Vitalidade</span>
+                                    <span className="text-(--color-ink)">
+                                        {me.life}/{me.maxLife}
+                                    </span>
+                                </div>
+                                <div className="mt-2 h-3 overflow-hidden rounded-full border border-black/60 bg-black/70 shadow-[inset_0_1px_2px_rgba(0,0,0,0.7)]">
+                                    <div
+                                        className="h-full rounded-full bg-linear-to-r from-(--color-hard) via-red-500 to-red-400 shadow-[0_0_8px_rgba(230,60,60,0.55)] transition-[width] duration-500 ease-out"
+                                        style={{ width: `${lifePct}%` }}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-6 rounded-2xl border border-(--color-border) bg-(--color-surfaceAlt) p-4">
-                        <div className="text-sm font-semibold text-(--color-ink)">
-                            Atualizar avatar
+                    <div className="relative mt-6 rounded-2xl border border-(--color-border) bg-(--color-bg)/60 p-4">
+                        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-(--color-gold)">
+                            <span aria-hidden>◆</span>
+                            Forjar novo emblema
                         </div>
 
                         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto] md:items-end">
                             <div>
-                                <label className="text-xs font-semibold uppercase tracking-wide text-(--color-muted)">
-                                    Selecionar imagem
+                                <label className="text-[10px] font-semibold uppercase tracking-[0.2em] text-(--color-muted)">
+                                    Selecionar retrato
                                 </label>
 
                                 <input
@@ -295,51 +390,52 @@ export default function ProfileClient() {
                                 />
 
                                 <p className="mt-2 text-[11px] text-(--color-mutedSoft)">
-                                    png, jpg ou webp • até 2MB
+                                    png, jpg ou webp · até 2 MB
                                 </p>
                             </div>
 
                             <button
                                 onClick={uploadAvatar}
                                 disabled={!file || savingAvatar}
-                                className="h-[48px] rounded-xl border border-(--color-gold) bg-(--color-gold) px-5 py-3 text-sm font-semibold text-(--color-bg) transition hover:bg-(--color-goldDark) hover:border-(--color-goldDark) disabled:cursor-not-allowed disabled:opacity-60"
+                                className="h-12 rounded-xl border-2 border-(--color-gold) bg-(--color-gold) px-5 text-sm font-bold tracking-wide text-(--color-bg) transition hover:bg-(--color-goldDark) hover:border-(--color-goldDark) disabled:cursor-not-allowed disabled:opacity-60"
                             >
-                                {savingAvatar ? "Salvando..." : "Salvar avatar"}
+                                {savingAvatar ? "Selando..." : "✦ Selar emblema"}
                             </button>
                         </div>
                     </div>
                 </section>
 
-                <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <StatCard
-                        icon="🔥"
+                        iconSrc="/ui/stats/fogo.png"
                         label="Streak"
                         value={me.streakCount}
-                        helper="Dias seguidos completando tarefas."
-                        valueColor="text-(--color-hard)"
+                        helper="Dias consecutivos honrando seus contratos."
+                        tone="fire"
                     />
 
                     <StatCard
-                        icon="✅"
-                        label="Tasks concluídas"
+                        iconSrc="/ui/stats/concluido.png"
+                        label="Vitórias"
                         value={me.tasksCompletedTotal}
-                        helper="Total acumulado de tarefas finalizadas."
-                        valueColor="text-(--color-easy)"
+                        helper="Total de missões cumpridas em sua saga."
+                        tone="easy"
                     />
 
                     <StatCard
-                        icon="⚔️"
-                        label="Level"
+                        iconSrc="/ui/profile/level.png"
+                        label="Nível"
                         value={me.level}
-                        helper="Seu nível sobe conforme o XP acumulado."
-                        valueColor="text-(--color-gold)"
+                        helper="A coroa cresce com a experiência acumulada."
+                        tone="gold"
                     />
 
                     <StatCard
-                        icon="✨"
-                        label="XP"
+                        iconSrc="/ui/profile/xp.png"
+                        label="Experiência"
                         value={me.xp}
-                        helper="Ganho ao completar tarefas, quests e desafios."
+                        helper="Ganha a cada feito — missões, quests e desafios."
+                        tone="xp"
                     />
                 </section>
             </div>
