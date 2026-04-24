@@ -67,8 +67,38 @@ async function completeTask(id: string): Promise<CompleteResponse> {
   return (await res.json()) as CompleteResponse;
 }
 
+function EmptyState({ variant }: { variant: "active" | "done" }) {
+  const copy =
+    variant === "active"
+      ? {
+          icon: "/ui/icons/regras.png",
+          title: "O pergaminho está em branco.",
+          sub: "Inscreva sua primeira missão e a jornada começa.",
+        }
+      : {
+          icon: "/ui/stats/concluido.png",
+          title: "Nenhuma vitória registrada… ainda.",
+          sub: "Conclua uma missão para ver seu feito aqui.",
+        };
+
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-(--color-border) bg-(--color-surfaceAlt)/40 px-6 py-10 text-center">
+      <img
+        src={copy.icon}
+        alt=""
+        className="h-16 w-16 object-contain opacity-70 drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
+      />
+      <div className="font-serif text-base italic text-(--color-ink)/85">
+        {copy.title}
+      </div>
+      <div className="text-xs text-(--color-muted)">{copy.sub}</div>
+    </div>
+  );
+}
+
 function Column({
   title,
+  variant,
   tasks,
   onOpenTask,
   onCompleteTask,
@@ -78,6 +108,7 @@ function Column({
   floatingByTask,
 }: {
   title: string;
+  variant: "active" | "done";
   tasks: TaskUI[];
   onOpenTask: (t: TaskUI) => void;
   onCompleteTask: (t: TaskUI) => void;
@@ -91,10 +122,13 @@ function Column({
   return (
     <div className="space-y-2 ">
       <div className="flex items-center justify-between px-3">
-        <h3 className="text-2xl font-bold tracking-wide text-(--color-ink)">
+        <h3 className="flex items-center gap-2 text-2xl font-bold tracking-wide text-(--color-ink)">
+          <span className="text-(--color-gold) text-sm" aria-hidden>
+            ◆
+          </span>
           {title}
         </h3>
-        <span className="text-xl font-semibold text-(--color-muted)">
+        <span className="rounded-full border border-(--color-border) bg-(--color-surfaceAlt) px-3 py-0.5 text-sm font-semibold text-(--color-muted)">
           {tasks.length}
         </span>
       </div>
@@ -108,9 +142,7 @@ function Column({
           ].join(" ")}
         >
           {tasks.length === 0 ? (
-            <div className="rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) p-4 text-sm text-(--color-muted)">
-              Nenhuma tarefa encontrada com esses filtros.
-            </div>
+            <EmptyState variant={variant} />
           ) : (
             <StaggerContainer className="space-y-3">
               <AnimatePresence initial={false}>
@@ -320,7 +352,8 @@ export default function KanbanBoard({
     <>
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Column
-          title="Tasks"
+          title="Missões"
+          variant="active"
           tasks={active}
           onOpenTask={setSelected}
           onCompleteTask={handleComplete}
@@ -331,7 +364,8 @@ export default function KanbanBoard({
         />
 
         <Column
-          title="Concluídas"
+          title="Vitórias"
+          variant="done"
           tasks={done}
           onOpenTask={setSelected}
           onCompleteTask={handleComplete}

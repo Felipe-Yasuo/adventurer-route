@@ -77,16 +77,16 @@ export default function NewTaskCard({
     <NewTaskFrame>
       <div className="space-y-4 text-(--color-ink)">
         <div>
-          <h3 className="text-lg font-bold">Nova tarefa</h3>
+          <h3 className="text-lg font-bold">Nova missão</h3>
           <p className="mt-1 text-xs text-(--color-muted)">
-            Crie uma missão para sua jornada.
+            Inscreva um contrato no pergaminho.
           </p>
         </div>
 
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Título da tarefa"
+          placeholder="Nome da missão..."
         />
 
         <div className="grid grid-cols-2 gap-3">
@@ -94,9 +94,9 @@ export default function NewTaskCard({
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value as Difficulty)}
           >
-            <option value="EASY">Easy</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="HARD">Hard</option>
+            <option value="EASY">🗡️ Fácil</option>
+            <option value="MEDIUM">⚔️ Médio</option>
+            <option value="HARD">🐉 Difícil</option>
           </Select>
 
           <Input
@@ -112,7 +112,7 @@ export default function NewTaskCard({
           onClick={handleCreate}
           disabled={creating}
         >
-          {creating ? "Criando..." : "Adicionar"}
+          {creating ? "Forjando..." : "Inscrever missão"}
         </Button>
       </div>
     </NewTaskFrame>

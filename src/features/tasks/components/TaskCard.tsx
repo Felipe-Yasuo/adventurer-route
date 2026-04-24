@@ -6,9 +6,18 @@ import { dateStatus } from "@/features/tasks/utils/date";
 import AnimatedCheckmark from "@/components/animations/AnimatedCheckmark";
 import FloatingText, { type FloatingTextItem } from "@/components/animations/FloatingText";
 
+const DIFFICULTY_META: Record<
+  TaskUI["difficulty"],
+  { icon: string; label: string }
+> = {
+  EASY: { icon: "🗡️", label: "Fácil" },
+  MEDIUM: { icon: "⚔️", label: "Médio" },
+  HARD: { icon: "🐉", label: "Difícil" },
+};
+
 function difficultyBadge(difficulty: TaskUI["difficulty"]) {
   const base =
-    "inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold border";
+    "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold border tracking-wide";
 
   if (difficulty === "EASY") {
     return `${base} bg-(--color-easy)/15 text-(--color-easy) border-(--color-easy)/40`;
@@ -102,7 +111,8 @@ export default function TaskCard({
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className={difficultyBadge(task.difficulty)}>
-              {task.difficulty.toLowerCase()}
+              <span aria-hidden>{DIFFICULTY_META[task.difficulty].icon}</span>
+              {DIFFICULTY_META[task.difficulty].label}
             </span>
           </div>
         </button>

@@ -21,7 +21,11 @@
       "Bash(agent-browser hover *)",
       "Bash(agent-browser scroll *)",
       "Bash(agent-browser eval *)",
-      "Bash(agent-browser reload *)"
+      "Bash(agent-browser reload *)",
+      "Bash(agent-browser viewport *)",
+      "Bash(agent-browser --help)",
+      "Bash(agent-browser emulate *)",
+      "Bash(agent-browser set *)"
     ]
   }
 }

@@ -3,7 +3,7 @@ import React from "react";
 export default function QuestFrame({
     children,
     className = "",
-    title = "Quests",
+    title = "Contratos",
 }: {
     children: React.ReactNode;
     className?: string;
@@ -24,13 +24,16 @@ export default function QuestFrame({
             <div className="absolute inset-x-0 top-0 flex justify-center">
                 <span
                     className={[
-                        "inline-block rounded-b-xl px-6 py-2",
+                        "inline-flex items-center gap-2 rounded-b-xl px-6 py-2",
                         "bg-(--color-surfaceAlt) text-(--color-gold)",
                         "border border-(--color-border) border-t-0",
-                        "text-sm font-extrabold uppercase tracking-wider",
+                        "font-serif text-base italic tracking-wide",
+                        "shadow-[0_2px_8px_rgba(0,0,0,0.35)]",
                     ].join(" ")}
                 >
+                    <span className="text-[10px] opacity-70" aria-hidden>◆</span>
                     {title}
+                    <span className="text-[10px] opacity-70" aria-hidden>◆</span>
                 </span>
             </div>
 

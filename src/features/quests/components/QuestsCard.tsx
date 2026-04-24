@@ -180,8 +180,16 @@ export default function QuestsCard({
                     className="mt-4 space-y-3 pr-2 scroll-dark max-h-100 overflow-y-auto"
                 >
                     {shown.length === 0 ? (
-                        <div className="rounded-xl border border-(--color-border) bg-(--color-surfaceAlt) p-4 text-sm text-(--color-muted)">
-                            Nenhuma quest {tab === "DAILY" ? "de hoje" : "da semana"}.
+                        <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-(--color-border) bg-(--color-surfaceAlt)/40 px-4 py-8 text-center">
+                            <span className="text-2xl opacity-60" aria-hidden>📜</span>
+                            <div className="font-serif text-sm italic text-(--color-ink)/85">
+                                {tab === "DAILY"
+                                    ? "Nenhum contrato para hoje."
+                                    : "A semana está sem contratos."}
+                            </div>
+                            <div className="text-xs text-(--color-muted)">
+                                Volte em breve — o mestre da guilda prepara novos encargos.
+                            </div>
                         </div>
                     ) : (
                         <AnimatePresence initial={false}>
