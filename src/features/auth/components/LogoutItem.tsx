@@ -4,15 +4,12 @@ import { LogoutButton } from "@/features/auth/components/AuthButtons";
 
 export default function LogoutItem() {
     return (
-        <div className="mt-3 px-3 pb-3">
-            <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-3 shadow-(--shadow-card)">
-                <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-(--color-muted)">
+        <div className="shrink-0 px-3 pb-4 pt-2">
+            <div className="mb-2 border-t border-(--color-border)/60 pt-3">
+                <div className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-(--color-muted)">
                     Conta
                 </div>
-
-                <div className="flex justify-start">
-                    <LogoutButton />
-                </div>
+                <LogoutButton />
             </div>
         </div>
     );

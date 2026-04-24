@@ -14,7 +14,7 @@ const NAV_ITEMS: Array<{ href: string; label: string; iconSrc: string }> = [
   { href: "/dashboard/achievements", label: "Conquistas", iconSrc: "/ui/icons/conquistas.png" },
   { href: "/dashboard/history", label: "Histórico", iconSrc: "/ui/icons/historico.png" },
   { href: "/dashboard/rules", label: "Regras", iconSrc: "/ui/icons/regras.png" },
-  { href: "/dashboard/profile", label: "Perfil", iconSrc: "/ui/icons/regras.png" },
+  { href: "/dashboard/profile", label: "Perfil", iconSrc: "/ui/icons/profile.png" },
 ];
 
 function isActive(pathname: string | null, href: string) {
@@ -49,7 +49,7 @@ function Item({
           "group relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition",
           active
             ? "bg-(--color-surface) text-(--color-gold)"
-            : "text-(--color-ink)/80 hover:bg-(--color-surface) hover:text-(--color-ink)",
+            : "text-(--color-ink)/80 hover:bg-(--color-surface) hover:text-(--color-gold)",
         ].join(" ")}
       >
         {active ? (
@@ -63,25 +63,19 @@ function Item({
           />
         ) : null}
 
-        <span
+        <img
+          src={iconSrc}
+          alt=""
           className={[
-            "grid h-10 w-10 place-items-center rounded-xl border transition",
+            "h-10 w-10 object-contain transition shrink-0",
+            reduced
+              ? ""
+              : "group-hover:drop-shadow-[0_0_8px_rgba(212,175,55,0.7)]",
             active
-              ? "bg-(--color-surfaceAlt) border-(--color-gold)/50"
-              : "bg-(--color-surface) border-(--color-border) group-hover:border-(--color-gold)/30",
+              ? "drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]"
+              : "",
           ].join(" ")}
-        >
-          <img
-            src={iconSrc}
-            alt=""
-            className={[
-              "h-6 w-6 object-contain transition",
-              reduced
-                ? ""
-                : "group-hover:drop-shadow-[0_0_6px_rgba(212,175,55,0.6)]",
-            ].join(" ")}
-          />
-        </span>
+        />
         <span>{label}</span>
       </Link>
     </motion.div>
@@ -94,15 +88,15 @@ export default function Sidebar() {
 
   return (
     <aside className="h-screen w-52 border-r border-(--color-border) bg-(--color-surfaceAlt) flex flex-col">
-      <div className="flex justify-center px-3 pt-4 pb-5">
+      <div className="shrink-0 flex justify-center px-3 pt-4 pb-4">
         <img
           src="/ui/logo/adventurer-route.png"
           alt="Adventurer Route"
-          className="h-20 md:h-30 w-auto object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.6)]"
+          className="h-20 md:h-24 w-auto object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.6)]"
         />
       </div>
 
-      <nav className="flex-1 space-y-1 px-3">
+      <nav className="flex-1 min-h-0 overflow-y-auto space-y-1 px-3 pb-2">
         {NAV_ITEMS.map((it) => (
           <Item
             key={it.href}

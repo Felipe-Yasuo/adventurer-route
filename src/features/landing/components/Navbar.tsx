@@ -43,7 +43,7 @@ export default function Navbar() {
             href="/login"
             className="group relative inline-flex items-center gap-2 overflow-hidden rounded-none border border-[var(--color-gold)]/50 bg-[var(--color-gold)]/10 px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--color-gold)] transition hover:bg-[var(--color-gold)] hover:text-[#100f0d]"
           >
-            <span>Jurar Voto</span>
+            <span>Cadastrar</span>
             <Diamond className="h-1.5 w-1.5" />
           </Link>
         </div>
