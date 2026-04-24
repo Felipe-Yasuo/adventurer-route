@@ -114,9 +114,10 @@ export default function QuestsCard({
 
             toast.push({
                 type: "success",
-                title: "Recompensa resgatada! 🎁",
+                title: "Recompensa resgatada!",
                 message: `+${xp} XP • +${gold} GOLD`,
                 durationMs: 3500,
+                iconSrc: "/ui/dashboard/recompensa.png",
             });
 
             const leveledUp = result.leveledUp ?? 0;
@@ -124,9 +125,10 @@ export default function QuestsCard({
                 onLevelUp();
                 toast.push({
                     type: "info",
-                    title: "LEVEL UP! ✨",
+                    title: "LEVEL UP!",
                     message: `Você subiu ${leveledUp} nível(is)!`,
                     durationMs: 3400,
+                    iconSrc: "/ui/dashboard/levelup.png",
                 });
             }
 

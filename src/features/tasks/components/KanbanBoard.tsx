@@ -315,9 +315,10 @@ export default function KanbanBoard({
         onLevelUp();
         toast.push({
           type: "info",
-          title: "LEVEL UP! ✨",
+          title: "LEVEL UP!",
           message: `Você subiu ${leveledUp} nível(is)!`,
           durationMs: 3400,
+          iconSrc: "/ui/dashboard/levelup.png",
         });
       }
 

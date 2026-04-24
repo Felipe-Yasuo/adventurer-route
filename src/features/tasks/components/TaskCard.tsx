@@ -5,15 +5,7 @@ import type { TaskUI } from "@/features/tasks/types";
 import { dateStatus } from "@/features/tasks/utils/date";
 import AnimatedCheckmark from "@/components/animations/AnimatedCheckmark";
 import FloatingText, { type FloatingTextItem } from "@/components/animations/FloatingText";
-
-const DIFFICULTY_META: Record<
-  TaskUI["difficulty"],
-  { icon: string; label: string }
-> = {
-  EASY: { icon: "🗡️", label: "Fácil" },
-  MEDIUM: { icon: "⚔️", label: "Médio" },
-  HARD: { icon: "🐉", label: "Difícil" },
-};
+import { DIFFICULTY_META } from "@/features/tasks/utils/difficultyAssets";
 
 function difficultyBadge(difficulty: TaskUI["difficulty"]) {
   const base =
@@ -111,7 +103,11 @@ export default function TaskCard({
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className={difficultyBadge(task.difficulty)}>
-              <span aria-hidden>{DIFFICULTY_META[task.difficulty].icon}</span>
+              <img
+                src={DIFFICULTY_META[task.difficulty].icon}
+                alt=""
+                className="h-5 w-5 object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
+              />
               {DIFFICULTY_META[task.difficulty].label}
             </span>
           </div>
@@ -170,11 +166,15 @@ export default function TaskCard({
               e.stopPropagation();
               onDelete();
             }}
-            className="rounded-lg border border-(--color-border) bg-(--color-bg) px-2 py-1 text-xs text-(--color-muted) transition hover:bg-(--color-surface) hover:text-(--color-ink)"
+            className="group rounded-lg border border-(--color-border) bg-(--color-bg) p-1 transition hover:bg-(--color-surface) hover:border-(--color-hard)/50"
             title="Excluir"
             aria-label="Excluir tarefa"
           >
-            🗑️
+            <img
+              src="/ui/dashboard/trash.png"
+              alt=""
+              className="h-6 w-6 object-contain transition group-hover:drop-shadow-[0_0_6px_rgba(230,60,60,0.55)]"
+            />
           </button>
         </div>
       </div>

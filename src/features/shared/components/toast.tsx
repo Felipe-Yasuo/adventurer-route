@@ -10,6 +10,7 @@ export type ToastItem = {
   message?: string;
   type: ToastType;
   durationMs?: number;
+  iconSrc?: string;
 };
 
 type ToastContextValue = {
@@ -111,11 +112,19 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <div className="flex items-start gap-3">
               <div
                 className={[
-                  "mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl",
-                  accentStyles(t.type),
+                  "mt-0.5 flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl text-xl",
+                  t.iconSrc ? "bg-(--color-bg) border border-(--color-border)" : accentStyles(t.type),
                 ].join(" ")}
               >
-                {iconByType(t.type)}
+                {t.iconSrc ? (
+                  <img
+                    src={t.iconSrc}
+                    alt=""
+                    className="h-10 w-10 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
+                  />
+                ) : (
+                  iconByType(t.type)
+                )}
               </div>
 
               <div className="min-w-0 flex-1">
