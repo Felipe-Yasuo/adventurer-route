@@ -98,18 +98,30 @@ export default function HeroSection() {
       </div>
 
       <div className="relative z-10 border-y border-[var(--color-gold)]/15 bg-[#0b0a08]/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-7xl items-center gap-10 overflow-hidden px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.32em] text-[var(--color-parchment)]/40">
+        <div className="mx-auto flex max-w-7xl items-center gap-8 overflow-hidden px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.32em] text-[var(--color-parchment)]/40">
           <span className="flex items-center gap-2 text-[var(--color-gold)]">
             <Diamond className="h-1.5 w-1.5" /> Guildas ativas
           </span>
           <span>·</span>
-          <span>12.847 aventureiros</span>
+          <span className="inline-flex items-center gap-2">
+            <img src="/ui/icons/profile.png" alt="" className="h-4 w-4 object-contain opacity-70" />
+            12.847 aventureiros
+          </span>
           <span>·</span>
-          <span>3.1M tarefas vencidas</span>
+          <span className="inline-flex items-center gap-2">
+            <img src="/ui/stats/concluido.png" alt="" className="h-4 w-4 object-contain opacity-70" />
+            3.1M tarefas vencidas
+          </span>
           <span>·</span>
-          <span className="text-[var(--color-hard)]">42 dragões abatidos hoje</span>
+          <span className="inline-flex items-center gap-2 text-[var(--color-hard)]">
+            <img src="/ui/dashboard/hard.png" alt="" className="h-4 w-4 object-contain" />
+            42 dragões abatidos hoje
+          </span>
           <span>·</span>
-          <span>streak mais longo — 217 dias</span>
+          <span className="inline-flex items-center gap-2">
+            <img src="/ui/stats/fogo.png" alt="" className="h-4 w-4 object-contain opacity-70" />
+            streak mais longo — 217 dias
+          </span>
         </div>
       </div>
     </section>

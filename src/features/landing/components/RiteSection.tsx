@@ -3,21 +3,25 @@ import { FiligreeRule } from "./ornaments";
 const STEPS = [
   {
     n: "Passo Primeiro",
+    iconSrc: "/ui/icons/profile.png",
     title: "Declare seu voto",
     body: "Crie sua conta e batize seu aventureiro. Escolha o nome com que quer ser lembrado nas crônicas.",
   },
   {
     n: "Passo Segundo",
+    iconSrc: "/ui/icons/regras.png",
     title: "Inscreva as missões",
     body: "Traduza sua rotina em contratos. Cada tarefa recebe dificuldade, prazo e recompensa em ouro e XP.",
   },
   {
     n: "Passo Terceiro",
+    iconSrc: "/ui/stats/fogo.png",
     title: "Enfrente o dia",
     body: "Marque cumpridas; colete loot; veja seu nível subir em tempo real. Streaks forjam multiplicadores.",
   },
   {
     n: "Passo Quarto",
+    iconSrc: "/ui/achievements/unlocked.png",
     title: "Herde a lenda",
     body: "Gaste ouro na loja. Desbloqueie conquistas. Ascenda até que seu nome preencha uma página inteira do compêndio.",
   },
@@ -57,6 +61,11 @@ export default function RiteSection() {
               className="col-span-12 grid grid-cols-12 gap-6 md:col-span-6 lg:col-span-3"
             >
               <div className="col-span-12 flex items-center gap-4">
+                <img
+                  src={step.iconSrc}
+                  alt=""
+                  className="h-12 w-12 shrink-0 object-contain opacity-80 drop-shadow-[0_3px_6px_rgba(0,0,0,0.55)] transition duration-500 hover:opacity-100 hover:scale-105"
+                />
                 <span className="font-[family-name:var(--font-serif)] text-[72px] font-semibold italic leading-none text-[var(--color-gold)]">
                   {String(i + 1).padStart(2, "0")}
                 </span>

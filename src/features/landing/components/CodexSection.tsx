@@ -1,16 +1,10 @@
 import CodexEntry from "./CodexEntry";
 import { FiligreeRule } from "./ornaments";
-import {
-  SigilChalice,
-  SigilHeartCross,
-  SigilMoonPhases,
-  SigilSword,
-} from "./sigils";
 
 const ENTRIES = [
   {
     numeral: "I.",
-    sigil: <SigilSword />,
+    iconSrc: "/ui/dashboard/medium.png",
     title: "Tarefas como contratos",
     latin: "Pacta Servanda Sunt",
     description:
@@ -18,7 +12,7 @@ const ENTRIES = [
   },
   {
     numeral: "II.",
-    sigil: <SigilChalice />,
+    iconSrc: "/ui/profile/xp.png",
     title: "Experiência que se sente",
     latin: "Per Aspera ad Astra",
     description:
@@ -26,7 +20,7 @@ const ENTRIES = [
   },
   {
     numeral: "III.",
-    sigil: <SigilMoonPhases />,
+    iconSrc: "/ui/stats/fogo.png",
     title: "Ciclos & estações",
     latin: "Tempora Mutantur",
     description:
@@ -34,7 +28,7 @@ const ENTRIES = [
   },
   {
     numeral: "IV.",
-    sigil: <SigilHeartCross />,
+    iconSrc: "/ui/stats/gold.png",
     title: "Vida, ouro & loja",
     latin: "Memento Vivere",
     description:
