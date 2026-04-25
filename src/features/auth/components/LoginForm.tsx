@@ -81,13 +81,14 @@ export default function LoginForm({
         type="submit"
         disabled={busy}
         className={[
-          "w-full rounded-xl bg-[var(--color-goldDark)] px-4 py-3",
-          "text-sm font-semibold text-white transition",
-          "hover:brightness-110",
+          "group relative w-full rounded-xl border-2 border-[var(--color-gold)] bg-[var(--color-gold)] px-4 py-3.5",
+          "text-sm font-bold uppercase tracking-[0.18em] text-[#0a0704] transition",
+          "hover:bg-[var(--color-goldDark)] hover:border-[var(--color-goldDark)]",
+          "shadow-[0_0_18px_-6px_rgba(212,175,55,0.6)]",
           "disabled:cursor-not-allowed disabled:opacity-60",
         ].join(" ")}
       >
-        {busy ? "Entrando..." : "Entrar"}
+        {busy ? "Selando..." : "✦ Abrir o portão"}
       </button>
     </form>
   );

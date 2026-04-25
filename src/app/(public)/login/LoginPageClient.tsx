@@ -40,7 +40,7 @@ export default function LoginPageClient({
 
   return (
     <main className="relative flex min-h-screen bg-[#0a0704]">
-      <LoginBrandingPanel />
+      <LoginBrandingPanel mode={mode} />
 
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 lg:px-16">
         {/* Mobile-only background */}
@@ -52,28 +52,36 @@ export default function LoginPageClient({
         />
         <div className="absolute inset-0 bg-[#0a0704]/80 lg:hidden" />
 
-        <div className="relative z-10 w-full max-w-[400px]">
+        <div className="relative z-10 w-full max-w-[420px]">
           {/* Logo */}
           <div className="mb-8 flex flex-col items-center lg:items-start">
             <img
               src="/ui/logo/adventurer-route.png"
               alt="Adventurer Route"
-              className="h-16 w-auto object-contain drop-shadow-[0_6px_12px_rgba(0,0,0,0.5)]"
+              className="h-20 w-auto object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)]"
             />
 
-            <h1 className="mt-5 text-2xl font-bold text-[var(--color-parchment)]">
-              {mode === "login" ? "Bem-vindo de volta" : "Criar sua conta"}
+            <div className="mt-6 flex items-center gap-2 text-[var(--color-gold)]">
+              <span className="text-xs" aria-hidden>◆</span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.24em]">
+                {mode === "login" ? "Portões da Guilda" : "Pacto da Guilda"}
+              </span>
+              <span className="text-xs" aria-hidden>◆</span>
+            </div>
+
+            <h1 className="mt-2 font-[family-name:var(--font-serif)] text-3xl italic text-[var(--color-parchment)]">
+              {mode === "login" ? "Bem-vindo de volta." : "Forjar nova lenda."}
             </h1>
 
-            <p className="mt-2 text-sm text-[var(--color-parchment)]/40">
+            <p className="mt-2 text-sm text-[var(--color-parchment)]/55">
               {mode === "login"
-                ? "Entre para continuar sua aventura."
-                : "Comece sua jornada no Adventurer Route."}
+                ? "Apresente seu selo e o portão se abrirá."
+                : "Inscreva seu nome e receba o pergaminho da guilda."}
             </p>
           </div>
 
           {/* Tabs */}
-          <div className="mb-6 flex rounded-xl border border-white/[0.06] bg-white/[0.03] p-1">
+          <div className="mb-6 flex gap-1 rounded-xl border border-white/[0.08] bg-white/[0.03] p-1">
             <TabButton
               active={mode === "login"}
               onClick={() => {
@@ -115,11 +123,11 @@ export default function LoginPageClient({
 
           {/* Divider */}
           <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-white/[0.06]" />
-            <span className="text-[10px] uppercase tracking-[0.2em] text-white/20">
-              ou
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[var(--color-gold)]/30" />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[var(--color-gold)]/70">
+              ◆ ou com pena e tinta ◆
             </span>
-            <div className="h-px flex-1 bg-white/[0.06]" />
+            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[var(--color-gold)]/30" />
           </div>
 
           {/* Forms */}

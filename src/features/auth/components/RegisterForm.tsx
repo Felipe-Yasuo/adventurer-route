@@ -110,13 +110,14 @@ export default function RegisterForm({
         type="submit"
         disabled={busy}
         className={[
-          "w-full rounded-xl bg-[var(--color-success)] px-4 py-3",
-          "text-sm font-semibold text-white transition",
+          "w-full rounded-xl border-2 border-[var(--color-success)] bg-[var(--color-success)] px-4 py-3.5",
+          "text-sm font-bold uppercase tracking-[0.18em] text-white transition",
           "hover:brightness-110",
+          "shadow-[0_0_18px_-6px_rgba(34,197,94,0.55)]",
           "disabled:cursor-not-allowed disabled:opacity-60",
         ].join(" ")}
       >
-        {busy ? "Criando..." : "Criar conta"}
+        {busy ? "Forjando..." : "✦ Forjar conta"}
       </button>
     </form>
   );

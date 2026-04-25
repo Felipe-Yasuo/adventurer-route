@@ -9,9 +9,9 @@ export default function GoogleButton({ disabled }: { disabled: boolean }) {
       disabled={disabled}
       className={[
         "flex w-full items-center justify-center gap-3 rounded-xl",
-        "border border-white/[0.08] bg-white/[0.05] px-4 py-3",
-        "text-sm font-semibold text-[var(--color-parchment)]/90",
-        "transition hover:bg-white/[0.08]",
+        "border-2 border-white/[0.08] bg-white/[0.04] px-4 py-3",
+        "text-sm font-semibold tracking-wide text-[var(--color-parchment)]/90",
+        "transition hover:border-[var(--color-gold)]/40 hover:bg-white/[0.07]",
         "disabled:cursor-not-allowed disabled:opacity-60",
       ].join(" ")}
     >
