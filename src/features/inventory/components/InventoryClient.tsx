@@ -94,8 +94,8 @@ function LifeBanner({ life, maxLife }: { life: number; maxLife: number }) {
                     {full
                         ? "Em pleno vigor."
                         : low
-                        ? "Você sangra — beba algo, depressa."
-                        : "Mantenha-se preparado."}
+                            ? "Você sangra — beba algo, depressa."
+                            : "Mantenha-se preparado."}
                 </div>
             </div>
         </div>
@@ -190,10 +190,10 @@ function InventoryItemCard({
                 {busy
                     ? "Bebendo..."
                     : reason === "full"
-                    ? "Vida em pleno vigor"
-                    : reason === "empty"
-                    ? "Sem unidades"
-                    : "✦ Beber poção"}
+                        ? "Vida em pleno vigor"
+                        : reason === "empty"
+                            ? "Sem unidades"
+                            : "✦ Beber poção"}
             </button>
         </section>
     );
@@ -326,7 +326,7 @@ export default function InventoryClient() {
                             </div>
                             <h1 className="mt-1 font-serif text-3xl italic text-(--color-ink)">
                                 {totalItems === 0
-                                    ? "Bolsa silenciosa."
+                                    ? "Bolsa"
                                     : `${totalItems} ${totalItems === 1 ? "tesouro" : "tesouros"} a seu dispor.`}
                             </h1>
                             <p className="mt-1 max-w-md text-sm text-(--color-muted)">
