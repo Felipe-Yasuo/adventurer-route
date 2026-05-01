@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
+import { checkRateLimit } from "@/lib/rate-limit";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const limited = await checkRateLimit(req, "public");
+  if (limited) return limited;
     try {
         const items = await prisma.item.findMany({
             orderBy: { price: "asc" },

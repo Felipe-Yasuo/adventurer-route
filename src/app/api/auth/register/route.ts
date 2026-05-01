@@ -4,8 +4,11 @@ import bcrypt from "bcryptjs";
 import { seedGlobalGameData, seedUserDefaults } from "@/server/game/seed/seed";
 import { registerSchema } from "@/features/auth/schemas/auth.schema";
 import { ZodError } from "zod";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
+  const limited = await checkRateLimit(req, "auth");
+  if (limited) return limited;
   try {
     const body = await req.json();
     const parsed = registerSchema.parse(body);

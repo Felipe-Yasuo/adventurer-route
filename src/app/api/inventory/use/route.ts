@@ -3,8 +3,12 @@ import { requireUser } from "@/lib/auth/require-user";
 import { useItemSchema } from "@/features/shop/schemas/shop.schema";
 import { getFirstZodError } from "@/lib/http/get-first-zod-error";
 import { useItem } from "@/server/services/inventory/use-item";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
+  const limited = await checkRateLimit(req, "write");
+  if (limited) return limited;
+
   try {
     const me = await requireUser();
     if (!me) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });

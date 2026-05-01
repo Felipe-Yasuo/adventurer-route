@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { requireUser } from "@/lib/auth/require-user";
+import { checkRateLimit } from "@/lib/rate-limit";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const limited = await checkRateLimit(req, "read");
+  if (limited) return limited;
+
   try {
     const user = await requireUser();
     if (!user) {

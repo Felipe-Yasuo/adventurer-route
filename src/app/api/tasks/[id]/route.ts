@@ -4,15 +4,23 @@ import { updateTaskSchema } from "@/features/tasks/schemas/task.schema";
 import { getFirstZodError } from "@/lib/http/get-first-zod-error";
 import { updateTask } from "@/server/services/tasks/update-task";
 import { deleteTask } from "@/server/services/tasks/delete-task";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { validateUuid } from "@/lib/http/validate-uuid";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function PATCH(req: Request, { params }: Ctx) {
+  const limited = await checkRateLimit(req, "write");
+  if (limited) return limited;
+
   try {
     const user = await requireUser();
     if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
 
-    const { id } = await params;
+    const rawId = (await params).id;
+    const validated = validateUuid(rawId);
+    if ("error" in validated) return validated.error;
+    const { id } = validated;
     const body = await req.json();
     const parsed = updateTaskSchema.safeParse(body);
 
@@ -33,12 +41,18 @@ export async function PATCH(req: Request, { params }: Ctx) {
   }
 }
 
-export async function DELETE(_: Request, { params }: Ctx) {
+export async function DELETE(req: Request, { params }: Ctx) {
+  const limited = await checkRateLimit(req, "write");
+  if (limited) return limited;
+
   try {
     const user = await requireUser();
     if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
 
-    const { id } = await params;
+    const rawId = (await params).id;
+    const validated = validateUuid(rawId);
+    if ("error" in validated) return validated.error;
+    const { id } = validated;
     const result = await deleteTask(user.id, id);
 
     if (!result.ok) {

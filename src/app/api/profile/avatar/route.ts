@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { cloudinary } from "@/lib/cloudinary";
 import { requireUser } from "@/lib/auth/require-user";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 function uploadBufferToCloudinary(
     buffer: Buffer,
@@ -37,6 +38,9 @@ function uploadBufferToCloudinary(
 }
 
 export async function POST(req: Request) {
+    const limited = await checkRateLimit(req, "write");
+    if (limited) return limited;
+
     try {
         const user = await requireUser();
 

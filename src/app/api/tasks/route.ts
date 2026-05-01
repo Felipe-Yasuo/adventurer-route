@@ -4,8 +4,12 @@ import { createTaskSchema } from "@/features/tasks/schemas/task.schema";
 import { getFirstZodError } from "@/lib/http/get-first-zod-error";
 import { listTasks } from "@/server/services/tasks/get-tasks";
 import { createTask } from "@/server/services/tasks/create-task";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function GET(req: Request) {
+  const limited = await checkRateLimit(req, "read");
+  if (limited) return limited;
+
   try {
     const user = await requireUser();
     if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
@@ -22,6 +26,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const limited = await checkRateLimit(req, "write");
+  if (limited) return limited;
+
   try {
     const user = await requireUser();
     if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });

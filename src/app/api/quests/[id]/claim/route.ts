@@ -1,16 +1,24 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/require-user";
 import { claimQuest } from "@/server/services/quests/claim-quest";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { validateUuid } from "@/lib/http/validate-uuid";
 
 export async function POST(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const limited = await checkRateLimit(req, "write");
+  if (limited) return limited;
+
   try {
     const user = await requireUser();
     if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
 
-    const { id: questId } = await params;
+    const rawId = (await params).id;
+    const validated = validateUuid(rawId);
+    if ("error" in validated) return validated.error;
+    const { id: questId } = validated;
     const result = await claimQuest(user.id, questId);
 
     return NextResponse.json(result, {
