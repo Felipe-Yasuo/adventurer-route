@@ -16,6 +16,7 @@ export const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
+  icons: { icon: "/ui/logo/logo.png" },
   title: "Adventurer Route",
   description:
     "Turn your daily tasks into epic quests. Level up, earn XP, collect items and conquer your goals in this RPG-inspired productivity app.",

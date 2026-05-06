@@ -90,6 +90,40 @@ export default function LoginForm({
       >
         {busy ? "Selando..." : "✦ Abrir o portão"}
       </button>
+
+      <div className="rounded-xl border border-white/[0.08] bg-white/[0.04] p-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--color-gold)]/70">
+              ◆ Conta de demonstração
+            </p>
+            <div className="mt-2 space-y-0.5">
+              <p className="truncate text-xs text-[var(--color-parchment)]/50">
+                <span className="text-[var(--color-parchment)]/30">Email</span>{" "}
+                admin@example.com
+              </p>
+              <p className="text-xs text-[var(--color-parchment)]/50">
+                <span className="text-[var(--color-parchment)]/30">Senha</span>{" "}
+                123456789
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setEmail("admin@example.com");
+              setPassword("123456789");
+            }}
+            className={[
+              "shrink-0 rounded-lg border border-[var(--color-gold)]/30 bg-[var(--color-gold)]/10",
+              "px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-gold)]",
+              "transition hover:border-[var(--color-gold)]/50 hover:bg-[var(--color-gold)]/20",
+            ].join(" ")}
+          >
+            Preencher
+          </button>
+        </div>
+      </div>
     </form>
   );
 }
