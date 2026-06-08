@@ -64,7 +64,7 @@ export default function DashboardClient() {
 
     try {
       await Promise.all([
-        reloadMe(), // ✅ atualiza HUD (gold/vida/xp/level)
+        reloadMe(),
         loadQuests(),
         loadToday(),
       ]);
@@ -124,10 +124,6 @@ export default function DashboardClient() {
 
   return (
     <div className="relative isolate flex flex-col gap-4 lg:grid lg:grid-cols-[340px_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:gap-x-4 lg:gap-y-4 2xl:grid-cols-[380px_minmax(0,1fr)]">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-(image:--bg-texture) bg-repeat opacity-[0.01]"
-      />
       <div className="order-1 lg:order-0 lg:col-start-2 lg:row-start-1">
         <TopHud
           user={me}

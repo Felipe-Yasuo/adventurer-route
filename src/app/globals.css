@@ -38,9 +38,6 @@
   --color-wood: #3a3a3a;
   --color-woodDark: #252525;
 
-  /* Background texture */
-  --bg-texture: url("/ui/background/background-texture.png");
-
   /* Shadows */
   --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.4);
   --shadow-cardStrong: 0 10px 24px rgba(0, 0, 0, 0.55);

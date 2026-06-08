@@ -8,7 +8,6 @@ export default function OathSection() {
         aria-hidden
         className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.12),transparent_60%)]"
       />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.06] bg-[url('/ui/background/background-texture.png')] bg-repeat" />
 
       <div className="relative mx-auto max-w-4xl px-6">
         <div className="relative border border-[var(--color-gold)]/30 bg-gradient-to-b from-[#1a1714] to-[#100f0d] p-12 md:p-20">

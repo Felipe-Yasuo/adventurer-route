@@ -39,7 +39,6 @@ const ENTRIES = [
 export default function CodexSection() {
   return (
     <section id="codex" className="relative bg-[#100f0d] py-32">
-      <div className="pointer-events-none absolute inset-0 opacity-[0.04] bg-[url('/ui/background/background-texture.png')] bg-repeat" />
 
       <div className="relative mx-auto max-w-7xl px-6">
         <div className="grid grid-cols-12 gap-6">

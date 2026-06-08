@@ -11,7 +11,6 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-[#100f0d]/55" />
       <div className="absolute inset-0 bg-gradient-to-b from-[#100f0d]/90 via-[#100f0d]/30 to-[#100f0d]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(212,175,55,0.22),transparent_55%)]" />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.08] mix-blend-overlay bg-[url('/ui/background/background-texture.png')] bg-repeat" />
 
       <CornerBracket className="absolute left-6 top-24 h-10 w-10 text-[var(--color-gold)]/60" />
       <CornerBracket

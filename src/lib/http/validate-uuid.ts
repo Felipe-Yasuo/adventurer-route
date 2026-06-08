@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { NextResponse } from "next/server";
 
-const uuidSchema = z.string().uuid("ID inválido.");
+const idSchema = z.string().min(1, "ID inválido.").max(128, "ID inválido.");
 
-export function validateUuid(id: string): { error: NextResponse } | { id: string } {
-  const parsed = uuidSchema.safeParse(id);
+export function validateId(id: string): { error: NextResponse } | { id: string } {
+  const parsed = idSchema.safeParse(id);
   if (!parsed.success) {
     return {
       error: NextResponse.json(
@@ -15,3 +15,6 @@ export function validateUuid(id: string): { error: NextResponse } | { id: string
   }
   return { id: parsed.data };
 }
+
+/** @deprecated use validateId */
+export const validateUuid = validateId;
